@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { AddUserModal } from "@/components/users/AddUserModal";
 import {
   Table,
   TableBody,
@@ -105,6 +106,7 @@ const statusColors: Record<string, string> = {
 export function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [users] = useState<User[]>(mockUsers);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -174,7 +176,7 @@ export function Users() {
                       className="pl-9 w-64"
                     />
                   </div>
-                  <Button>
+                  <Button onClick={() => setIsAddModalOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add User
                   </Button>
@@ -277,6 +279,8 @@ export function Users() {
               )}
             </CardContent>
           </Card>
+
+          <AddUserModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
         </main>
       </div>
     </div>
