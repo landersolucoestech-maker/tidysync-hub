@@ -14,26 +14,46 @@ import {
   ClipboardList,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Wallet,
   Calculator,
+  ArrowRightLeft,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   className?: string;
 }
 
-const navigationItems = [
+interface NavItem {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  href?: string;
+  submenu?: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[];
+}
+
+const navigationItems: NavItem[] = [
   { icon: Home, label: "Dashboard", href: "/" },
   { icon: Calendar, label: "Schedule", href: "/schedule" },
   { icon: Users, label: "Customers", href: "/customers" },
   { icon: Briefcase, label: "Jobs", href: "/jobs" },
   { icon: DollarSign, label: "Billing", href: "/billing" },
-  { icon: Calculator, label: "Accounting", href: "/accounting" },
+  { 
+    icon: Calculator, 
+    label: "Accounting",
+    submenu: [
+      { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
+    ]
+  },
   { icon: ClipboardList, label: "Estimates", href: "/estimates" },
   { icon: Phone, label: "Communications", href: "/communications" },
   { icon: Wallet, label: "Payroll", href: "/payroll" },
   { icon: BarChart3, label: "Reports", href: "/reports" },
-  
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 
@@ -41,6 +61,16 @@ export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isActiveRoute = (item: NavItem) => {
+    if (item.href) {
+      return location.pathname === item.href;
+    }
+    if (item.submenu) {
+      return item.submenu.some(sub => location.pathname === sub.href);
+    }
+    return false;
+  };
 
   return (
     <div
@@ -75,23 +105,70 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
-        {navigationItems.map((item) => (
-          <Button
-            key={item.label}
-            variant="ghost"
-            onClick={() => navigate(item.href)}
-            className={cn(
-              "w-full justify-start text-left h-12 transition-all duration-200",
-              "hover:bg-primary/10 hover:text-primary",
-              location.pathname === item.href && "bg-primary/10 text-primary border-r-2 border-primary",
-              isCollapsed ? "px-3" : "px-4"
-            )}
-          >
-            <item.icon className={cn("w-5 h-5", isCollapsed ? "mx-auto" : "mr-3")} />
-            {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-          </Button>
-        ))}
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+        {navigationItems.map((item) => {
+          if (item.submenu) {
+            return (
+              <DropdownMenu key={item.label}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start text-left h-12 transition-all duration-200",
+                      "hover:bg-primary/10 hover:text-primary",
+                      isActiveRoute(item) && "bg-primary/10 text-primary border-r-2 border-primary",
+                      isCollapsed ? "px-3" : "px-4"
+                    )}
+                  >
+                    <item.icon className={cn("w-5 h-5", isCollapsed ? "mx-auto" : "mr-3")} />
+                    {!isCollapsed && (
+                      <>
+                        <span className="text-sm font-medium flex-1">{item.label}</span>
+                        <ChevronDown className="w-4 h-4 ml-auto" />
+                      </>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  side="right" 
+                  align="start" 
+                  className="w-48 bg-background border border-border shadow-lg z-50"
+                >
+                  {item.submenu.map((subItem) => (
+                    <DropdownMenuItem
+                      key={subItem.href}
+                      onClick={() => navigate(subItem.href)}
+                      className={cn(
+                        "cursor-pointer",
+                        location.pathname === subItem.href && "bg-primary/10 text-primary"
+                      )}
+                    >
+                      <subItem.icon className="w-4 h-4 mr-2" />
+                      {subItem.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            );
+          }
+
+          return (
+            <Button
+              key={item.label}
+              variant="ghost"
+              onClick={() => item.href && navigate(item.href)}
+              className={cn(
+                "w-full justify-start text-left h-12 transition-all duration-200",
+                "hover:bg-primary/10 hover:text-primary",
+                location.pathname === item.href && "bg-primary/10 text-primary border-r-2 border-primary",
+                isCollapsed ? "px-3" : "px-4"
+              )}
+            >
+              <item.icon className={cn("w-5 h-5", isCollapsed ? "mx-auto" : "mr-3")} />
+              {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
+            </Button>
+          );
+        })}
       </nav>
 
       {/* Footer */}
