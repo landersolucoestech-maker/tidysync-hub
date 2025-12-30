@@ -12,7 +12,7 @@ import { Billing } from "./pages/Billing";
 import { Accounting } from "./pages/Accounting";
 import { Estimates } from "./pages/Estimates";
 import { Communications } from "./pages/Communications";
-
+import { Users } from "./pages/Users";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
 import { Integrations } from "./pages/Integrations";
@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/payroll" element={<Payroll />} />
+            <Route path="/users" element={<Users />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

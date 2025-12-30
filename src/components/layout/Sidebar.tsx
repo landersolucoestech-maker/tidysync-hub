@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Wallet,
   Calculator,
+  UserCog,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -33,6 +34,7 @@ const navigationItems = [
   { icon: Phone, label: "Communications", href: "/communications" },
   { icon: Wallet, label: "Payroll", href: "/payroll" },
   { icon: BarChart3, label: "Reports", href: "/reports" },
+  { icon: UserCog, label: "Users", href: "/users" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
 
