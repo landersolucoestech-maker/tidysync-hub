@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,11 +19,6 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
-interface AddUserModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
 type Country = "us" | "br";
 type ProfileType =
   | "driver"
@@ -39,104 +34,143 @@ type PaymentMethod =
   | "venmo";
 type PixKeyType = "cpf" | "email" | "phone" | "random";
 
-export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
-  const [country, setCountry] = useState<Country | "">("");
+interface AddUserModalProps {
+  open: boolean;
+  country: Country | null;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function AddUserModal({ open, country, onOpenChange }: AddUserModalProps) {
   const [profileType, setProfileType] = useState<ProfileType | "">("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "">("");
   const [pixKeyType, setPixKeyType] = useState<PixKeyType | "">("");
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    // Frontend-only: apenas fecha o modal por enquanto
-    onOpenChange(false);
-  };
-
-  const resetForm = () => {
-    setCountry("");
+  useEffect(() => {
+    // sempre que trocar país ou abrir/fechar, zera selects dependentes
     setProfileType("");
     setPaymentMethod("");
     setPixKeyType("");
-  };
+  }, [country, open]);
 
-  const handleClose = (isOpen: boolean) => {
-    if (!isOpen) resetForm();
-    onOpenChange(isOpen);
-  };
-
-  const formTitle =
+  const title =
     country === "us"
       ? "Formulário – Funcionários / Prestadores dos EUA"
       : country === "br"
         ? "Formulário – Funcionários / Prestadores do Brasil"
-        : "Cadastro de usuários / equipe";
+        : "Cadastro de users / equipe";
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    // Frontend-only: por enquanto apenas fecha
+    onOpenChange(false);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle>{formTitle}</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <ScrollArea className="max-h-[calc(90vh-140px)] px-6">
             <div className="space-y-6 pb-6">
-              {/* País */}
-              <div className="space-y-2">
-                <Label>País *</Label>
-                <Select
-                  value={country}
-                  onValueChange={(val) => setCountry(val as Country)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="us">United States</SelectItem>
-                    <SelectItem value="br">Brazil</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {country && (
+              {!country ? (
+                <div className="text-sm text-muted-foreground">
+                  Selecione "United States" ou "Brazil" no botão "Add User".
+                </div>
+              ) : (
                 <>
-                  <Separator />
-
-                  {/* Dados pessoais */}
+                  {/* Campos comuns (conforme o script) */}
                   <section className="space-y-4">
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                      Dados pessoais
-                    </h3>
-
                     <div className="grid grid-cols-2 gap-4">
                       <div className="col-span-2 space-y-2">
-                        <Label htmlFor="fullName">Nome completo *</Label>
-                        <Input
-                          id="fullName"
-                          placeholder="Digite o nome completo"
-                          required
-                        />
+                        <Label htmlFor="fullName">Nome completo</Label>
+                        <Input id="fullName" placeholder="Nome completo" required />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="birthDate">Data de nascimento *</Label>
+                        <Label htmlFor="birthDate">Data de nascimento</Label>
                         <Input id="birthDate" type="date" required />
                       </div>
+                    </div>
+                  </section>
 
+                  <Separator />
+
+                  <section className="space-y-4">
+                    <h3 className="text-sm font-semibold">Endereço completo</h3>
+
+                    {/* EUA: Rua, Cidade, Estado, ZIP Code. */}
+                    {country === "us" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2 space-y-2">
+                          <Label htmlFor="usStreet">Rua</Label>
+                          <Input id="usStreet" placeholder="Rua" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="usCity">Cidade</Label>
+                          <Input id="usCity" placeholder="Cidade" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="usState">Estado</Label>
+                          <Input id="usState" placeholder="Estado" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="usZip">ZIP Code</Label>
+                          <Input id="usZip" placeholder="ZIP Code" required />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BR: Rua, Número, Bairro, Cidade, Estado, CEP */}
+                    {country === "br" && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2 space-y-2">
+                          <Label htmlFor="brStreet">Rua</Label>
+                          <Input id="brStreet" placeholder="Rua" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brNumber">Número</Label>
+                          <Input id="brNumber" placeholder="Número" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brNeighborhood">Bairro</Label>
+                          <Input id="brNeighborhood" placeholder="Bairro" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brCity">Cidade</Label>
+                          <Input id="brCity" placeholder="Cidade" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brState">Estado</Label>
+                          <Input id="brState" placeholder="Estado" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="brCep">CEP</Label>
+                          <Input id="brCep" placeholder="CEP" required />
+                        </div>
+                      </div>
+                    )}
+                  </section>
+
+                  <Separator />
+
+                  <section className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Número de telefone *</Label>
+                        <Label htmlFor="phone">Número de telefone</Label>
                         <Input
                           id="phone"
                           placeholder={
-                            country === "us"
-                              ? "(555) 123-4567"
-                              : "(11) 99999-9999"
+                            country === "us" ? "(555) 123-4567" : "(11) 99999-9999"
                           }
                           required
                         />
                       </div>
 
-                      <div className="col-span-2 space-y-2">
-                        <Label htmlFor="email">E-mail *</Label>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">E-mail</Label>
                         <Input
                           id="email"
                           type="email"
@@ -147,32 +181,20 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 
                       {country === "us" && (
                         <div className="col-span-2 space-y-2">
-                          <Label htmlFor="ssn">SSN/ITIN *</Label>
-                          <Input
-                            id="ssn"
-                            placeholder="XXX-XX-XXXX"
-                            required
-                          />
+                          <Label htmlFor="ssn">SSN/ITIN</Label>
+                          <Input id="ssn" placeholder="SSN/ITIN" required />
                         </div>
                       )}
 
                       {country === "br" && (
                         <>
                           <div className="space-y-2">
-                            <Label htmlFor="cpf">CPF *</Label>
-                            <Input
-                              id="cpf"
-                              placeholder="000.000.000-00"
-                              required
-                            />
+                            <Label htmlFor="cpf">CPF</Label>
+                            <Input id="cpf" placeholder="CPF" required />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="rg">RG *</Label>
-                            <Input
-                              id="rg"
-                              placeholder="00.000.000-0"
-                              required
-                            />
+                            <Label htmlFor="rg">RG</Label>
+                            <Input id="rg" placeholder="RG" required />
                           </div>
                         </>
                       )}
@@ -181,80 +203,14 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 
                   <Separator />
 
-                  {/* Endereço completo */}
                   <section className="space-y-4">
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                      Endereço completo
-                    </h3>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="col-span-2 space-y-2">
-                        <Label htmlFor="street">Rua *</Label>
-                        <Input
-                          id="street"
-                          placeholder="Rua"
-                          required
-                        />
-                      </div>
-
-                      {country === "br" && (
-                        <>
-                          <div className="space-y-2">
-                            <Label htmlFor="number">Número *</Label>
-                            <Input id="number" placeholder="123" required />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="neighborhood">Bairro *</Label>
-                            <Input
-                              id="neighborhood"
-                              placeholder="Bairro"
-                              required
-                            />
-                          </div>
-                        </>
-                      )}
-
-                      <div className="space-y-2">
-                        <Label htmlFor="city">Cidade *</Label>
-                        <Input id="city" placeholder="Cidade" required />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="state">Estado *</Label>
-                        <Input
-                          id="state"
-                          placeholder={country === "us" ? "CA" : "SP"}
-                          required
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="zipCode">
-                          {country === "us" ? "ZIP Code" : "CEP"} *
-                        </Label>
-                        <Input
-                          id="zipCode"
-                          placeholder={country === "us" ? "12345" : "00000-000"}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </section>
-
-                  <Separator />
-
-                  {/* Documentos pessoais */}
-                  <section className="space-y-4">
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                      Documentos pessoais
-                    </h3>
-
+                    <h3 className="text-sm font-semibold">Documentos pessoais</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {country === "br" && (
                         <div className="space-y-2">
-                          <Label htmlFor="personalDocs">Documentos pessoais (PDF)</Label>
+                          <Label htmlFor="brPersonalDocs">Documentos pessoais (PDF)</Label>
                           <Input
-                            id="personalDocs"
+                            id="brPersonalDocs"
                             type="file"
                             accept="application/pdf,.pdf"
                           />
@@ -272,9 +228,9 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 
                       {country === "us" && (
                         <div className="space-y-2">
-                          <Label htmlFor="w9Form">Formulário W-9 (PDF)</Label>
+                          <Label htmlFor="w9">Formulário W-9 (PDF)</Label>
                           <Input
-                            id="w9Form"
+                            id="w9"
                             type="file"
                             accept="application/pdf,.pdf"
                           />
@@ -285,20 +241,15 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 
                   <Separator />
 
-                  {/* Trabalho */}
                   <section className="space-y-4">
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                      Trabalho
-                    </h3>
-
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="startDate">Data de início do trabalho *</Label>
+                        <Label htmlFor="startDate">Data de início do trabalho</Label>
                         <Input id="startDate" type="date" required />
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Tipo de perfil *</Label>
+                        <Label>Tipo de perfil</Label>
                         <Select
                           value={profileType}
                           onValueChange={(val) => setProfileType(val as ProfileType)}
@@ -321,33 +272,30 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
 
                   <Separator />
 
-                  {/* Dados bancários */}
                   <section className="space-y-4">
-                    <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                      Dados bancários
-                    </h3>
+                    <h3 className="text-sm font-semibold">Dados bancários</h3>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="bankName">
-                          {country === "us" ? "Nome do banco" : "Banco"} *
+                          {country === "us" ? "Nome do banco" : "Banco"}
                         </Label>
                         <Input id="bankName" placeholder="Banco" required />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="branch">Agência *</Label>
-                        <Input id="branch" placeholder="Agência" required />
+                        <Label htmlFor="bankBranch">Agência</Label>
+                        <Input id="bankBranch" placeholder="Agência" required />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="accountNumber">Número da conta *</Label>
-                        <Input id="accountNumber" placeholder="Conta" required />
+                        <Label htmlFor="bankAccount">Número da conta</Label>
+                        <Input id="bankAccount" placeholder="Conta" required />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="accountHolder">Titular da conta *</Label>
-                        <Input id="accountHolder" placeholder="Titular" required />
+                        <Label htmlFor="bankHolder">Titular da conta</Label>
+                        <Input id="bankHolder" placeholder="Titular" required />
                       </div>
 
                       {country === "br" && (
@@ -359,7 +307,7 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
                               onValueChange={(val) => setPixKeyType(val as PixKeyType)}
                             >
                               <SelectTrigger>
-                                <SelectValue placeholder="Tipo de chave" />
+                                <SelectValue placeholder="Selecione" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="cpf">CPF</SelectItem>
@@ -370,23 +318,23 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
                             </Select>
                           </div>
 
-                          {pixKeyType && (
-                            <div className="space-y-2">
-                              <Label htmlFor="pixKey">Valor da chave</Label>
-                              <Input
-                                id="pixKey"
-                                placeholder={
-                                  pixKeyType === "cpf"
-                                    ? "000.000.000-00"
-                                    : pixKeyType === "email"
-                                      ? "email@exemplo.com"
-                                      : pixKeyType === "phone"
-                                        ? "(11) 99999-9999"
-                                        : "Chave aleatória"
-                                }
-                              />
-                            </div>
-                          )}
+                          <div className="space-y-2">
+                            <Label htmlFor="pixKey">Valor da chave PIX</Label>
+                            <Input
+                              id="pixKey"
+                              placeholder={
+                                pixKeyType === "cpf"
+                                  ? "CPF"
+                                  : pixKeyType === "email"
+                                    ? "E-mail"
+                                    : pixKeyType === "phone"
+                                      ? "Telefone"
+                                      : pixKeyType === "random"
+                                        ? "Chave aleatória"
+                                        : ""
+                              }
+                            />
+                          </div>
                         </>
                       )}
                     </div>
@@ -396,15 +344,14 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
                     <>
                       <Separator />
 
-                      {/* Métodos de pagamento */}
                       <section className="space-y-4">
-                        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                        <h3 className="text-sm font-semibold">
                           Métodos de pagamento (seleção única)
                         </h3>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label>Método *</Label>
+                            <Label>Método</Label>
                             <Select
                               value={paymentMethod}
                               onValueChange={(val) =>
@@ -427,21 +374,10 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
                             </Select>
                           </div>
 
-                          {(paymentMethod === "zelle" || paymentMethod === "venmo") && (
+                          {paymentMethod === "zelle" && (
                             <div className="space-y-2">
-                              <Label htmlFor="paymentKey">
-                                {paymentMethod === "zelle"
-                                  ? "Zelle (key / e-mail / phone)"
-                                  : "Venmo (username)"}
-                              </Label>
-                              <Input
-                                id="paymentKey"
-                                placeholder={
-                                  paymentMethod === "zelle"
-                                    ? "Key / e-mail / phone"
-                                    : "@username"
-                                }
-                              />
+                              <Label htmlFor="zelleKey">Zelle (key / e-mail / phone)</Label>
+                              <Input id="zelleKey" placeholder="key / e-mail / phone" />
                             </div>
                           )}
 
@@ -449,34 +385,23 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
                             <Label htmlFor="paymentValue">
                               Valor do pagamento (fixo ou por serviço)
                             </Label>
-                            <Input
-                              id="paymentValue"
-                              placeholder="Ex: $100 fixo ou $50 por serviço"
-                            />
+                            <Input id="paymentValue" placeholder="Valor" />
                           </div>
 
                           <div className="space-y-2">
                             <Label htmlFor="shoeSize">Tamanho do calçado</Label>
-                            <Input id="shoeSize" placeholder="Ex: 10" />
+                            <Input id="shoeSize" placeholder="Tamanho" />
                           </div>
                         </div>
                       </section>
 
                       <Separator />
 
-                      {/* Observações */}
                       <section className="space-y-4">
-                        <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-                          Observações
-                        </h3>
-
+                        <h3 className="text-sm font-semibold">Observações</h3>
                         <div className="space-y-2">
                           <Label htmlFor="notes">Observações (campo livre)</Label>
-                          <Textarea
-                            id="notes"
-                            placeholder="Digite observações..."
-                            rows={3}
-                          />
+                          <Textarea id="notes" rows={3} placeholder="Observações" />
                         </div>
                       </section>
                     </>
@@ -487,11 +412,7 @@ export function AddUserModal({ open, onOpenChange }: AddUserModalProps) {
           </ScrollArea>
 
           <div className="flex justify-end gap-3 p-6 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleClose(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
             <Button type="submit" disabled={!country}>

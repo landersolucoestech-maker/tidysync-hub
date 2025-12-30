@@ -107,6 +107,12 @@ export function Users() {
   const [searchQuery, setSearchQuery] = useState("");
   const [users] = useState<User[]>(mockUsers);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [addUserCountry, setAddUserCountry] = useState<"us" | "br" | null>(null);
+
+  const handleAddUserOpenChange = (open: boolean) => {
+    setIsAddModalOpen(open);
+    if (!open) setAddUserCountry(null);
+  };
 
   const filteredUsers = users.filter(
     (user) =>
@@ -176,10 +182,32 @@ export function Users() {
                       className="pl-9 w-64"
                     />
                   </div>
-                  <Button onClick={() => setIsAddModalOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add User
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add User
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          setAddUserCountry("us");
+                          setIsAddModalOpen(true);
+                        }}
+                      >
+                        United States
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => {
+                          setAddUserCountry("br");
+                          setIsAddModalOpen(true);
+                        }}
+                      >
+                        Brazil
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </CardHeader>
@@ -280,7 +308,11 @@ export function Users() {
             </CardContent>
           </Card>
 
-          <AddUserModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
+          <AddUserModal
+            open={isAddModalOpen}
+            country={addUserCountry}
+            onOpenChange={handleAddUserOpenChange}
+          />
         </main>
       </div>
     </div>
