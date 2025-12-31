@@ -42,12 +42,12 @@ const navigationItems: NavItem[] = [
   { icon: Calendar, label: "Schedule", href: "/schedule" },
   { icon: Users, label: "Customers", href: "/customers" },
   { icon: Briefcase, label: "Jobs", href: "/jobs" },
-  { icon: DollarSign, label: "Billing", href: "/billing" },
   { 
     icon: Calculator, 
     label: "Accounting",
     submenu: [
       { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
+      { label: "Invoices", href: "/billing", icon: DollarSign },
     ]
   },
   { icon: ClipboardList, label: "Estimates", href: "/estimates" },
