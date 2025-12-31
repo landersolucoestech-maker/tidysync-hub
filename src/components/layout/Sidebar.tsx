@@ -48,6 +48,7 @@ const navigationItems: NavItem[] = [
       { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
       { label: "Invoices", href: "/invoices", icon: DollarSign },
       { label: "Estimates", href: "/estimates", icon: ClipboardList },
+      { label: "Regras", href: "/rules", icon: Settings },
     ]
   },
   { icon: Phone, label: "Communications", href: "/communications" },
