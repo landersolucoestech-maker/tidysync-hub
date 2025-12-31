@@ -12,7 +12,7 @@ import { Billing } from "./pages/Billing";
 import { Accounting } from "./pages/Accounting";
 import { Estimates } from "./pages/Estimates";
 import { Communications } from "./pages/Communications";
-
+import { Rules } from "./pages/Rules";
 import { Reports } from "./pages/Reports";
 import { Settings } from "./pages/Settings";
 import { Integrations } from "./pages/Integrations";
@@ -35,7 +35,7 @@ const App = () => (
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/invoices" element={<Billing />} />
             <Route path="/accounting" element={<Accounting />} />
-            <Route path="/estimates" element={<Estimates />} />
+            <Route path="/rules" element={<Rules />} />
             <Route path="/communications" element={<Communications />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
