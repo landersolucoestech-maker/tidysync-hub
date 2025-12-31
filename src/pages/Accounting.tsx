@@ -124,6 +124,34 @@ const transactionsData = [
   },
 ];
 
+// Mock rules data
+const initialRulesData = [
+  {
+    id: "1",
+    name: "Combustível",
+    condition: "Contém 'posto' ou 'combustível'",
+    category: "Transporte",
+    type: "despesa",
+    active: true,
+  },
+  {
+    id: "2",
+    name: "Salários",
+    condition: "Contém 'salário' ou 'folha'",
+    category: "Folha de Pagamento",
+    type: "despesa",
+    active: true,
+  },
+  {
+    id: "3",
+    name: "Serviços de Limpeza",
+    condition: "Contém 'limpeza' ou 'cleaning'",
+    category: "Receita de Serviços",
+    type: "receita",
+    active: true,
+  },
+];
+
 export function Accounting() {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -133,6 +161,15 @@ export function Accounting() {
   const [selectedTransaction, setSelectedTransaction] = useState<typeof transactionsData[0] | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRulesModal, setShowRulesModal] = useState(false);
+  const [rules, setRules] = useState(initialRulesData);
+  const [showNewRuleModal, setShowNewRuleModal] = useState(false);
+  const [newRule, setNewRule] = useState({
+    name: "",
+    condition: "",
+    category: "",
+    type: "despesa",
+  });
 
   // Calculate KPIs
   const totalReceita = transactionsData
@@ -169,6 +206,31 @@ export function Accounting() {
 
   const handleDelete = (id: string) => {
     console.log("Delete transaction:", id);
+  };
+
+  const handleAddRule = () => {
+    if (newRule.name && newRule.condition && newRule.category) {
+      setRules([
+        ...rules,
+        {
+          id: String(rules.length + 1),
+          ...newRule,
+          active: true,
+        },
+      ]);
+      setNewRule({ name: "", condition: "", category: "", type: "despesa" });
+      setShowNewRuleModal(false);
+    }
+  };
+
+  const handleToggleRule = (id: string) => {
+    setRules(rules.map((rule) =>
+      rule.id === id ? { ...rule, active: !rule.active } : rule
+    ));
+  };
+
+  const handleDeleteRule = (id: string) => {
+    setRules(rules.filter((rule) => rule.id !== id));
   };
 
   const formatCurrency = (value: number) => {
@@ -216,7 +278,7 @@ export function Accounting() {
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setShowRulesModal(true)}>
                 <Settings2 className="w-4 h-4 mr-2" />
                 Regras
               </Button>
@@ -550,6 +612,145 @@ export function Accounting() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rules Modal */}
+      <Dialog open={showRulesModal} onOpenChange={setShowRulesModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Regras de Categorização</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">
+                Configure regras para categorizar transações automaticamente
+              </p>
+              <Button size="sm" onClick={() => setShowNewRuleModal(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Regra
+              </Button>
+            </div>
+            
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Condição</TableHead>
+                  <TableHead>Categoria</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rules.map((rule) => (
+                  <TableRow key={rule.id}>
+                    <TableCell className="font-medium">{rule.name}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{rule.condition}</TableCell>
+                    <TableCell>{rule.category}</TableCell>
+                    <TableCell>
+                      <Badge variant={rule.type === "receita" ? "default" : "secondary"}>
+                        {rule.type === "receita" ? "Receita" : "Despesa"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        className={rule.active 
+                          ? "bg-green-500/20 text-green-600 cursor-pointer" 
+                          : "bg-gray-500/20 text-gray-600 cursor-pointer"
+                        }
+                        onClick={() => handleToggleRule(rule.id)}
+                      >
+                        {rule.active ? "Ativa" : "Inativa"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-600 hover:text-red-700"
+                        onClick={() => handleDeleteRule(rule.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Rule Modal */}
+      <Dialog open={showNewRuleModal} onOpenChange={setShowNewRuleModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nova Regra</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Nome da Regra</label>
+              <Input
+                placeholder="Ex: Combustível"
+                value={newRule.name}
+                onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Condição</label>
+              <Input
+                placeholder="Ex: Contém 'posto' ou 'combustível'"
+                value={newRule.condition}
+                onChange={(e) => setNewRule({ ...newRule, condition: e.target.value })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Descreva quando esta regra deve ser aplicada
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tipo</label>
+              <Select
+                value={newRule.type}
+                onValueChange={(value) => setNewRule({ ...newRule, type: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border">
+                  <SelectItem value="receita">Receita</SelectItem>
+                  <SelectItem value="despesa">Despesa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Categoria</label>
+              <Select
+                value={newRule.category}
+                onValueChange={(value) => setNewRule({ ...newRule, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border">
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setShowNewRuleModal(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleAddRule}>
+                Salvar Regra
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
