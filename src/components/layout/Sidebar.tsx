@@ -20,11 +20,10 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface SidebarProps {
   className?: string;
@@ -47,7 +46,7 @@ const navigationItems: NavItem[] = [
     label: "Accounting",
     submenu: [
       { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
-      { label: "Invoices", href: "/billing", icon: DollarSign },
+      { label: "Invoices", href: "/invoices", icon: DollarSign },
     ]
   },
   { icon: ClipboardList, label: "Estimates", href: "/estimates" },
@@ -59,6 +58,7 @@ const navigationItems: NavItem[] = [
 
 export function Sidebar({ className }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>("Accounting");
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -108,9 +108,15 @@ export function Sidebar({ className }: SidebarProps) {
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigationItems.map((item) => {
           if (item.submenu) {
+            const isOpen = openSubmenu === item.label;
+            
             return (
-              <DropdownMenu key={item.label}>
-                <DropdownMenuTrigger asChild>
+              <Collapsible
+                key={item.label}
+                open={isOpen}
+                onOpenChange={(open) => setOpenSubmenu(open ? item.label : null)}
+              >
+                <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
                     className={cn(
@@ -124,31 +130,34 @@ export function Sidebar({ className }: SidebarProps) {
                     {!isCollapsed && (
                       <>
                         <span className="text-sm font-medium flex-1">{item.label}</span>
-                        <ChevronDown className="w-4 h-4 ml-auto" />
+                        <ChevronDown className={cn(
+                          "w-4 h-4 ml-auto transition-transform duration-200",
+                          isOpen && "rotate-180"
+                        )} />
                       </>
                     )}
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  side="right" 
-                  align="start" 
-                  className="w-48 bg-background border border-border shadow-lg z-50"
-                >
-                  {item.submenu.map((subItem) => (
-                    <DropdownMenuItem
-                      key={subItem.href}
-                      onClick={() => navigate(subItem.href)}
-                      className={cn(
-                        "cursor-pointer",
-                        location.pathname === subItem.href && "bg-primary/10 text-primary"
-                      )}
-                    >
-                      <subItem.icon className="w-4 h-4 mr-2" />
-                      {subItem.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </CollapsibleTrigger>
+                {!isCollapsed && (
+                  <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                    {item.submenu.map((subItem) => (
+                      <Button
+                        key={subItem.href}
+                        variant="ghost"
+                        onClick={() => navigate(subItem.href)}
+                        className={cn(
+                          "w-full justify-start text-left h-10 transition-all duration-200",
+                          "hover:bg-primary/10 hover:text-primary",
+                          location.pathname === subItem.href && "bg-primary/10 text-primary"
+                        )}
+                      >
+                        <subItem.icon className="w-4 h-4 mr-3" />
+                        <span className="text-sm">{subItem.label}</span>
+                      </Button>
+                    ))}
+                  </CollapsibleContent>
+                )}
+              </Collapsible>
             );
           }
 
