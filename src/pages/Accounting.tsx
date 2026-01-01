@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { PageHeader, KPICard, SearchInput, FilterSelect, ActionDropdown } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,19 +22,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Search,
   Upload,
   Download,
   Settings2,
@@ -43,10 +36,6 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash2,
 } from "lucide-react";
 
 // Mock transactions data
@@ -125,6 +114,18 @@ const transactionsData = [
   },
 ];
 
+const typeOptions = [
+  { value: "all", label: "Todos os Tipos" },
+  { value: "receita", label: "Receita" },
+  { value: "despesa", label: "Despesa" },
+];
+
+const statusOptions = [
+  { value: "all", label: "Todos Status" },
+  { value: "conciliado", label: "Conciliado" },
+  { value: "pendente", label: "Pendente" },
+];
+
 export function Accounting() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -149,6 +150,10 @@ export function Accounting() {
 
   // Get unique categories
   const categories = [...new Set(transactionsData.map((t) => t.category))];
+  const categoryOptions = [
+    { value: "all", label: "Todas Categorias" },
+    ...categories.map((cat) => ({ value: cat, label: cat })),
+  ];
 
   // Filter transactions
   const filteredTransactions = transactionsData.filter((t) => {
@@ -173,7 +178,6 @@ export function Accounting() {
     console.log("Delete transaction:", id);
   };
 
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -193,207 +197,113 @@ export function Accounting() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
+    <PageLayout>
+      {/* Page Header */}
+      <PageHeader
+        title="Accounting"
+        description="Manage finances, invoices, receitas e despesas"
+        actions={
+          <>
+            <Button variant="outline" size="sm">
+              <Upload className="w-4 h-4 mr-2" />
+              Importar OFX
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Exportar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate("/rules")}>
+              <Settings2 className="w-4 h-4 mr-2" />
+              Regras
+            </Button>
+            <Button variant="outline" size="sm">
+              <Link2 className="w-4 h-4 mr-2" />
+              Integração Bancária
+            </Button>
+            <Button onClick={() => setShowNewTransactionModal(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Nova Transação
+            </Button>
+          </>
+        }
+      />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Page Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Accounting</h1>
-              <p className="text-muted-foreground">
-                Manage finances, invoices, receitas e despesas
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                <Upload className="w-4 h-4 mr-2" />
-                Importar OFX
-              </Button>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Exportar
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate("/rules")}>
-                <Settings2 className="w-4 h-4 mr-2" />
-                Regras
-              </Button>
-              <Button variant="outline" size="sm">
-                <Link2 className="w-4 h-4 mr-2" />
-                Integração Bancária
-              </Button>
-              <Button onClick={() => setShowNewTransactionModal(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Nova Transação
-              </Button>
-            </div>
-          </div>
-
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Receita Total</p>
-                    <p className="text-2xl font-bold text-green-600">
-                      {formatCurrency(totalReceita)}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Despesas Totais</p>
-                    <p className="text-2xl font-bold text-red-600">
-                      {formatCurrency(totalDespesas)}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                    <TrendingDown className="w-6 h-6 text-red-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Lucro/Prejuízo</p>
-                    <p className={`text-2xl font-bold ${lucroPrejuizo >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {formatCurrency(lucroPrejuizo)}
-                    </p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-full ${lucroPrejuizo >= 0 ? "bg-green-500/20" : "bg-red-500/20"} flex items-center justify-center`}>
-                    <DollarSign className={`w-6 h-6 ${lucroPrejuizo >= 0 ? "text-green-600" : "text-red-600"}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Buscar transações..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Todos os Tipos" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
-                <SelectItem value="all">Todos os Tipos</SelectItem>
-                <SelectItem value="receita">Receita</SelectItem>
-                <SelectItem value="despesa">Despesa</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Todos Status" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
-                <SelectItem value="all">Todos Status</SelectItem>
-                <SelectItem value="conciliado">Conciliado</SelectItem>
-                <SelectItem value="pendente">Pendente</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Todas Categorias" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
-                <SelectItem value="all">Todas Categorias</SelectItem>
-                {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Transactions Table */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTransactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
-                      <TableCell className="font-medium">{transaction.name}</TableCell>
-                      <TableCell>
-                        {new Date(transaction.date).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>{transaction.category}</TableCell>
-                      <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                      <TableCell className={`text-right font-medium ${transaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
-                        {formatCurrency(transaction.amount)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-background border border-border">
-                            <DropdownMenuItem onClick={() => handleView(transaction)}>
-                              <Eye className="w-4 h-4 mr-2" />
-                              Ver
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(transaction)}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(transaction.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </main>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <KPICard
+          title="Receita Total"
+          value={formatCurrency(totalReceita)}
+          valueClassName="text-green-600"
+          iconClassName="bg-green-500/20"
+          icon={<TrendingUp className="w-6 h-6 text-green-600" />}
+        />
+        <KPICard
+          title="Despesas Totais"
+          value={formatCurrency(totalDespesas)}
+          valueClassName="text-red-600"
+          iconClassName="bg-red-500/20"
+          icon={<TrendingDown className="w-6 h-6 text-red-600" />}
+        />
+        <KPICard
+          title="Lucro/Prejuízo"
+          value={formatCurrency(lucroPrejuizo)}
+          valueClassName={lucroPrejuizo >= 0 ? "text-green-600" : "text-red-600"}
+          iconClassName={lucroPrejuizo >= 0 ? "bg-green-500/20" : "bg-red-500/20"}
+          icon={<DollarSign className={`w-6 h-6 ${lucroPrejuizo >= 0 ? "text-green-600" : "text-red-600"}`} />}
+        />
       </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <SearchInput
+          placeholder="Buscar transações..."
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+        <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
+        <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
+        <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-full md:w-[200px]" />
+      </div>
+
+      {/* Transactions Table */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead>Nome</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTransactions.map((transaction) => (
+                <TableRow key={transaction.id}>
+                  <TableCell className="font-medium">{transaction.name}</TableCell>
+                  <TableCell>
+                    {new Date(transaction.date).toLocaleDateString("pt-BR")}
+                  </TableCell>
+                  <TableCell>{transaction.category}</TableCell>
+                  <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                  <TableCell className={`text-right font-medium ${transaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    {formatCurrency(transaction.amount)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <ActionDropdown
+                      onView={() => handleView(transaction)}
+                      onEdit={() => handleEdit(transaction)}
+                      onDelete={() => handleDelete(transaction.id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* New Transaction Modal */}
       <Dialog open={showNewTransactionModal} onOpenChange={setShowNewTransactionModal}>
@@ -555,6 +465,6 @@ export function Accounting() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageLayout>
   );
 }

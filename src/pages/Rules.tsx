@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
-import { Sidebar } from "@/components/layout/Sidebar";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { PageHeader, KPICard, SearchInput, FilterSelect, ActionDropdown } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,29 +22,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  Search,
   Plus,
-  MoreHorizontal,
-  Eye,
-  Pencil,
-  Trash2,
-  ArrowLeft,
   Settings2,
   CheckCircle,
   XCircle,
-  Zap,
 } from "lucide-react";
 
 // Mock rules data
@@ -97,8 +83,19 @@ const initialRulesData = [
   },
 ];
 
+const typeOptions = [
+  { value: "all", label: "Todos os Tipos" },
+  { value: "receita", label: "Receita" },
+  { value: "despesa", label: "Despesa" },
+];
+
+const statusOptions = [
+  { value: "all", label: "Todos Status" },
+  { value: "active", label: "Ativas" },
+  { value: "inactive", label: "Inativas" },
+];
+
 export function Rules() {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -156,176 +153,97 @@ export function Rules() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar />
+    <PageLayout>
+      {/* Page Header */}
+      <PageHeader
+        title="Regras de Categorização"
+        description="Gerencie regras automáticas para categorizar transações"
+        backTo="/accounting"
+        actions={
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Regra
+          </Button>
+        }
+      />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Page Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate("/accounting")}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">Regras de Categorização</h1>
-                <p className="text-muted-foreground">
-                  Gerencie regras automáticas para categorizar transações
-                </p>
-              </div>
-            </div>
-
-            <Button onClick={() => setShowCreateModal(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Regra
-            </Button>
-          </div>
-
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total de Regras</p>
-                    <p className="text-2xl font-bold">{totalRules}</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Settings2 className="w-6 h-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Regras Ativas</p>
-                    <p className="text-2xl font-bold text-green-600">{activeRules}</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Regras Inativas</p>
-                    <p className="text-2xl font-bold text-muted-foreground">{inactiveRules}</p>
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                    <XCircle className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Buscar regras..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Todos os Tipos" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
-                <SelectItem value="all">Todos os Tipos</SelectItem>
-                <SelectItem value="receita">Receita</SelectItem>
-                <SelectItem value="despesa">Despesa</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Todos Status" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border border-border">
-                <SelectItem value="all">Todos Status</SelectItem>
-                <SelectItem value="active">Ativas</SelectItem>
-                <SelectItem value="inactive">Inativas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Rules Table */}
-          <Card>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Condição</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRules.map((rule) => (
-                    <TableRow key={rule.id}>
-                      <TableCell className="font-medium">{rule.name}</TableCell>
-                      <TableCell className="text-muted-foreground max-w-xs truncate">
-                        {rule.condition}
-                      </TableCell>
-                      <TableCell>{rule.category}</TableCell>
-                      <TableCell>{getTypeBadge(rule.type)}</TableCell>
-                      <TableCell>
-                        <Switch
-                          checked={rule.isActive}
-                          onCheckedChange={() => handleToggleStatus(rule.id)}
-                        />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-background border border-border">
-                            <DropdownMenuItem onClick={() => handleView(rule)}>
-                              <Eye className="w-4 h-4 mr-2" />
-                              Ver
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEdit(rule)}>
-                              <Pencil className="w-4 h-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDelete(rule.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </main>
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <KPICard
+          title="Total de Regras"
+          value={totalRules}
+          iconClassName="bg-primary/20"
+          icon={<Settings2 className="w-6 h-6 text-primary" />}
+        />
+        <KPICard
+          title="Regras Ativas"
+          value={activeRules}
+          valueClassName="text-green-600"
+          iconClassName="bg-green-500/20"
+          icon={<CheckCircle className="w-6 h-6 text-green-600" />}
+        />
+        <KPICard
+          title="Regras Inativas"
+          value={inactiveRules}
+          valueClassName="text-muted-foreground"
+          iconClassName="bg-muted"
+          icon={<XCircle className="w-6 h-6 text-muted-foreground" />}
+        />
       </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <SearchInput
+          placeholder="Buscar regras..."
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+        <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
+        <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
+      </div>
+
+      {/* Rules Table */}
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead>Nome</TableHead>
+                <TableHead>Condição</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Tipo</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRules.map((rule) => (
+                <TableRow key={rule.id}>
+                  <TableCell className="font-medium">{rule.name}</TableCell>
+                  <TableCell className="text-muted-foreground max-w-xs truncate">
+                    {rule.condition}
+                  </TableCell>
+                  <TableCell>{rule.category}</TableCell>
+                  <TableCell>{getTypeBadge(rule.type)}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={rule.isActive}
+                      onCheckedChange={() => handleToggleStatus(rule.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <ActionDropdown
+                      onView={() => handleView(rule)}
+                      onEdit={() => handleEdit(rule)}
+                      onDelete={() => handleDelete(rule.id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Create Rule Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
@@ -460,6 +378,6 @@ export function Rules() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageLayout>
   );
 }
