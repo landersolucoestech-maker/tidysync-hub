@@ -48,10 +48,10 @@ const navigationItems: NavItem[] = [
       { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
       { label: "Invoices", href: "/invoices", icon: DollarSign },
       { label: "Estimates", href: "/estimates", icon: ClipboardList },
+      { label: "Payroll", href: "/payroll", icon: Wallet },
     ]
   },
   { icon: Phone, label: "Communications", href: "/communications" },
-  { icon: Wallet, label: "Payroll", href: "/payroll" },
   { icon: BarChart3, label: "Reports", href: "/reports" },
   { icon: Settings, label: "Settings", href: "/settings" },
 ];
