@@ -17,8 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, MapPin } from "lucide-react";
+import { Plus, Trash2, MapPin, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+
+export interface Interaction {
+  id: string;
+  date: string;
+  time: string;
+  subject: string;
+  attendedBy: string;
+  notes: string;
+}
 
 interface Estimate {
   id: string;
@@ -34,6 +43,7 @@ interface Estimate {
   validUntil: string;
   origin?: string;
   hasJob?: boolean;
+  interactions?: Interaction[];
 }
 
 interface EditEstimateModalProps {
@@ -82,18 +92,20 @@ const originOptions = [
   "Other",
 ];
 
+const staffOptions = [
+  "Maria Silva",
+  "João Santos",
+  "Ana Costa",
+  "Pedro Oliveira",
+  "Carla Souza",
+];
+
 const formatCurrency = (value: string): string => {
-  // Remove all non-numeric characters except decimal point
   const numericValue = value.replace(/[^0-9.]/g, "");
-  
-  // Parse as float
   const number = parseFloat(numericValue);
-  
   if (isNaN(number)) {
     return "";
   }
-  
-  // Format as currency
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -121,6 +133,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" },
   ]);
 
+  const [interactions, setInteractions] = useState<Interaction[]>([]);
+
   // Load estimate data when modal opens
   useEffect(() => {
     if (estimate && open) {
@@ -144,6 +158,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         notes: "",
         additionalNotes: "",
       }]);
+
+      setInteractions(estimate.interactions || []);
     }
   }, [estimate, open]);
 
@@ -173,20 +189,47 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     updateAddress(id, "amount", formatted);
   };
 
+  const addInteraction = () => {
+    const now = new Date();
+    setInteractions([
+      ...interactions,
+      {
+        id: Date.now().toString(),
+        date: now.toISOString().split("T")[0],
+        time: now.toTimeString().slice(0, 5),
+        subject: "",
+        attendedBy: "",
+        notes: "",
+      },
+    ]);
+  };
+
+  const removeInteraction = (id: string) => {
+    setInteractions(interactions.filter((i) => i.id !== id));
+  };
+
+  const updateInteraction = (id: string, field: keyof Interaction, value: string) => {
+    setInteractions(
+      interactions.map((i) =>
+        i.id === id ? { ...i, [field]: value } : i
+      )
+    );
+  };
+
   const handleSaveEstimate = () => {
     if (!formData.customerName.trim()) {
-      toast.error("Please enter customer name");
+      toast.error("Por favor, insira o nome do cliente");
       return;
     }
     if (addresses.every((addr) => !addr.address.trim())) {
-      toast.error("Please add at least one address");
+      toast.error("Por favor, adicione pelo menos um endereço");
       return;
     }
 
     // Validate amount format
     for (const addr of addresses) {
       if (addr.amount && parseCurrencyToNumber(addr.amount) <= 0) {
-        toast.error("Please enter a valid amount for all addresses");
+        toast.error("Por favor, insira um valor válido para todos os endereços");
         return;
       }
     }
@@ -208,10 +251,11 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         date: addresses[0]?.date || estimate.date,
         expiryDate: formData.expiryDate,
         origin: formData.origin,
+        interactions: interactions,
       };
 
       onSave(updatedEstimate);
-      toast.success("Estimate updated successfully!");
+      toast.success("Lead atualizado com sucesso!");
       onOpenChange(false);
     }
   };
@@ -221,7 +265,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Edit Estimate {estimate?.id}
+            Editar Lead {estimate?.id}
           </DialogTitle>
         </DialogHeader>
 
@@ -229,18 +273,18 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
           {/* Customer Information */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Customer Information
+              Informações do Cliente
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-customerName">Customer Name *</Label>
+                <Label htmlFor="edit-customerName">Nome do Cliente *</Label>
                 <Input
                   id="edit-customerName"
                   value={formData.customerName}
                   onChange={(e) =>
                     setFormData({ ...formData, customerName: e.target.value })
                   }
-                  placeholder="Enter customer name"
+                  placeholder="Digite o nome do cliente"
                 />
               </div>
               <div className="space-y-2">
@@ -252,33 +296,33 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  placeholder="customer@email.com"
+                  placeholder="cliente@email.com"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-phoneNumber1">Phone Number 1</Label>
+                <Label htmlFor="edit-phoneNumber1">Telefone 1</Label>
                 <Input
                   id="edit-phoneNumber1"
                   value={formData.phoneNumber1}
                   onChange={(e) =>
                     setFormData({ ...formData, phoneNumber1: e.target.value })
                   }
-                  placeholder="(555) 123-4567"
+                  placeholder="(11) 99999-9999"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-phoneNumber2">Phone Number 2</Label>
+                <Label htmlFor="edit-phoneNumber2">Telefone 2</Label>
                 <Input
                   id="edit-phoneNumber2"
                   value={formData.phoneNumber2}
                   onChange={(e) =>
                     setFormData({ ...formData, phoneNumber2: e.target.value })
                   }
-                  placeholder="(555) 987-6543"
+                  placeholder="(11) 88888-8888"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-origin">Origin</Label>
+                <Label htmlFor="edit-origin">Origem</Label>
                 <Select
                   value={formData.origin}
                   onValueChange={(value) =>
@@ -286,9 +330,9 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   }
                 >
                   <SelectTrigger id="edit-origin">
-                    <SelectValue placeholder="Select origin" />
+                    <SelectValue placeholder="Selecione a origem" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border z-50">
                     {originOptions.map((option) => (
                       <SelectItem key={option} value={option}>
                         {option}
@@ -298,7 +342,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-expiryDate">Valid Until</Label>
+                <Label htmlFor="edit-expiryDate">Válido Até</Label>
                 <Input
                   id="edit-expiryDate"
                   type="date"
@@ -315,11 +359,11 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Service Addresses
+                Endereços de Serviço
               </h3>
               <Button variant="outline" size="sm" onClick={addAddress}>
                 <Plus className="w-4 h-4 mr-1" />
-                Add Address
+                Adicionar Endereço
               </Button>
             </div>
 
@@ -332,7 +376,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <MapPin className="w-4 h-4 text-primary" />
-                      Address {index + 1}
+                      Endereço {index + 1}
                     </div>
                     <Button
                       variant="ghost"
@@ -347,26 +391,26 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Address Name</Label>
+                      <Label>Nome do Endereço</Label>
                       <Input
                         value={addr.addressName}
                         onChange={(e) => updateAddress(addr.id, "addressName", e.target.value)}
-                        placeholder="Home, Office, etc."
+                        placeholder="Casa, Escritório, etc."
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Address</Label>
+                      <Label>Endereço</Label>
                       <Input
                         value={addr.address}
                         onChange={(e) => updateAddress(addr.id, "address", e.target.value)}
-                        placeholder="123 Main Street, City, State, ZIP"
+                        placeholder="Rua Principal, 123, Cidade, Estado"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <Label>Date</Label>
+                      <Label>Data</Label>
                       <Input
                         type="date"
                         value={addr.date}
@@ -374,7 +418,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Time</Label>
+                      <Label>Horário</Label>
                       <Input
                         type="time"
                         value={addr.time}
@@ -382,15 +426,15 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Service Type</Label>
+                      <Label>Tipo de Serviço</Label>
                       <Select
                         value={addr.serviceType}
                         onValueChange={(value) => updateAddress(addr.id, "serviceType", value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select service" />
+                          <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover border-border z-50">
                           {serviceTypes.map((service) => (
                             <SelectItem key={service} value={service}>
                               {service}
@@ -400,7 +444,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Amount</Label>
+                      <Label>Valor</Label>
                       <Input
                         type="text"
                         value={addr.amount}
@@ -411,20 +455,20 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Notes</Label>
+                    <Label>Observações</Label>
                     <Textarea
                       value={addr.notes}
                       onChange={(e) => updateAddress(addr.id, "notes", e.target.value)}
-                      placeholder="Notes for this address..."
+                      placeholder="Observações sobre este endereço..."
                       rows={2}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Additional Notes</Label>
+                    <Label>Observações Adicionais</Label>
                     <Textarea
                       value={addr.additionalNotes}
                       onChange={(e) => updateAddress(addr.id, "additionalNotes", e.target.value)}
-                      placeholder="Additional notes for this address..."
+                      placeholder="Observações adicionais..."
                       rows={2}
                     />
                   </div>
@@ -432,13 +476,110 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
               ))}
             </div>
           </div>
+
+          {/* Interactions */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                Interações com o Lead
+              </h3>
+              <Button variant="outline" size="sm" onClick={addInteraction}>
+                <Plus className="w-4 h-4 mr-1" />
+                Adicionar Interação
+              </Button>
+            </div>
+
+            {interactions.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4 bg-muted/30 rounded-lg">
+                Nenhuma interação registrada. Clique em "Adicionar Interação" para registrar um contato.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {interactions.map((interaction, index) => (
+                  <div
+                    key={interaction.id}
+                    className="p-4 bg-muted/30 rounded-lg border border-border/50 space-y-4"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <MessageSquare className="w-4 h-4 text-primary" />
+                        Interação {index + 1}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeInteraction(interaction.id)}
+                        className="text-destructive hover:text-destructive h-8 w-8"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-4">
+                      <div className="space-y-2">
+                        <Label>Data</Label>
+                        <Input
+                          type="date"
+                          value={interaction.date}
+                          onChange={(e) => updateInteraction(interaction.id, "date", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Horário</Label>
+                        <Input
+                          type="time"
+                          value={interaction.time}
+                          onChange={(e) => updateInteraction(interaction.id, "time", e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Assunto</Label>
+                        <Input
+                          value={interaction.subject}
+                          onChange={(e) => updateInteraction(interaction.id, "subject", e.target.value)}
+                          placeholder="Ex: Primeiro contato"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Atendido por</Label>
+                        <Select
+                          value={interaction.attendedBy}
+                          onValueChange={(value) => updateInteraction(interaction.id, "attendedBy", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover border-border z-50">
+                            {staffOptions.map((staff) => (
+                              <SelectItem key={staff} value={staff}>
+                                {staff}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Notas da Interação</Label>
+                      <Textarea
+                        value={interaction.notes}
+                        onChange={(e) => updateInteraction(interaction.id, "notes", e.target.value)}
+                        placeholder="Detalhes sobre a interação..."
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            Cancelar
           </Button>
-          <Button onClick={handleSaveEstimate}>Save Changes</Button>
+          <Button onClick={handleSaveEstimate}>Salvar Alterações</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
