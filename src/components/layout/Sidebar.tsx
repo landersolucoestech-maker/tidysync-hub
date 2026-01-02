@@ -47,7 +47,7 @@ const navigationItems: NavItem[] = [
     submenu: [
       { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
       { label: "Invoices", href: "/invoices", icon: DollarSign },
-      { label: "Estimates", href: "/estimates", icon: ClipboardList },
+      { label: "Leads", href: "/leads", icon: ClipboardList },
       { label: "Payroll", href: "/payroll", icon: Wallet },
     ]
   },
