@@ -20,6 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Plus,
   Search,
   Filter,
@@ -140,6 +147,14 @@ export function Leads() {
   const [invoiceData, setInvoiceData] = useState<{ customer: string; address: string; service: string; amount: number } | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [estimateToEdit, setEstimateToEdit] = useState<Estimate | null>(null);
+  const [serviceFilter, setServiceFilter] = useState("all");
+  const [originFilter, setOriginFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Extrair opções únicas dos dados
+  const serviceOptions = [...new Set(estimates.map(e => e.service))];
+  const originOptions = [...new Set(estimates.map(e => e.origin).filter(Boolean))];
+  const statusOptions = [...new Set(estimates.map(e => e.status))];
 
   const handleEditEstimate = (estimate: Estimate) => {
     setEstimateToEdit(estimate);
@@ -252,11 +267,18 @@ export function Leads() {
 
   // Remove old quick approve/reject handlers - now handled inline
 
-  const filteredEstimates = estimates.filter(est => 
-    est.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    est.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    est.service.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEstimates = estimates.filter(est => {
+    const matchesSearch = 
+      est.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      est.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      est.service.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesService = serviceFilter === "all" || est.service === serviceFilter;
+    const matchesOrigin = originFilter === "all" || est.origin === originFilter;
+    const matchesStatus = statusFilter === "all" || est.status === statusFilter;
+    
+    return matchesSearch && matchesService && matchesOrigin && matchesStatus;
+  });
 
   const stats = {
     total: estimates.length,
@@ -365,8 +387,8 @@ export function Leads() {
               <CardTitle>Todos os Leads</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="relative flex-1 max-w-md">
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                <div className="relative flex-1 min-w-[200px] max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Buscar leads..."
@@ -375,10 +397,44 @@ export function Leads() {
                     className="pl-10"
                   />
                 </div>
-                <Button variant="outline" size="default">
-                  <Filter className="w-4 h-4 mr-2" />
-                  Filtrar
-                </Button>
+                
+                <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Serviço" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    <SelectItem value="all">Todos os Serviços</SelectItem>
+                    {serviceOptions.map(service => (
+                      <SelectItem key={service} value={service}>{service}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={originFilter} onValueChange={setOriginFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Origem" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    <SelectItem value="all">Todas as Origens</SelectItem>
+                    {originOptions.map(origin => (
+                      <SelectItem key={origin} value={origin as string}>{origin}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50">
+                    <SelectItem value="all">Todos os Status</SelectItem>
+                    {statusOptions.map(status => (
+                      <SelectItem key={status} value={status}>
+                        <span className="capitalize">{status}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <Table>
