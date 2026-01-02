@@ -10,7 +10,7 @@ import { Schedule } from "./pages/Schedule";
 import { Jobs } from "./pages/Jobs";
 import { Billing } from "./pages/Billing";
 import { Accounting } from "./pages/Accounting";
-import { Estimates } from "./pages/Estimates";
+import { Leads } from "./pages/Leads";
 import { Communications } from "./pages/Communications";
 import { Rules } from "./pages/Rules";
 import { Reports } from "./pages/Reports";
@@ -41,7 +41,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/payroll" element={<Payroll />} />
-            
+            <Route path="/leads" element={<Leads />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -128,7 +128,7 @@ const initialEstimatesData: Estimate[] = [
   }
 ];
 
-export function Estimates() {
+export function Leads() {
   const [searchTerm, setSearchTerm] = useState("");
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
@@ -280,9 +280,9 @@ export function Estimates() {
           {/* Page Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Estimates</h1>
+              <h1 className="text-3xl font-bold text-foreground">Leads</h1>
               <p className="text-muted-foreground">
-                Create and manage service estimates for potential customers
+                Gerencie leads e orçamentos de clientes em potencial
               </p>
             </div>
             <Button 
@@ -292,7 +292,7 @@ export function Estimates() {
               onClick={() => setCreateModalOpen(true)}
             >
               <Plus className="w-4 h-4" />
-              <span>New Estimate</span>
+              <span>Novo Lead</span>
             </Button>
           </div>
 
@@ -302,7 +302,7 @@ export function Estimates() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Estimates</p>
+                    <p className="text-sm font-medium text-muted-foreground">Total de Leads</p>
                     <p className="text-2xl font-bold text-foreground">{stats.total}</p>
                     <p className="text-sm text-success">All time</p>
                   </div>
@@ -317,9 +317,9 @@ export function Estimates() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Approved</p>
+                    <p className="text-sm font-medium text-muted-foreground">Aprovados</p>
                     <p className="text-2xl font-bold text-foreground">{stats.approved}</p>
-                    <p className="text-sm text-success">{approvalRate}% approval rate</p>
+                    <p className="text-sm text-success">{approvalRate}% taxa de aprovação</p>
                   </div>
                   <div className="p-3 bg-green-500/10 rounded-lg">
                     <CheckCircle className="w-6 h-6 text-green-600" />
@@ -332,9 +332,9 @@ export function Estimates() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                    <p className="text-sm font-medium text-muted-foreground">Pendentes</p>
                     <p className="text-2xl font-bold text-foreground">{stats.pending}</p>
-                    <p className="text-sm text-warning">Awaiting response</p>
+                    <p className="text-sm text-warning">Aguardando resposta</p>
                   </div>
                   <div className="p-3 bg-warning/10 rounded-lg">
                     <Clock className="w-6 h-6 text-warning" />
@@ -347,9 +347,9 @@ export function Estimates() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Rejected</p>
+                    <p className="text-sm font-medium text-muted-foreground">Rejeitados</p>
                     <p className="text-2xl font-bold text-foreground">{stats.rejected}</p>
-                    <p className="text-sm text-destructive">Not approved</p>
+                    <p className="text-sm text-destructive">Não aprovados</p>
                   </div>
                   <div className="p-3 bg-destructive/10 rounded-lg">
                     <XCircle className="w-6 h-6 text-destructive" />
@@ -362,14 +362,14 @@ export function Estimates() {
           {/* Estimates Table */}
           <Card>
             <CardHeader>
-              <CardTitle>All Estimates</CardTitle>
+              <CardTitle>Todos os Leads</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center space-x-4 mb-6">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search estimates..."
+                    placeholder="Buscar leads..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -377,22 +377,22 @@ export function Estimates() {
                 </div>
                 <Button variant="outline" size="default">
                   <Filter className="w-4 h-4 mr-2" />
-                  Filter
+                  Filtrar
                 </Button>
               </div>
 
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Estimate ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Date Created</TableHead>
-                    <TableHead>Valid Until</TableHead>
-                    <TableHead>Origin</TableHead>
+                    <TableHead>ID do Lead</TableHead>
+                    <TableHead>Cliente</TableHead>
+                    <TableHead>Serviço</TableHead>
+                    <TableHead>Valor</TableHead>
+                    <TableHead>Data de Criação</TableHead>
+                    <TableHead>Válido Até</TableHead>
+                    <TableHead>Origem</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -435,14 +435,14 @@ export function Estimates() {
                               onClick={() => handleViewDetails(estimate)}
                             >
                               <Eye className="w-4 h-4" />
-                              View
+                              Ver
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               className="flex items-center gap-2 cursor-pointer"
                               onClick={() => handleEditEstimate(estimate)}
                             >
                               <Pencil className="w-4 h-4" />
-                              Edit
+                              Editar
                             </DropdownMenuItem>
                             {(estimate.status === "pending" || estimate.status === "draft") && (
                               <>
@@ -451,14 +451,14 @@ export function Estimates() {
                                   onClick={() => handleApprove(estimate.id)}
                                 >
                                   <CheckCircle className="w-4 h-4" />
-                                  Approve
+                                  Aprovar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem 
+                                <DropdownMenuItem
                                   className="flex items-center gap-2 cursor-pointer text-destructive"
                                   onClick={() => handleReject(estimate.id)}
                                 >
                                   <XCircle className="w-4 h-4" />
-                                  Reject
+                                  Rejeitar
                                 </DropdownMenuItem>
                               </>
                             )}
@@ -468,7 +468,7 @@ export function Estimates() {
                                 onClick={() => handleCreateJob(estimate)}
                               >
                                 <Calendar className="w-4 h-4" />
-                                {estimate.hasJob ? "New Job" : "Create Job"}
+                                {estimate.hasJob ? "Novo Job" : "Criar Job"}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
