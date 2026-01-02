@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 import { CreateEstimateModal } from "@/components/estimates/CreateEstimateModal";
 import { EditEstimateModal } from "@/components/estimates/EditEstimateModal";
-import { EstimateDetailsModal } from "@/components/estimates/EstimateDetailsModal";
+import { EstimateDetailsModal, Interaction } from "@/components/estimates/EstimateDetailsModal";
 import { AppointmentModal } from "@/components/schedule/AppointmentModal";
 import { InvoiceModal } from "@/components/schedule/InvoiceModal";
 import { toast } from "sonner";
@@ -59,7 +59,8 @@ interface Estimate {
   address: string;
   validUntil: string;
   origin?: string;
-  hasJob?: boolean; // Track if job was already created
+  hasJob?: boolean;
+  interactions?: Interaction[];
 }
 
 const initialEstimatesData: Estimate[] = [

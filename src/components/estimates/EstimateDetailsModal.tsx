@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   CheckCircle, 
   XCircle, 
@@ -19,9 +20,19 @@ import {
   Mail,
   Calendar,
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
+
+export interface Interaction {
+  id: string;
+  date: string;
+  time: string;
+  subject: string;
+  attendedBy: string;
+  notes: string;
+}
 
 interface EstimateAddress {
   address: string;
@@ -45,6 +56,7 @@ interface Estimate {
   validUntil: string;
   addresses?: EstimateAddress[];
   origin?: string;
+  interactions?: Interaction[];
 }
 
 interface EstimateDetailsModalProps {
@@ -92,7 +104,7 @@ export function EstimateDetailsModal({
 
   const handleReject = () => {
     onReject(estimate.id);
-    toast.info(`Estimate ${estimate.id} has been rejected.`);
+    toast.info(`Lead ${estimate.id} foi rejeitado.`);
     onOpenChange(false);
   };
 
@@ -104,13 +116,19 @@ export function EstimateDetailsModal({
   const amountValue = parseFloat(estimate.amount.replace(/[^0-9.]/g, ''));
   const depositAmount = (amountValue * 0.5).toFixed(2);
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("pt-BR");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">
-              Estimate {estimate.id}
+              Lead {estimate.id}
             </DialogTitle>
             <Badge variant={getStatusColor(estimate.status)} className="flex items-center gap-1">
               {getStatusIcon(estimate.status)}
@@ -123,13 +141,13 @@ export function EstimateDetailsModal({
           {/* Customer Information */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Customer Information
+              Informações do Cliente
             </h3>
             <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Name</p>
+                  <p className="text-xs text-muted-foreground">Nome</p>
                   <p className="font-medium">{estimate.customer}</p>
                 </div>
               </div>
@@ -146,7 +164,7 @@ export function EstimateDetailsModal({
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-muted-foreground" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Phone</p>
+                    <p className="text-xs text-muted-foreground">Telefone</p>
                     <p className="font-medium">{estimate.phone}</p>
                   </div>
                 </div>
@@ -154,7 +172,7 @@ export function EstimateDetailsModal({
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Address</p>
+                  <p className="text-xs text-muted-foreground">Endereço</p>
                   <p className="font-medium">{estimate.address}</p>
                 </div>
               </div>
@@ -166,38 +184,87 @@ export function EstimateDetailsModal({
           {/* Service Details */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-              Service Details
+              Detalhes do Serviço
             </h3>
             <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Service</p>
+                  <p className="text-xs text-muted-foreground">Serviço</p>
                   <p className="font-medium">{estimate.service}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Total Amount</p>
+                  <p className="text-xs text-muted-foreground">Valor Total</p>
                   <p className="font-medium text-lg">{estimate.amount}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Created</p>
-                  <p className="font-medium">{estimate.date}</p>
+                  <p className="text-xs text-muted-foreground">Criado em</p>
+                  <p className="font-medium">{formatDate(estimate.date)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <div>
-                  <p className="text-xs text-muted-foreground">Valid Until</p>
+                  <p className="text-xs text-muted-foreground">Válido Até</p>
                   <p className="font-medium">{estimate.validUntil}</p>
                 </div>
               </div>
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Interaction History */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Histórico de Interações
+            </h3>
+            
+            {!estimate.interactions || estimate.interactions.length === 0 ? (
+              <div className="p-4 bg-muted/30 rounded-lg text-center">
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma interação registrada para este lead.
+                </p>
+              </div>
+            ) : (
+              <ScrollArea className="max-h-[200px]">
+                <div className="space-y-3">
+                  {estimate.interactions.map((interaction, index) => (
+                    <div 
+                      key={interaction.id} 
+                      className="p-4 bg-muted/30 rounded-lg border-l-4 border-primary"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {formatDate(interaction.date)} às {interaction.time}
+                          </Badge>
+                          <span className="text-sm font-medium text-primary">
+                            {interaction.subject || `Interação ${index + 1}`}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                        <User className="w-3 h-3" />
+                        <span>Atendido por: <span className="font-medium text-foreground">{interaction.attendedBy || "-"}</span></span>
+                      </div>
+                      {interaction.notes && (
+                        <p className="text-sm text-foreground bg-background/50 p-2 rounded">
+                          {interaction.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
           </div>
 
           {/* Approval Info */}
@@ -208,16 +275,16 @@ export function EstimateDetailsModal({
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-5 h-5 text-primary mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-foreground">Approval Actions</h4>
+                    <h4 className="font-semibold text-foreground">Ações de Aprovação</h4>
                     <p className="text-sm text-muted-foreground">
-                      Upon approval, the following will happen:
+                      Ao aprovar, o seguinte acontecerá:
                     </p>
                   </div>
                 </div>
                 <ul className="text-sm text-muted-foreground space-y-1 ml-7">
-                  <li>• A job will be created in the Schedule</li>
-                  <li>• A 50% deposit invoice (${depositAmount}) will be generated</li>
-                  <li>• The customer will be notified via email</li>
+                  <li>• Um job será criado na Agenda</li>
+                  <li>• Uma fatura de 50% de entrada (${depositAmount}) será gerada</li>
+                  <li>• O cliente será notificado por email</li>
                 </ul>
               </div>
             </>
@@ -230,9 +297,9 @@ export function EstimateDetailsModal({
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <div>
-                    <h4 className="font-semibold text-green-700">Estimate Approved</h4>
+                    <h4 className="font-semibold text-green-700">Lead Aprovado</h4>
                     <p className="text-sm text-green-600">
-                      Job created and 50% deposit invoice (${depositAmount}) generated.
+                      Job criado e fatura de 50% de entrada (${depositAmount}) gerada.
                     </p>
                   </div>
                 </div>
@@ -247,9 +314,9 @@ export function EstimateDetailsModal({
                 <div className="flex items-center gap-2">
                   <XCircle className="w-5 h-5 text-destructive" />
                   <div>
-                    <h4 className="font-semibold text-destructive">Estimate Rejected</h4>
+                    <h4 className="font-semibold text-destructive">Lead Rejeitado</h4>
                     <p className="text-sm text-destructive/80">
-                      This estimate was not approved by the customer.
+                      Este lead não foi aprovado pelo cliente.
                     </p>
                   </div>
                 </div>
@@ -267,20 +334,20 @@ export function EstimateDetailsModal({
                 className="flex items-center gap-2"
               >
                 <XCircle className="w-4 h-4" />
-                Reject
+                Rejeitar
               </Button>
               <Button 
                 onClick={handleApprove}
                 className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
               >
                 <CheckCircle className="w-4 h-4" />
-                Approve
+                Aprovar
               </Button>
             </>
           )}
           {!isPending && (
             <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+              Fechar
             </Button>
           )}
         </DialogFooter>
