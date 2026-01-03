@@ -731,7 +731,7 @@ export function AppointmentModal({
               Cancel
             </Button>
             <Button type="submit">
-              {mode === "create" ? "Create Appointment" : "Save Changes"}
+              {mode === "create" ? "Create Job" : "Save Changes"}
             </Button>
           </div>
         </form>
