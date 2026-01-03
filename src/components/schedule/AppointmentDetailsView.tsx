@@ -235,18 +235,6 @@ export function AppointmentDetailsView({
     window.open(googleReviewUrl, '_blank');
   };
 
-  const handleAddToGoogleCalendar = () => {
-    const eventTitle = encodeURIComponent(`${appointment.service} - ${appointment.customer}`);
-    const eventDetails = encodeURIComponent(`Service: ${appointment.service}\nAddress: ${appointment.address}\nStaff: ${appointment.staff}`);
-    const eventLocation = encodeURIComponent(appointment.address);
-    
-    // Create Google Calendar URL
-    const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}`;
-    
-    window.open(googleCalendarUrl, '_blank');
-    toast.success("Opening Google Calendar...");
-  };
-
   const handleSendInvoice = () => {
     onOpenInvoice();
   };
@@ -375,26 +363,15 @@ export function AppointmentDetailsView({
                     </Badge>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 rounded-full px-3 text-xs gap-1.5 shadow-none"
-                      onClick={handleRequestReview}
-                    >
-                      <Star className="h-4 w-4" />
-                      Request Review
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 rounded-full px-3 text-xs gap-1.5 shadow-none"
-                      onClick={handleAddToGoogleCalendar}
-                    >
-                      <CalendarIcon className="h-4 w-4" />
-                      Add to Google Calendar
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 h-8 rounded-full px-3 text-xs gap-1.5 shadow-none"
+                    onClick={handleRequestReview}
+                  >
+                    <Star className="h-4 w-4" />
+                    Request Review
+                  </Button>
                 </div>
               </div>
             </div>
