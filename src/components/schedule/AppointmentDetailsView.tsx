@@ -2,7 +2,6 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -21,7 +20,6 @@ import {
   DollarSign,
   FileText,
   MapPin,
-  MessageSquare,
   Navigation,
   Pencil,
   Play,
@@ -127,11 +125,6 @@ export function AppointmentDetailsView({
   const [jobNotesExpanded, setJobNotesExpanded] = useState(true);
   const [additionalNotesExpanded, setAdditionalNotesExpanded] = useState(true);
 
-  // Feedback state
-  const [feedback, setFeedback] = useState("");
-  const [feedbackExpanded, setFeedbackExpanded] = useState(true);
-  const [customerRating, setCustomerRating] = useState(0);
-
   // Time editing states
   const [editingTime, setEditingTime] = useState<string | null>(null);
   const [timeValues, setTimeValues] = useState({
@@ -226,7 +219,20 @@ export function AppointmentDetailsView({
   };
 
   const handleRequestReview = () => {
-    toast.success("Review request sent to customer");
+    // Open Google Review link (placeholder - should be configured with actual business Google Place ID)
+    const googleReviewUrl = "https://search.google.com/local/writereview?placeid=YOUR_GOOGLE_PLACE_ID";
+    
+    // Copy message to clipboard with review link
+    const reviewMessage = `Hi ${appointment.customer}! Thank you for choosing our cleaning service. We'd love to hear your feedback! Please leave us a review here: ${googleReviewUrl}`;
+    
+    navigator.clipboard.writeText(reviewMessage).then(() => {
+      toast.success("Review request message copied to clipboard! You can now send it via SMS or email.");
+    }).catch(() => {
+      toast.info("Review link ready to share");
+    });
+    
+    // Also open in new tab
+    window.open(googleReviewUrl, '_blank');
   };
 
   const handleAddToGoogleCalendar = () => {
@@ -239,14 +245,6 @@ export function AppointmentDetailsView({
     
     window.open(googleCalendarUrl, '_blank');
     toast.success("Opening Google Calendar...");
-  };
-
-  const handleSaveFeedback = () => {
-    if (!feedback.trim()) {
-      toast.error("Please enter feedback");
-      return;
-    }
-    toast.success("Feedback saved successfully");
   };
 
   const handleSendInvoice = () => {
@@ -508,79 +506,6 @@ export function AppointmentDetailsView({
                     </article>
                   ))
                 )}
-              </div>
-            )}
-          </section>
-
-          <Separator />
-
-          {/* Feedback Section */}
-          <section aria-label="Customer feedback" className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 shadow-none"
-                  onClick={() => setFeedbackExpanded((v) => !v)}
-                  aria-label={feedbackExpanded ? "Collapse feedback" : "Expand feedback"}
-                >
-                  <ChevronDown className={`h-4 w-4 transition-transform ${feedbackExpanded ? "" : "-rotate-90"}`} />
-                </Button>
-                <span className="text-sm font-semibold text-foreground">Customer Feedback</span>
-              </div>
-            </div>
-
-            {feedbackExpanded && (
-              <div className="space-y-3 pl-5">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Customer Rating</Label>
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Button
-                        key={star}
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={() => setCustomerRating(star)}
-                      >
-                        <Star
-                          className={`h-5 w-5 ${
-                            star <= customerRating
-                              ? "fill-amber-400 text-amber-400"
-                              : "text-muted-foreground"
-                          }`}
-                        />
-                      </Button>
-                    ))}
-                    {customerRating > 0 && (
-                      <span className="ml-2 text-sm text-muted-foreground">
-                        {customerRating}/5
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Feedback Notes</Label>
-                  <Textarea
-                    placeholder="Enter customer feedback..."
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    rows={3}
-                    className="text-sm"
-                  />
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-full px-4 text-xs gap-1.5 shadow-none"
-                  onClick={handleSaveFeedback}
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Save Feedback
-                </Button>
               </div>
             )}
           </section>
