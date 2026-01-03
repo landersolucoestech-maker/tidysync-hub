@@ -260,6 +260,7 @@ export function Customers() {
                       <TableHead>Customer</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead>Location</TableHead>
+                      <TableHead>Payment Type</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Last Service</TableHead>
                       <TableHead>Total Jobs</TableHead>
@@ -298,6 +299,9 @@ export function Customers() {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">{customer.address}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">{customer.paymentMethod}</div>
                         </TableCell>
                         <TableCell>
                           <Badge variant={customer.status === "Active" ? "default" : "secondary"}>
