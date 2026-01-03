@@ -187,7 +187,7 @@ export function Schedule() {
             </div>
             <Button variant="hero" size="lg" className="flex items-center space-x-2" onClick={handleNewAppointment}>
               <Plus className="w-4 h-4" />
-              <span>{t("schedule.newJob")}</span>
+              <span>Create Job</span>
             </Button>
           </div>
 
