@@ -126,8 +126,8 @@ export function AppointmentDetailsView({
   const [jobNotesExpanded, setJobNotesExpanded] = useState(true);
   const [additionalNotesExpanded, setAdditionalNotesExpanded] = useState(true);
   const [feedbackExpanded, setFeedbackExpanded] = useState(true);
-  const [feedbackList, setFeedbackList] = useState<{ id: string; rating: number; text: string; author: string; date: string }[]>([
-    { id: "f1", rating: 5, text: "Excellent cleaning service! Very thorough and professional.", author: "Sarah Johnson", date: "Dec 20, 2024" },
+  const [feedbackList, setFeedbackList] = useState<{ id: string; text: string; author: string; date: string }[]>([
+    { id: "f1", text: "Excellent cleaning service! Very thorough and professional.", author: "Sarah Johnson", date: "Dec 20, 2024" },
   ]);
 
   // Time editing states
@@ -230,7 +230,6 @@ export function AppointmentDetailsView({
     }
     const newFeedback = {
       id: `f${Date.now()}`,
-      rating: 5,
       text: newNoteText.trim(),
       author: "Current User",
       date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
@@ -551,14 +550,7 @@ export function AppointmentDetailsView({
                 ) : (
                   feedbackList.map((f) => (
                     <article key={f.id} className="flex items-start gap-3 group">
-                      <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`h-3.5 w-3.5 ${star <= f.rating ? "text-warning fill-warning" : "text-muted-foreground"}`}
-                          />
-                        ))}
-                      </div>
+                      <div className="mt-1.5 h-2 w-2 rounded-full bg-muted-foreground/50 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="text-xs text-foreground leading-relaxed">{f.text}</p>
                         <p className="text-[10px] text-muted-foreground italic">&quot;{f.author}&quot; - {f.date}</p>
