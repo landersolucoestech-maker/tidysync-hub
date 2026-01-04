@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { PageHeader, KPICard, SearchInput, FilterSelect, ActionDropdown } from "@/components/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -36,7 +40,11 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
+  CalendarIcon,
+  ArrowUpRight,
+  ArrowDownLeft,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Mock transactions data
 const transactionsData = [
@@ -126,12 +134,14 @@ const statusOptions = [
   { value: "pendente", label: "Pendente" },
 ];
 
-export function Accounting() {
+export function Transactions() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [showNewTransactionModal, setShowNewTransactionModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<typeof transactionsData[0] | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
@@ -161,7 +171,13 @@ export function Accounting() {
     const matchesType = typeFilter === "all" || t.type === typeFilter;
     const matchesStatus = statusFilter === "all" || t.status === statusFilter;
     const matchesCategory = categoryFilter === "all" || t.category === categoryFilter;
-    return matchesSearch && matchesType && matchesStatus && matchesCategory;
+    
+    // Date filters
+    const transactionDate = new Date(t.date);
+    const matchesStartDate = !startDate || transactionDate >= startDate;
+    const matchesEndDate = !endDate || transactionDate <= endDate;
+    
+    return matchesSearch && matchesType && matchesStatus && matchesCategory && matchesStartDate && matchesEndDate;
   });
 
   const handleView = (transaction: typeof transactionsData[0]) => {
@@ -200,8 +216,8 @@ export function Accounting() {
     <PageLayout>
       {/* Page Header */}
       <PageHeader
-        title="Accounting"
-        description="Manage finances, invoices, receitas e despesas"
+        title="Transactions"
+        description="Manage all financial transactions, income and expenses"
         actions={
           <>
             <Button variant="outline" size="sm">
@@ -254,15 +270,82 @@ export function Accounting() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <SearchInput
-          placeholder="Buscar transações..."
-          value={searchTerm}
-          onChange={setSearchTerm}
-        />
-        <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
-        <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
-        <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-full md:w-[200px]" />
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <SearchInput
+            placeholder="Buscar transações..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+          <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
+          <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
+          <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-full md:w-[200px]" />
+        </div>
+        
+        {/* Date Filters */}
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <span className="text-sm text-muted-foreground">Filtrar por data:</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[200px] justify-start text-left font-normal",
+                  !startDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {startDate ? format(startDate, "dd/MM/yyyy") : "Data início"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={setStartDate}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[200px] justify-start text-left font-normal",
+                  !endDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {endDate ? format(endDate, "dd/MM/yyyy") : "Data fim"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          
+          {(startDate || endDate) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setStartDate(undefined);
+                setEndDate(undefined);
+              }}
+            >
+              Limpar datas
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Transactions Table */}
@@ -365,41 +448,80 @@ export function Accounting() {
 
       {/* View Transaction Modal */}
       <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detalhes da Transação</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedTransaction?.type === "receita" ? (
+                <ArrowUpRight className="w-5 h-5 text-green-600" />
+              ) : (
+                <ArrowDownLeft className="w-5 h-5 text-red-600" />
+              )}
+              Detalhes da Transação
+            </DialogTitle>
           </DialogHeader>
           {selectedTransaction && (
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Nome</p>
-                  <p className="font-medium">{selectedTransaction.name}</p>
+            <div className="space-y-6 py-4">
+              {/* Transaction Name */}
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Nome da Transação</p>
+                <p className="text-lg font-semibold">{selectedTransaction.name}</p>
+              </div>
+              
+              <Separator />
+              
+              {/* Main Info Grid */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">ID</p>
+                  <p className="font-medium">#{selectedTransaction.id}</p>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Tipo</p>
-                  <p className="font-medium capitalize">{selectedTransaction.type}</p>
+                  <Badge className={selectedTransaction.type === "receita" ? "bg-green-500/20 text-green-600" : "bg-red-500/20 text-red-600"}>
+                    {selectedTransaction.type === "receita" ? "Receita" : "Despesa"}
+                  </Badge>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Data</p>
                   <p className="font-medium">
                     {new Date(selectedTransaction.date).toLocaleDateString("pt-BR")}
                   </p>
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Categoria</p>
-                  <p className="font-medium">{selectedTransaction.category}</p>
+                  <Badge variant="outline">{selectedTransaction.category}</Badge>
                 </div>
-                <div>
+              </div>
+              
+              <Separator />
+              
+              {/* Status and Value */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Status</p>
                   {getStatusBadge(selectedTransaction.status)}
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Valor</p>
-                  <p className={`font-medium ${selectedTransaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
+                  <p className={`text-xl font-bold ${selectedTransaction.amount >= 0 ? "text-green-600" : "text-red-600"}`}>
                     {formatCurrency(selectedTransaction.amount)}
                   </p>
                 </div>
+              </div>
+              
+              <Separator />
+              
+              {/* Footer Actions */}
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>
+                  Fechar
+                </Button>
+                <Button onClick={() => {
+                  setShowViewModal(false);
+                  handleEdit(selectedTransaction);
+                }}>
+                  Editar
+                </Button>
               </div>
             </div>
           )}

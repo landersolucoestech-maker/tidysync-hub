@@ -40,12 +40,11 @@ const navigationItems: NavItem[] = [
   { icon: Home, label: "Dashboard", href: "/" },
   { icon: Calendar, label: "Schedule", href: "/schedule" },
   { icon: Users, label: "Customers", href: "/customers" },
-  { icon: Briefcase, label: "Jobs", href: "/jobs" },
   { 
     icon: Calculator, 
     label: "Accounting",
     submenu: [
-      { label: "Transações", href: "/accounting", icon: ArrowRightLeft },
+      { label: "Transactions", href: "/transactions", icon: ArrowRightLeft },
       { label: "Invoices", href: "/invoices", icon: DollarSign },
       { label: "Leads", href: "/leads", icon: ClipboardList },
       { label: "Payroll", href: "/payroll", icon: Wallet },
