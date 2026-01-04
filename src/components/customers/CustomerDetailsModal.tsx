@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User, Phone, Mail, MapPin, Calendar, Briefcase, CreditCard, Clock, FileText, MessageSquare, FileCheck, Send, ChevronDown } from "lucide-react";
+import { User, Phone, Mail, MapPin, Calendar, Briefcase, CreditCard, Clock, FileText, MessageSquare, FileCheck, Send, ChevronDown, Receipt } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Address {
   name: string;
@@ -111,7 +112,7 @@ export function CustomerDetailsModal({
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="mt-4">
-          <TabsList className="grid w-full grid-cols-6 h-auto">
+          <TabsList className="grid w-full grid-cols-7 h-auto">
             <TabsTrigger value="overview" className="text-xs px-2 py-2">
               Overview
             </TabsTrigger>
@@ -123,6 +124,9 @@ export function CustomerDetailsModal({
             </TabsTrigger>
             <TabsTrigger value="jobs" className="text-xs px-2 py-2">
               Jobs
+            </TabsTrigger>
+            <TabsTrigger value="invoices" className="text-xs px-2 py-2">
+              Invoices
             </TabsTrigger>
             <TabsTrigger value="chat" className="text-xs px-2 py-2">
               Chat
@@ -345,6 +349,79 @@ export function CustomerDetailsModal({
                 </div>
                 <Badge>Completed</Badge>
               </div>
+            </div>
+          </TabsContent>
+
+          {/* Invoices Tab */}
+          <TabsContent value="invoices" className="space-y-4 mt-4">
+            <div className="border rounded-lg overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Invoice #</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Due Date</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-001</TableCell>
+                    <TableCell>Jan 5, 2025</TableCell>
+                    <TableCell>$150.00</TableCell>
+                    <TableCell>Jan 15, 2025</TableCell>
+                    <TableCell>
+                      <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Paid</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-002</TableCell>
+                    <TableCell>Dec 20, 2024</TableCell>
+                    <TableCell>$200.00</TableCell>
+                    <TableCell>Dec 30, 2024</TableCell>
+                    <TableCell>
+                      <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Paid</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-003</TableCell>
+                    <TableCell>Jan 10, 2025</TableCell>
+                    <TableCell>$175.00</TableCell>
+                    <TableCell>Jan 20, 2025</TableCell>
+                    <TableCell>
+                      <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">Sent</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-004</TableCell>
+                    <TableCell>Jan 12, 2025</TableCell>
+                    <TableCell>$225.00</TableCell>
+                    <TableCell>Jan 22, 2025</TableCell>
+                    <TableCell>
+                      <Badge className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20">Open</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-005</TableCell>
+                    <TableCell>Nov 15, 2024</TableCell>
+                    <TableCell>$180.00</TableCell>
+                    <TableCell>Nov 25, 2024</TableCell>
+                    <TableCell>
+                      <Badge className="bg-red-500/10 text-red-600 hover:bg-red-500/20">Overdue</Badge>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">INV-006</TableCell>
+                    <TableCell>Jan 14, 2025</TableCell>
+                    <TableCell>$150.00</TableCell>
+                    <TableCell>Jan 24, 2025</TableCell>
+                    <TableCell>
+                      <Badge className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20">Pending Payment</Badge>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
 
