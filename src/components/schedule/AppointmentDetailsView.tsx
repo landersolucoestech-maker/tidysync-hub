@@ -121,9 +121,14 @@ export function AppointmentDetailsView({
   const [additionalNotes, setAdditionalNotes] = useState<JobNote[]>([]);
   const [addNoteOpen, setAddNoteOpen] = useState(false);
   const [addAdditionalNoteOpen, setAddAdditionalNoteOpen] = useState(false);
+  const [addFeedbackOpen, setAddFeedbackOpen] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
   const [jobNotesExpanded, setJobNotesExpanded] = useState(true);
   const [additionalNotesExpanded, setAdditionalNotesExpanded] = useState(true);
+  const [feedbackExpanded, setFeedbackExpanded] = useState(true);
+  const [feedbackList, setFeedbackList] = useState<{ id: string; rating: number; text: string; author: string; date: string }[]>([
+    { id: "f1", rating: 5, text: "Excellent cleaning service! Very thorough and professional.", author: "Sarah Johnson", date: "Dec 20, 2024" },
+  ]);
 
   // Time editing states
   const [editingTime, setEditingTime] = useState<string | null>(null);
@@ -216,6 +221,29 @@ export function AppointmentDetailsView({
   const handleDeleteNote = (id: string) => {
     setNotes((prev) => prev.filter((n) => n.id !== id));
     toast.success("Note deleted");
+  };
+
+  const handleAddFeedback = () => {
+    if (!newNoteText.trim()) {
+      toast.error("Please enter feedback");
+      return;
+    }
+    const newFeedback = {
+      id: `f${Date.now()}`,
+      rating: 5,
+      text: newNoteText.trim(),
+      author: "Current User",
+      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    };
+    setFeedbackList((prev) => [...prev, newFeedback]);
+    setNewNoteText("");
+    setAddFeedbackOpen(false);
+    toast.success("Feedback added successfully");
+  };
+
+  const handleDeleteFeedback = (id: string) => {
+    setFeedbackList((prev) => prev.filter((f) => f.id !== id));
+    toast.success("Feedback deleted");
   };
 
   const handleRequestReview = () => {
@@ -489,6 +517,70 @@ export function AppointmentDetailsView({
 
           <Separator />
 
+          {/* Feedback */}
+          <section aria-label="Feedback" className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shadow-none"
+                  onClick={() => setFeedbackExpanded((v) => !v)}
+                  aria-label={feedbackExpanded ? "Collapse feedback" : "Expand feedback"}
+                >
+                  <ChevronDown className={`h-4 w-4 transition-transform ${feedbackExpanded ? "" : "-rotate-90"}`} />
+                </Button>
+                <span className="text-sm font-semibold text-foreground">Feedback</span>
+              </div>
+
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7 shadow-none"
+                aria-label="Add feedback"
+                onClick={() => setAddFeedbackOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {feedbackExpanded && (
+              <div className="space-y-3">
+                {feedbackList.length === 0 ? (
+                  <p className="text-xs text-muted-foreground italic pl-5">No feedback yet.</p>
+                ) : (
+                  feedbackList.map((f) => (
+                    <article key={f.id} className="flex items-start gap-3 group">
+                      <div className="flex items-center gap-0.5 shrink-0 mt-0.5">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-3.5 w-3.5 ${star <= f.rating ? "text-warning fill-warning" : "text-muted-foreground"}`}
+                          />
+                        ))}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs text-foreground leading-relaxed">{f.text}</p>
+                        <p className="text-[10px] text-muted-foreground italic">&quot;{f.author}&quot; - {f.date}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDeleteFeedback(f.id)}
+                        aria-label="Delete feedback"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </article>
+                  ))
+                )}
+              </div>
+            )}
+          </section>
+
+          <Separator />
+
           {/* Timeline */}
           <section aria-label="Job timeline" className="space-y-3">
             {(
@@ -664,6 +756,29 @@ export function AppointmentDetailsView({
               Cancel
             </Button>
             <Button onClick={handleAddAdditionalNote}>Add Note</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Feedback Modal */}
+      <Dialog open={addFeedbackOpen} onOpenChange={setAddFeedbackOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Add Feedback</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Textarea
+              placeholder="Enter customer feedback here..."
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddFeedbackOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddFeedback}>Add Feedback</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
