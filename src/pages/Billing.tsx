@@ -147,7 +147,7 @@ export function Billing() {
           {/* Page Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Billing & Invoices</h1>
+              <h1 className="text-3xl font-bold text-foreground">Invoices</h1>
               <p className="text-muted-foreground">
                 Manage invoices, payments, and financial records
               </p>
@@ -179,12 +179,27 @@ export function Billing() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <p className="text-2xl font-bold text-foreground">$45,280</p>
-                    <p className="text-sm text-success">+18% from last month</p>
+                    <p className="text-sm font-medium text-muted-foreground">Invoice Sent / Payment Pending</p>
+                    <p className="text-2xl font-bold text-foreground">12</p>
+                    <p className="text-sm text-warning">$3,450 awaiting payment</p>
+                  </div>
+                  <div className="p-3 bg-warning/10 rounded-lg">
+                    <Send className="w-6 h-6 text-warning" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Opened Invoices</p>
+                    <p className="text-2xl font-bold text-foreground">5</p>
+                    <p className="text-sm text-primary">$1,250 in draft</p>
                   </div>
                   <div className="p-3 bg-primary/10 rounded-lg">
-                    <DollarSign className="w-6 h-6 text-primary" />
+                    <Clock className="w-6 h-6 text-primary" />
                   </div>
                 </div>
               </CardContent>
@@ -199,7 +214,7 @@ export function Billing() {
                     <p className="text-sm text-success">94.2% collection rate</p>
                   </div>
                   <div className="p-3 bg-success/10 rounded-lg">
-                    <CreditCard className="w-6 h-6 text-success" />
+                    <CheckCircle className="w-6 h-6 text-success" />
                   </div>
                 </div>
               </CardContent>
@@ -209,22 +224,7 @@ export function Billing() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Payment Pending</p>
-                    <p className="text-2xl font-bold text-foreground">8</p>
-                    <p className="text-sm text-warning">$1,950 awaiting payment</p>
-                  </div>
-                  <div className="p-3 bg-warning/10 rounded-lg">
-                    <Clock className="w-6 h-6 text-warning" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Overdue</p>
+                    <p className="text-sm font-medium text-muted-foreground">Overdue Invoices</p>
                     <p className="text-2xl font-bold text-foreground">3</p>
                     <p className="text-sm text-destructive">$840 past due</p>
                   </div>
