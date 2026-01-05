@@ -35,7 +35,6 @@ import {
   Upload,
   Download,
   Settings2,
-  Link2,
   Plus,
   TrendingUp,
   TrendingDown,
@@ -43,6 +42,7 @@ import {
   CalendarIcon,
   ArrowUpRight,
   ArrowDownLeft,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -232,10 +232,6 @@ export function Transactions() {
               <Settings2 className="w-4 h-4 mr-2" />
               Regras
             </Button>
-            <Button variant="outline" size="sm">
-              <Link2 className="w-4 h-4 mr-2" />
-              Integração Bancária
-            </Button>
             <Button onClick={() => setShowNewTransactionModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Nova Transação
@@ -284,7 +280,6 @@ export function Transactions() {
         
         {/* Date Filters */}
         <div className="flex flex-col md:flex-row gap-4 items-center">
-          <span className="text-sm text-muted-foreground">Filtrar por data:</span>
           <Popover>
             <PopoverTrigger asChild>
               <Button
@@ -336,13 +331,13 @@ export function Transactions() {
           {(startDate || endDate) && (
             <Button
               variant="ghost"
-              size="sm"
+              size="icon"
               onClick={() => {
                 setStartDate(undefined);
                 setEndDate(undefined);
               }}
             >
-              Limpar datas
+              <X className="h-4 w-4" />
             </Button>
           )}
         </div>
