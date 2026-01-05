@@ -266,26 +266,23 @@ export function Transactions() {
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-wrap gap-4 items-center">
           <SearchInput
             placeholder="Buscar transações..."
             value={searchTerm}
             onChange={setSearchTerm}
+            className="w-[200px]"
           />
           <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
           <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
-          <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-full md:w-[200px]" />
-        </div>
-        
-        {/* Date Filters */}
-        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-[200px]" />
+          
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[200px] justify-start text-left font-normal",
+                  "w-[160px] justify-start text-left font-normal",
                   !startDate && "text-muted-foreground"
                 )}
               >
@@ -309,7 +306,7 @@ export function Transactions() {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[200px] justify-start text-left font-normal",
+                  "w-[160px] justify-start text-left font-normal",
                   !endDate && "text-muted-foreground"
                 )}
               >
@@ -340,7 +337,6 @@ export function Transactions() {
               <X className="h-4 w-4" />
             </Button>
           )}
-        </div>
       </div>
 
       {/* Transactions Table */}
