@@ -317,37 +317,59 @@ export function CustomerDetailsModal({
               </div>
             </div>
             <div className="border rounded-lg divide-y">
-              <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-primary" />
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Regular Cleaning</p>
+                      <p className="text-xs text-muted-foreground">{customer.lastService}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3" />
+                        {customer.address}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">Regular Cleaning</p>
-                    <p className="text-xs text-muted-foreground">{customer.lastService}</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3" />
-                      {customer.address}
-                    </p>
+                  <Badge>Completed</Badge>
+                </div>
+                <div className="ml-13 pl-13">
+                  <div className="flex items-start gap-2 p-2 rounded bg-muted/40">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-muted-foreground">Feedback</p>
+                      <p className="text-sm">Great service, very thorough cleaning!</p>
+                    </div>
                   </div>
                 </div>
-                <Badge>Completed</Badge>
               </div>
-              <div className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-primary" />
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">Deep Cleaning</p>
+                      <p className="text-xs text-muted-foreground">Dec 15, 2024</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                        <MapPin className="w-3 h-3" />
+                        {customer.address}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">Deep Cleaning</p>
-                    <p className="text-xs text-muted-foreground">Dec 15, 2024</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                      <MapPin className="w-3 h-3" />
-                      {customer.address}
-                    </p>
+                  <Badge>Completed</Badge>
+                </div>
+                <div className="ml-13 pl-13">
+                  <div className="flex items-start gap-2 p-2 rounded bg-muted/40">
+                    <MessageSquare className="w-4 h-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-xs font-medium text-muted-foreground">Feedback</p>
+                      <p className="text-sm">Excellent deep cleaning, exceeded expectations.</p>
+                    </div>
                   </div>
                 </div>
-                <Badge>Completed</Badge>
               </div>
             </div>
           </TabsContent>
