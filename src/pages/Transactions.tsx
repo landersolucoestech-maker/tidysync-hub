@@ -273,9 +273,6 @@ export function Transactions() {
             onChange={setSearchTerm}
             className="w-[200px]"
           />
-          <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
-          <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
-          <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-[200px]" />
           
           <Popover>
             <PopoverTrigger asChild>
@@ -337,6 +334,10 @@ export function Transactions() {
               <X className="h-4 w-4" />
             </Button>
           )}
+
+          <FilterSelect value={typeFilter} onValueChange={setTypeFilter} options={typeOptions} />
+          <FilterSelect value={statusFilter} onValueChange={setStatusFilter} options={statusOptions} />
+          <FilterSelect value={categoryFilter} onValueChange={setCategoryFilter} options={categoryOptions} className="w-[200px]" />
       </div>
 
       {/* Transactions Table */}
