@@ -66,6 +66,7 @@ const originOptions = [
   "Social Media",
   "Google Ads",
   "Walk-in",
+  "Influencer",
   "Other",
 ];
 
