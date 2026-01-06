@@ -154,7 +154,7 @@ export function Leads() {
 
   // Extrair opções únicas dos dados
   const serviceOptions = [...new Set(estimates.map(e => e.service))];
-  const originOptions = [...new Set(estimates.map(e => e.origin).filter(Boolean))];
+  const originOptions = [...new Set([...estimates.map(e => e.origin).filter(Boolean), "Influencer"])];
   const statusOptions = [...new Set(estimates.map(e => e.status))];
 
   const handleEditEstimate = (estimate: Estimate) => {
