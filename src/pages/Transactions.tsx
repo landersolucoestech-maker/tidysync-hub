@@ -45,6 +45,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TransactionModal } from "@/components/transactions/TransactionModal";
 
 // Mock transactions data
 const transactionsData = [
@@ -381,62 +382,23 @@ export function Transactions() {
       </Card>
 
       {/* New Transaction Modal */}
-      <Dialog open={showNewTransactionModal} onOpenChange={setShowNewTransactionModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Nova Transação</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Nome</label>
-              <Input placeholder="Nome da transação" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Tipo</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border">
-                  <SelectItem value="receita">Receita</SelectItem>
-                  <SelectItem value="despesa">Despesa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Valor</label>
-              <Input type="number" placeholder="0,00" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Categoria</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a categoria" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border">
-                  {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Data</label>
-              <Input type="date" />
-            </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setShowNewTransactionModal(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={() => setShowNewTransactionModal(false)}>
-                Salvar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <TransactionModal
+        open={showNewTransactionModal}
+        onOpenChange={setShowNewTransactionModal}
+        mode="create"
+      />
+
+      {/* Edit Transaction Modal */}
+      <TransactionModal
+        open={showEditModal}
+        onOpenChange={setShowEditModal}
+        transaction={selectedTransaction ? {
+          ...selectedTransaction,
+          type: selectedTransaction.type as "receita" | "despesa",
+          serviceType: "",
+        } : null}
+        mode="edit"
+      />
 
       {/* View Transaction Modal */}
       <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
@@ -520,65 +482,6 @@ export function Transactions() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Transaction Modal */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar Transação</DialogTitle>
-          </DialogHeader>
-          {selectedTransaction && (
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Nome</label>
-                <Input defaultValue={selectedTransaction.name} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tipo</label>
-                <Select defaultValue={selectedTransaction.type}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border border-border">
-                    <SelectItem value="receita">Receita</SelectItem>
-                    <SelectItem value="despesa">Despesa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Valor</label>
-                <Input type="number" defaultValue={Math.abs(selectedTransaction.amount)} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Categoria</label>
-                <Select defaultValue={selectedTransaction.category}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border border-border">
-                    {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Data</label>
-                <Input type="date" defaultValue={selectedTransaction.date} />
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setShowEditModal(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={() => setShowEditModal(false)}>
-                  Salvar
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </PageLayout>
   );
 }
