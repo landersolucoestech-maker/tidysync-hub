@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, Gift, Save, User, Plus, Trash2 } from "lucide-react";
+import { DollarSign, Gift, Save, User } from "lucide-react";
 import { toast } from "sonner";
 
 type EmployeeRole = "Cleaner" | "Driver" | "Cleaning Team Manager" | "Office Manager";
@@ -44,6 +43,7 @@ const defaultBonuses = (): { type: BonusType; value: number }[] => [
 ];
 
 export function PayrollRules() {
+  // TODO: Substituir por dados do banco quando perfis de funcionários forem criados
   const [employees, setEmployees] = useState<Employee[]>([
     { id: "1", name: "João Silva", role: "Cleaner", baseValue: 50, bonuses: defaultBonuses() },
     { id: "2", name: "Maria Santos", role: "Driver", baseValue: 50, extraValue: 10, bonuses: defaultBonuses() },
@@ -52,41 +52,9 @@ export function PayrollRules() {
   ]);
 
   const [selectedEmployee, setSelectedEmployee] = useState<string>(employees[0]?.id || "");
-  const [newEmployeeName, setNewEmployeeName] = useState("");
-  const [newEmployeeRole, setNewEmployeeRole] = useState<EmployeeRole>("Cleaner");
 
   const currentEmployee = employees.find((e) => e.id === selectedEmployee);
 
-  const handleAddEmployee = () => {
-    if (!newEmployeeName.trim()) {
-      toast.error("Digite o nome do funcionário");
-      return;
-    }
-
-    const isDriverOrCleaner = newEmployeeRole === "Driver" || newEmployeeRole === "Cleaner";
-    const newEmployee: Employee = {
-      id: Date.now().toString(),
-      name: newEmployeeName.trim(),
-      role: newEmployeeRole,
-      baseValue: 0,
-      extraValue: newEmployeeRole === "Driver" ? 10 : undefined,
-      bonuses: isDriverOrCleaner ? defaultBonuses() : [],
-    };
-
-    setEmployees([...employees, newEmployee]);
-    setSelectedEmployee(newEmployee.id);
-    setNewEmployeeName("");
-    toast.success("Funcionário adicionado com sucesso!");
-  };
-
-  const handleDeleteEmployee = (id: string) => {
-    const updated = employees.filter((e) => e.id !== id);
-    setEmployees(updated);
-    if (selectedEmployee === id && updated.length > 0) {
-      setSelectedEmployee(updated[0].id);
-    }
-    toast.success("Funcionário removido!");
-  };
 
   const handleUpdateEmployee = (field: keyof Employee, value: any) => {
     setEmployees(
@@ -154,65 +122,25 @@ export function PayrollRules() {
                 Funcionários
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Adicionar novo funcionário */}
-              <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
-                <Label className="text-sm font-medium">Adicionar Funcionário</Label>
-                <Input
-                  placeholder="Nome do funcionário"
-                  value={newEmployeeName}
-                  onChange={(e) => setNewEmployeeName(e.target.value)}
-                />
-                <Select value={newEmployeeRole} onValueChange={(v) => setNewEmployeeRole(v as EmployeeRole)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cleaner">Cleaner</SelectItem>
-                    <SelectItem value="Driver">Driver</SelectItem>
-                    <SelectItem value="Cleaning Team Manager">Cleaning Team Manager</SelectItem>
-                    <SelectItem value="Office Manager">Office Manager</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleAddEmployee} size="sm" className="w-full gap-2">
-                  <Plus className="h-4 w-4" />
-                  Adicionar
-                </Button>
-              </div>
-
               {/* Lista */}
               <div className="space-y-2">
                 {employees.map((emp) => (
                   <div
                     key={emp.id}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors flex items-center justify-between group ${
+                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedEmployee === emp.id
                         ? "bg-primary/10 border border-primary"
                         : "bg-muted/30 hover:bg-muted/50"
                     }`}
                     onClick={() => setSelectedEmployee(emp.id)}
                   >
-                    <div>
-                      <p className="font-medium text-sm">{emp.name}</p>
-                      <Badge variant="outline" className="text-xs mt-1">
-                        {emp.role}
-                      </Badge>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteEmployee(emp.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <p className="font-medium text-sm">{emp.name}</p>
+                    <Badge variant="outline" className="text-xs mt-1">
+                      {emp.role}
+                    </Badge>
                   </div>
                 ))}
               </div>
-            </CardContent>
           </Card>
 
           {/* Detalhes do Funcionário */}
