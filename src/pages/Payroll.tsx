@@ -3,7 +3,6 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,12 +12,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { CalendarIcon, Download, Calculator, Search, ChevronUp, ChevronDown, Check, ChevronsUpDown, Plus, X, CreditCard } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Download, Calculator, Search, ChevronUp, ChevronDown, Check, ChevronsUpDown, X, CreditCard } from "lucide-react";
+import { format, isWithinInterval, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import XLSX from "xlsx-js-style";
-import { BonusModal, Bonus } from "@/components/payroll/BonusModal";
+import { CalculatePayrollModal, PayrollCalculation, Employee } from "@/components/payroll/CalculatePayrollModal";
 interface PayrollRecord {
   id: string;
   period: string;
@@ -128,8 +127,7 @@ export function Payroll() {
   
   const [employeeOpen, setEmployeeOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [bonuses, setBonuses] = useState<Bonus[]>([]);
-  const [bonusModalOpen, setBonusModalOpen] = useState(false);
+  const [calculateModalOpen, setCalculateModalOpen] = useState(false);
   const [showClearButton, setShowClearButton] = useState(false);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const periodStatus = startDate && endDate ? "Open" : "Closed";
@@ -151,11 +149,19 @@ export function Payroll() {
     }
     
     if (startDate && endDate) {
-      // Create the period string for the selected dates
-      const selectedPeriodStr = `${format(startDate, "dd/MM/yyyy")} - ${format(endDate, "dd/MM/yyyy")}`;
-      
-      // Filter only records that match exactly the selected period
-      filtered = filtered.filter(record => record.period === selectedPeriodStr);
+      // Filter records where the period overlaps with selected date range
+      filtered = filtered.filter(record => {
+        const [periodStartStr, periodEndStr] = record.period.split(" - ");
+        const periodStart = parseDate(periodStartStr);
+        const periodEnd = parseDate(periodEndStr);
+        
+        // Check if periods overlap
+        return (
+          (periodStart <= endDate && periodEnd >= startDate) ||
+          isWithinInterval(periodStart, { start: startDate, end: endDate }) ||
+          isWithinInterval(periodEnd, { start: startDate, end: endDate })
+        );
+      });
     }
     
     setFilteredData(sortData(filtered, sortField, sortDirection));
@@ -212,7 +218,7 @@ export function Payroll() {
     if (sortField !== field) return null;
     return sortDirection === "asc" ? <ChevronUp className="w-4 h-4 ml-1" /> : <ChevronDown className="w-4 h-4 ml-1" />;
   };
-  const handleCalculatePayroll = () => {
+  const handleOpenCalculateModal = () => {
     if (!startDate || !endDate) {
       toast({
         title: "Erro",
@@ -221,27 +227,30 @@ export function Payroll() {
       });
       return;
     }
+    setCalculateModalOpen(true);
+  };
+
+  const handleConfirmPayroll = (calculations: PayrollCalculation[]) => {
+    if (!startDate || !endDate) return;
+    
     const periodStr = `${format(startDate, "dd/MM/yyyy")} - ${format(endDate, "dd/MM/yyyy")}`;
-    const newRecords: PayrollRecord[] = initialEmployees.map((emp, index) => ({
+    const newRecords: PayrollRecord[] = calculations.map((calc, index) => ({
       id: `new-${Date.now()}-${index}`,
       period: periodStr,
-      employeeName: emp.name,
+      employeeName: calc.employeeName,
       cleaningType: "General Cleaning",
       client: "Default Client",
-      baseValue: emp.baseValue,
+      baseValue: calc.finalValue,
       paymentType: "Direct Deposit" as const,
       status: "Pending" as const
     }));
+    
     const updatedData = [...payrollData, ...newRecords];
     setPayrollData(updatedData);
     
     // Filter to show only records from the selected period
     const filteredByPeriod = updatedData.filter(record => record.period === periodStr);
     setFilteredData(sortData(filteredByPeriod, sortField, sortDirection));
-    toast({
-      title: "Payroll calculado",
-      description: `${newRecords.length} registros criados para o período ${periodStr}.`
-    });
   };
   const handleDownloadExcel = () => {
     // Get period for header
@@ -272,9 +281,9 @@ export function Payroll() {
     Object.keys(groupedByEmployee).sort().forEach(employeeName => {
       const employeeRecords = groupedByEmployee[employeeName];
       
-      // Get bonuses for this employee
-      const employeeBonuses = bonuses.filter(b => b.employeeName === employeeName);
-      const totalBonus = employeeBonuses.reduce((sum, b) => sum + b.value, 0);
+      
+      // Bonus is now handled in the modal, so we set it to 0 for Excel export
+      const totalBonus = 0;
       
       // Create header rows exactly like the image
       // Row 1: PAYROLL (column E - Daily Total)
@@ -507,9 +516,8 @@ export function Payroll() {
     return periods;
   }, [uniqueEmployees, filteredData]);
   
-  const handleAddBonus = (bonus: Bonus) => {
-    setBonuses(prev => [...prev, bonus]);
-  };
+  // Employees for calculate modal
+  const employeesForModal: Employee[] = initialEmployees;
 
   const handleQuickBooksPayment = () => {
     if (selectedRows.length === 0) {
@@ -552,13 +560,9 @@ export function Payroll() {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-foreground">Payroll</h1>
             <div className="flex gap-3">
-              <Button onClick={() => setBonusModalOpen(true)} variant="outline" className="gap-2">
-                <Plus className="w-4 h-4" />
-                Adicionar Bônus
-              </Button>
-              <Button onClick={handleCalculatePayroll} className="gap-2">
+              <Button onClick={handleOpenCalculateModal} className="gap-2">
                 <Calculator className="w-4 h-4" />
-                Calcular Payroll
+                Calculate Payroll
               </Button>
               <Button variant="outline" onClick={handleDownloadExcel} className="gap-2">
                 <Download className="w-4 h-4" />
@@ -786,16 +790,17 @@ export function Payroll() {
             </CardContent>
           </Card>
 
-          {/* Bonus Modal */}
-          <BonusModal
-            open={bonusModalOpen}
-            onOpenChange={setBonusModalOpen}
-            employees={uniqueEmployees}
-            onAddBonus={handleAddBonus}
-            defaultStartDate={startDate}
-            defaultEndDate={endDate}
-            employeePeriods={employeePeriods}
-          />
+          {/* Calculate Payroll Modal */}
+          {startDate && endDate && (
+            <CalculatePayrollModal
+              open={calculateModalOpen}
+              onOpenChange={setCalculateModalOpen}
+              employees={employeesForModal}
+              startDate={startDate}
+              endDate={endDate}
+              onConfirm={handleConfirmPayroll}
+            />
+          )}
         </main>
       </div>
     </div>;
