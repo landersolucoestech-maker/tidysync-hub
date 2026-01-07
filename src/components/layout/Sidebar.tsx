@@ -18,6 +18,7 @@ import {
   Wallet,
   Calculator,
   ArrowRightLeft,
+  FileText,
 } from "lucide-react";
 import {
   Collapsible,
@@ -48,6 +49,7 @@ const navigationItems: NavItem[] = [
       { label: "Invoices", href: "/invoices", icon: DollarSign },
       { label: "Leads", href: "/leads", icon: ClipboardList },
       { label: "Payroll", href: "/payroll", icon: Wallet },
+      { label: "Payroll Rules", href: "/payroll-rules", icon: FileText },
     ]
   },
   { icon: Phone, label: "Communications", href: "/communications" },
