@@ -85,9 +85,9 @@ export function PayrollRules() {
   const getRoleDescription = (role: EmployeeRole) => {
     switch (role) {
       case "Cleaner":
-        return "Pagamento por serviço realizado";
+        return "Pagamento = Valor por serviço × Quantidade de Jobs + Bônus";
       case "Driver":
-        return "Pagamento por serviço + adicional por viagem";
+        return "Pagamento = (Valor por serviço + Adicional) × Quantidade de Jobs + Bônus";
       case "Cleaning Team Manager":
         return "Valor simbólico fixo";
       case "Office Manager":
@@ -204,16 +204,22 @@ export function PayrollRules() {
                       </div>
 
                       <div className="p-4 bg-muted/50 rounded-lg">
-                        <h4 className="font-medium mb-2">Resumo do Pagamento:</h4>
+                        <h4 className="font-medium mb-2">Fórmula de Cálculo:</h4>
                         {currentEmployee.role === "Cleaner" && (
-                          <p className="text-sm text-muted-foreground">
-                            • Recebe <strong>${currentEmployee.baseValue}</strong> por cada serviço realizado
-                          </p>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p className="font-medium text-foreground">Pagamento Total = (Valor por Serviço × Quantidade de Jobs) + Bônus</p>
+                            <p>• Valor por serviço: <strong>${currentEmployee.baseValue}</strong></p>
+                            <p className="text-xs mt-2 italic">Exemplo: 10 jobs = ${currentEmployee.baseValue} × 10 = <strong>${currentEmployee.baseValue * 10}</strong> + bônus aplicáveis</p>
+                          </div>
                         )}
                         {currentEmployee.role === "Driver" && (
-                          <p className="text-sm text-muted-foreground">
-                            • Recebe <strong>${currentEmployee.baseValue}</strong> por serviço + <strong>${currentEmployee.extraValue || 0}</strong> adicional = <strong>${currentEmployee.baseValue + (currentEmployee.extraValue || 0)}</strong> total por serviço
-                          </p>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p className="font-medium text-foreground">Pagamento Total = ((Valor por Serviço + Adicional) × Quantidade de Jobs) + Bônus</p>
+                            <p>• Valor por serviço: <strong>${currentEmployee.baseValue}</strong></p>
+                            <p>• Adicional driver: <strong>${currentEmployee.extraValue || 0}</strong></p>
+                            <p>• Total por job: <strong>${currentEmployee.baseValue + (currentEmployee.extraValue || 0)}</strong></p>
+                            <p className="text-xs mt-2 italic">Exemplo: 10 jobs = ${currentEmployee.baseValue + (currentEmployee.extraValue || 0)} × 10 = <strong>${(currentEmployee.baseValue + (currentEmployee.extraValue || 0)) * 10}</strong> + bônus aplicáveis</p>
+                          </div>
                         )}
                         {(currentEmployee.role === "Cleaning Team Manager" || currentEmployee.role === "Office Manager") && (
                           <p className="text-sm text-muted-foreground">
