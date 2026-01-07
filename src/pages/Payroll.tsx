@@ -12,7 +12,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { CalendarIcon, Download, Calculator, Search, ChevronUp, ChevronDown, Check, ChevronsUpDown, X, CreditCard } from "lucide-react";
+import { CalendarIcon, Download, Calculator, Search, ChevronUp, ChevronDown, Check, ChevronsUpDown, X, CreditCard, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { format, isWithinInterval, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -117,6 +118,7 @@ type SortField = "period" | "employeeName" | "baseValue" | "status";
 type SortDirection = "asc" | "desc";
 
 export function Payroll() {
+  const navigate = useNavigate();
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
@@ -560,6 +562,10 @@ export function Payroll() {
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold text-foreground">Payroll</h1>
             <div className="flex gap-3">
+              <Button variant="outline" onClick={() => navigate("/payroll-rules")} className="gap-2">
+                <FileText className="w-4 h-4" />
+                Payroll Rules
+              </Button>
               <Button onClick={handleOpenCalculateModal} className="gap-2">
                 <Calculator className="w-4 h-4" />
                 Calculate Payroll
