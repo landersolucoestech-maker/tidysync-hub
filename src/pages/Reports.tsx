@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AnalyticsTab } from "@/components/reports/AnalyticsTab";
+import { ReportPreviewModal } from "@/components/reports/ReportPreviewModal";
 import {
   Table,
   TableBody,
@@ -22,11 +23,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Search,
   Filter,
   Download,
   Eye,
-  Plus,
+  Printer,
   DollarSign,
   Users,
   Disc,
@@ -36,7 +43,21 @@ import {
   BarChart3,
   Sparkles,
   ClipboardList,
+  ChevronDown,
 } from "lucide-react";
+import { LucideIcon } from "lucide-react";
+
+interface ReportData {
+  id: number;
+  name: string;
+  description: string;
+  type: string;
+  records: number;
+  status: string;
+  icon: LucideIcon;
+  iconColor: string;
+  iconBg: string;
+}
 import {
   customers,
   jobs,
@@ -51,6 +72,18 @@ export function Reports() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
   const [activeTab, setActiveTab] = useState("relatorios");
+  const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const handleViewReport = (report: ReportData) => {
+    setSelectedReport(report);
+    setIsPreviewOpen(true);
+  };
+
+  const handlePrintReport = (report: ReportData) => {
+    console.log("Printing report:", report.name);
+    window.print();
+  };
 
   // Calculate real data from system
   const reportsData = useMemo(() => {
@@ -189,10 +222,27 @@ export function Reports() {
                 Gere relatórios com dados reais do sistema
               </p>
             </div>
-            <Button className="bg-primary hover:bg-primary/90">
-              <Plus className="w-4 h-4 mr-2" />
-              Criar Relatório Personalizado
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <Printer className="w-4 h-4 mr-2" />
+                  Imprimir Relatório
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-background">
+                {reportsData.map((report) => (
+                  <DropdownMenuItem
+                    key={report.id}
+                    onClick={() => handlePrintReport(report)}
+                    className="cursor-pointer"
+                  >
+                    <report.icon className={`w-4 h-4 mr-2 ${report.iconColor}`} />
+                    {report.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Tabs */}
@@ -305,7 +355,7 @@ export function Reports() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleViewReport(report)}>
                           <Eye className="w-4 h-4 mr-1" />
                           Ver
                         </Button>
@@ -330,6 +380,13 @@ export function Reports() {
           </div>
             </TabsContent>
           </Tabs>
+
+          {/* Report Preview Modal */}
+          <ReportPreviewModal
+            open={isPreviewOpen}
+            onOpenChange={setIsPreviewOpen}
+            report={selectedReport}
+          />
         </main>
       </div>
     </div>
