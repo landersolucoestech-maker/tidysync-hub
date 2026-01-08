@@ -166,18 +166,13 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
                       onOpenChange={() => handleToggleCategory(category.id)}
                     >
                       <CollapsibleTrigger asChild>
-                        <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/50 hover:bg-muted cursor-pointer transition-colors">
-                          <div className="flex items-center gap-2">
-                            {isExpanded ? (
-                              <ChevronDown className="w-4 h-4" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4" />
-                            )}
-                            <span className="font-medium">{category.label}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">
-                            {selected}/{total} ativas
-                          </span>
+                        <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/50 hover:bg-muted cursor-pointer transition-colors">
+                          {isExpanded ? (
+                            <ChevronDown className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
+                          <span className="font-medium">{category.label}</span>
                         </div>
                       </CollapsibleTrigger>
                       <CollapsibleContent>
