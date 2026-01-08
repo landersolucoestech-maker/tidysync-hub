@@ -33,7 +33,7 @@ import {
   Filter,
   Download,
   Eye,
-  Printer,
+  FileSpreadsheet,
   DollarSign,
   Users,
   Disc,
@@ -71,7 +71,7 @@ import {
 export function Reports() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("all");
-  const [activeTab, setActiveTab] = useState("relatorios");
+  const [activeTab, setActiveTab] = useState("analytics");
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -80,9 +80,9 @@ export function Reports() {
     setIsPreviewOpen(true);
   };
 
-  const handlePrintReport = (report: ReportData) => {
-    console.log("Printing report:", report.name);
-    window.print();
+  const handleExportReport = (report: ReportData) => {
+    console.log("Exporting report to Excel:", report.name);
+    // TODO: Implement Excel export using xlsx library
   };
 
   // Calculate real data from system
@@ -225,8 +225,8 @@ export function Reports() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90">
-                  <Printer className="w-4 h-4 mr-2" />
-                  Imprimir Relatório
+                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                  Exportar Excel
                   <ChevronDown className="w-4 h-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
@@ -234,7 +234,7 @@ export function Reports() {
                 {reportsData.map((report) => (
                   <DropdownMenuItem
                     key={report.id}
-                    onClick={() => handlePrintReport(report)}
+                    onClick={() => handleExportReport(report)}
                     className="cursor-pointer"
                   >
                     <report.icon className={`w-4 h-4 mr-2 ${report.iconColor}`} />
@@ -248,10 +248,6 @@ export function Reports() {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-muted/50 p-1">
-              <TabsTrigger value="relatorios" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Relatórios
-              </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Analytics
@@ -270,115 +266,6 @@ export function Reports() {
               <AnalyticsTab />
             </TabsContent>
 
-            <TabsContent value="relatorios" className="mt-6 space-y-6">
-
-          {/* Search and Filter */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar relatórios..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Todos os tipos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os tipos</SelectItem>
-                  {uniqueTypes.map((type) => (
-                    <SelectItem key={type} value={type.toLowerCase()}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Reports Title */}
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Relatórios Disponíveis ({filteredReports.length})
-            </h2>
-          </div>
-
-          {/* Reports Table */}
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-[400px]">Relatório</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-center">Registros</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReports.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${report.iconBg}`}
-                        >
-                          <report.icon className={`w-5 h-5 ${report.iconColor}`} />
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">{report.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {report.description}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-normal">
-                        {report.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge className="bg-red-500 hover:bg-red-600 text-white rounded-full min-w-[40px]">
-                        {report.records}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-green-500 hover:bg-green-600 text-white">
-                        {report.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => handleViewReport(report)}>
-                          <Eye className="w-4 h-4 mr-1" />
-                          Ver
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filteredReports.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        Nenhum relatório encontrado
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-            </TabsContent>
           </Tabs>
 
           {/* Report Preview Modal */}
