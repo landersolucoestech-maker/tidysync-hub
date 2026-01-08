@@ -22,30 +22,16 @@ export const permissionCategories: PermissionCategory[] = [
     id: "schedule",
     label: "Schedule",
     permissions: [
-      { id: "view_schedule", label: "View Schedule", description: "Visualizar agenda", type: "toggle" },
       { id: "edit_schedule", label: "Edit Schedule", description: "Editar agenda", type: "toggle" },
       { id: "toggle_schedule_visibility", label: "Toggle Schedule Visibility", description: "All Days · Today + Tomorrow at 6pm · Current Week", type: "dropdown" },
-    ],
-  },
-  {
-    id: "jobs",
-    label: "Jobs",
-    permissions: [
-      { id: "create_jobs", label: "Create Jobs", description: "Criar novos jobs", type: "toggle" },
-      { id: "edit_jobs", label: "Edit Jobs", description: "Editar jobs existentes", type: "toggle" },
-      { id: "view_jobs", label: "View Jobs", description: "Visualizar jobs", type: "toggle" },
-      { id: "delete_jobs", label: "Delete Jobs", description: "Excluir jobs", type: "toggle" },
-      { id: "toggle_job_status", label: "Toggle Job Status", description: "Marcar job como iniciado / finalizado", type: "toggle" },
-      { id: "view_jobs_all_teams", label: "View Jobs (All Teams)", description: "Visualizar jobs de outras equipes", type: "toggle" },
-      { id: "toggle_hidden_notes", label: "Toggle Hidden Notes", description: "Visualizar / ocultar notas internas", type: "toggle" },
-      { id: "toggle_hidden_info", label: "Toggle Hidden Info", description: "Visualizar / ocultar informações adicionais", type: "toggle" },
+      { id: "toggle_notes", label: "Toggle Notes", description: "Visualizar / ocultar notas internas", type: "toggle" },
+      { id: "toggle_additional_notes", label: "Toggle Additional Notes", description: "Visualizar / ocultar informações adicionais", type: "toggle" },
     ],
   },
   {
     id: "customers",
     label: "Customers",
     permissions: [
-      { id: "view_customers", label: "View Customers", description: "Visualizar clientes", type: "toggle" },
       { id: "view_customer_info", label: "View Customer Info", description: "Visualizar informações de contato", type: "toggle" },
       { id: "view_customer_charges", label: "View Customer Charges", description: "Visualizar cobranças do cliente", type: "toggle" },
     ],
@@ -86,13 +72,13 @@ export const permissionCategories: PermissionCategory[] = [
     ],
   },
   {
-    id: "estimates",
-    label: "Estimates",
+    id: "leads",
+    label: "Leads",
     permissions: [
-      { id: "view_estimates", label: "View Estimates", description: "Visualizar orçamentos", type: "toggle" },
-      { id: "create_estimates", label: "Create Estimates", description: "Criar orçamentos", type: "toggle" },
-      { id: "edit_estimates", label: "Edit Estimates", description: "Editar orçamentos", type: "toggle" },
-      { id: "delete_estimates", label: "Delete Estimates", description: "Excluir orçamentos", type: "toggle" },
+      { id: "view_leads", label: "View Leads", description: "Visualizar leads", type: "toggle" },
+      { id: "create_leads", label: "Create Leads", description: "Criar leads", type: "toggle" },
+      { id: "edit_leads", label: "Edit Leads", description: "Editar leads", type: "toggle" },
+      { id: "delete_leads", label: "Delete Leads", description: "Excluir leads", type: "toggle" },
     ],
   },
   {
