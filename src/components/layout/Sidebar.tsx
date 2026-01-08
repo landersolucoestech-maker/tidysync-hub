@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Calendar,
   Users,
-  Briefcase,
   DollarSign,
   BarChart3,
   Settings,
@@ -24,6 +23,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { usePermission } from "@/hooks/usePermission";
 
 interface SidebarProps {
   className?: string;
@@ -33,26 +33,32 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   href?: string;
-  submenu?: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[];
+  permission?: string; // Required permission to view this item
+  submenu?: { 
+    label: string; 
+    href: string; 
+    icon: React.ComponentType<{ className?: string }>;
+    permission?: string;
+  }[];
 }
 
 const navigationItems: NavItem[] = [
-  { icon: Home, label: "Dashboard", href: "/" },
-  { icon: Calendar, label: "Schedule", href: "/schedule" },
-  { icon: Users, label: "Customers", href: "/customers" },
+  { icon: Home, label: "Dashboard", href: "/" }, // Always visible
+  { icon: Calendar, label: "Schedule", href: "/schedule", permission: "view_schedule" },
+  { icon: Users, label: "Customers", href: "/customers", permission: "view_customers" },
   { 
     icon: Calculator, 
     label: "Accounting",
     submenu: [
-      { label: "Transactions", href: "/transactions", icon: ArrowRightLeft },
-      { label: "Invoices", href: "/invoices", icon: DollarSign },
-      { label: "Leads", href: "/leads", icon: ClipboardList },
-      { label: "Payroll", href: "/payroll", icon: Wallet },
+      { label: "Transactions", href: "/transactions", icon: ArrowRightLeft, permission: "view_transactions" },
+      { label: "Invoices", href: "/invoices", icon: DollarSign, permission: "view_invoices" },
+      { label: "Leads", href: "/leads", icon: ClipboardList, permission: "view_leads" },
+      { label: "Payroll", href: "/payroll", icon: Wallet, permission: "view_payroll" },
     ]
   },
-  { icon: Phone, label: "Communications", href: "/communications" },
-  { icon: BarChart3, label: "Reports", href: "/reports" },
-  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: Phone, label: "Communications", href: "/communications", permission: "view_communications" },
+  { icon: BarChart3, label: "Reports", href: "/reports", permission: "view_reports" },
+  { icon: Settings, label: "Settings", href: "/settings", permission: "view_system_settings" },
 ];
 
 export function Sidebar({ className }: SidebarProps) {
@@ -60,6 +66,36 @@ export function Sidebar({ className }: SidebarProps) {
   const [openSubmenu, setOpenSubmenu] = useState<string | null>("Accounting");
   const navigate = useNavigate();
   const location = useLocation();
+  const { hasPermission } = usePermission();
+
+  // Filter navigation items based on permissions
+  const filteredNavigationItems = useMemo(() => {
+    return navigationItems
+      .map(item => {
+        // If item has no permission requirement, show it
+        if (!item.permission && !item.submenu) {
+          return item;
+        }
+
+        // If item has submenu, filter submenu items
+        if (item.submenu) {
+          const filteredSubmenu = item.submenu.filter(
+            sub => !sub.permission || hasPermission(sub.permission)
+          );
+          // Only show parent if at least one submenu item is visible
+          if (filteredSubmenu.length === 0) return null;
+          return { ...item, submenu: filteredSubmenu };
+        }
+
+        // Check permission for regular items
+        if (item.permission && !hasPermission(item.permission)) {
+          return null;
+        }
+
+        return item;
+      })
+      .filter((item): item is NavItem => item !== null);
+  }, [hasPermission]);
 
   const isActiveRoute = (item: NavItem) => {
     if (item.href) {
@@ -105,7 +141,7 @@ export function Sidebar({ className }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-        {navigationItems.map((item) => {
+        {filteredNavigationItems.map((item) => {
           if (item.submenu) {
             const isOpen = openSubmenu === item.label;
             
