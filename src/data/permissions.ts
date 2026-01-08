@@ -55,7 +55,6 @@ export const permissionCategories: PermissionCategory[] = [
     id: "accounting",
     label: "Accounting",
     permissions: [
-      { id: "view_accounting", label: "View Accounting", description: "Acesso geral ao financeiro", type: "toggle" },
       { id: "edit_payments", label: "Edit Payments", description: "Editar pagamentos", type: "toggle" },
       { id: "view_transactions", label: "View Transactions", description: "Visualizar transações", type: "toggle" },
     ],
