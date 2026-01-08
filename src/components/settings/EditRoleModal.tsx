@@ -12,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -21,12 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Shield, Save, ChevronDown, ChevronRight } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Shield, Save } from "lucide-react";
 import { permissionCategories, scheduleVisibilityOptions } from "@/data/permissions";
 
 interface Role {
@@ -49,7 +43,6 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
   const [roleDescription, setRoleDescription] = useState("");
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [scheduleVisibility, setScheduleVisibility] = useState("all_days");
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (role) {
@@ -57,11 +50,6 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
       setRoleDescription(role.description || "");
       setSelectedPermissions(role.permissions);
       setScheduleVisibility(role.scheduleVisibility || "all_days");
-      // Expand categories that have selected permissions
-      const categoriesWithPermissions = permissionCategories
-        .filter(cat => cat.permissions.some(p => role.permissions.includes(p.id)))
-        .map(cat => cat.id);
-      setExpandedCategories(categoriesWithPermissions);
     }
   }, [role]);
 
@@ -71,21 +59,6 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
         ? prev.filter((p) => p !== permissionId)
         : [...prev, permissionId]
     );
-  };
-
-  const handleToggleCategory = (categoryId: string) => {
-    setExpandedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((c) => c !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
-
-  const getCategoryPermissionCount = (categoryId: string) => {
-    const category = permissionCategories.find(c => c.id === categoryId);
-    if (!category) return { selected: 0, total: 0 };
-    const selected = category.permissions.filter(p => selectedPermissions.includes(p.id)).length;
-    return { selected, total: category.permissions.length };
   };
 
   const handleSubmit = () => {
@@ -114,6 +87,9 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
   };
 
   if (!role) return null;
+
+  // Flatten all permissions from all categories
+  const allPermissions = permissionCategories.flatMap(cat => cat.permissions);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -155,85 +131,58 @@ export function EditRoleModal({ open, onOpenChange, role, onSaveRole }: EditRole
             <Label>Permissões</Label>
             <ScrollArea className="h-[400px] pr-4 border rounded-lg">
               <div className="p-2 space-y-2">
-                {permissionCategories.map((category) => {
-                  const { selected, total } = getCategoryPermissionCount(category.id);
-                  const isExpanded = expandedCategories.includes(category.id);
+                {allPermissions.map((permission) => {
+                  if (permission.type === "dropdown") {
+                    return (
+                      <div
+                        key={permission.id}
+                        className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                      >
+                        <div className="flex-1 mr-4">
+                          <Label className="font-medium">{permission.label}</Label>
+                          <p className="text-sm text-muted-foreground">{permission.description}</p>
+                        </div>
+                        <Select value={scheduleVisibility} onValueChange={setScheduleVisibility}>
+                          <SelectTrigger className="w-[200px] bg-background">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover z-50">
+                            {scheduleVisibilityOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    );
+                  }
 
+                  const isEnabled = selectedPermissions.includes(permission.id);
                   return (
-                    <Collapsible
-                      key={category.id}
-                      open={isExpanded}
-                      onOpenChange={() => handleToggleCategory(category.id)}
+                    <div
+                      key={permission.id}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                     >
-                      <CollapsibleTrigger asChild>
-                        <div className="flex items-center gap-2 p-3 rounded-lg border bg-muted/50 hover:bg-muted cursor-pointer transition-colors">
-                          {isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                          <span className="font-medium">{category.label}</span>
-                        </div>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <div className="pl-4 mt-2 space-y-2">
-                          {category.permissions.map((permission) => {
-                            if (permission.type === "dropdown") {
-                              return (
-                                <div
-                                  key={permission.id}
-                                  className="flex items-center justify-between p-3 rounded-lg border bg-card"
-                                >
-                                  <div className="flex-1 mr-4">
-                                    <Label className="font-medium">{permission.label}</Label>
-                                    <p className="text-sm text-muted-foreground">{permission.description}</p>
-                                  </div>
-                                  <Select value={scheduleVisibility} onValueChange={setScheduleVisibility}>
-                                    <SelectTrigger className="w-[200px] bg-background">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-popover z-50">
-                                      {scheduleVisibilityOptions.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                          {option.label}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-
-                            const isEnabled = selectedPermissions.includes(permission.id);
-                            return (
-                              <div
-                                key={permission.id}
-                                className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
-                              >
-                                <div className="flex-1">
-                                  <Label
-                                    className="font-medium cursor-pointer"
-                                    onClick={() => handleTogglePermission(permission.id)}
-                                  >
-                                    {permission.label}
-                                  </Label>
-                                  <p className="text-sm text-muted-foreground">{permission.description}</p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className={`text-xs font-medium ${isEnabled ? "text-green-600" : "text-muted-foreground"}`}>
-                                    {isEnabled ? "ON" : "OFF"}
-                                  </span>
-                                  <Switch
-                                    checked={isEnabled}
-                                    onCheckedChange={() => handleTogglePermission(permission.id)}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                      <div className="flex-1">
+                        <Label
+                          className="font-medium cursor-pointer"
+                          onClick={() => handleTogglePermission(permission.id)}
+                        >
+                          {permission.label}
+                        </Label>
+                        <p className="text-sm text-muted-foreground">{permission.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs font-medium ${isEnabled ? "text-green-600" : "text-muted-foreground"}`}>
+                          {isEnabled ? "ON" : "OFF"}
+                        </span>
+                        <Switch
+                          checked={isEnabled}
+                          onCheckedChange={() => handleTogglePermission(permission.id)}
+                        />
+                      </div>
+                    </div>
                   );
                 })}
               </div>
