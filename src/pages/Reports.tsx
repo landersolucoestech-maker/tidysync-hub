@@ -319,16 +319,18 @@ export function Reports() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-background">
-                {reportsData.map((report) => (
-                  <DropdownMenuItem
-                    key={report.id}
-                    onClick={() => handleExportReport(report)}
-                    className="cursor-pointer"
-                  >
-                    <report.icon className={`w-4 h-4 mr-2 ${report.iconColor}`} />
-                    {report.name}
-                  </DropdownMenuItem>
-                ))}
+                {reportsData
+                  .filter((report) => report.records > 0)
+                  .map((report) => (
+                    <DropdownMenuItem
+                      key={report.id}
+                      onClick={() => handleExportReport(report)}
+                      className="cursor-pointer"
+                    >
+                      <report.icon className={`w-4 h-4 mr-2 ${report.iconColor}`} />
+                      {report.name}
+                    </DropdownMenuItem>
+                  ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
