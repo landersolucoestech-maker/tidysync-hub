@@ -1,5 +1,6 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { 
   Briefcase, 
   Calendar, 
@@ -10,7 +11,9 @@ import {
   Users,
   FileText,
   StickyNote,
-  AlertTriangle
+  AlertTriangle,
+  Pencil,
+  Trash2
 } from "lucide-react";
 
 interface Job {
@@ -33,14 +36,28 @@ interface JobDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   job: Job | null;
+  onEdit?: (job: Job) => void;
+  onDelete?: (job: Job) => void;
 }
 
 export function JobDetailsModal({
   open,
   onOpenChange,
-  job
+  job,
+  onEdit,
+  onDelete
 }: JobDetailsModalProps) {
   if (!job) return null;
+
+  const handleEdit = () => {
+    onEdit?.(job);
+    onOpenChange(false);
+  };
+
+  const handleDelete = () => {
+    onDelete?.(job);
+    onOpenChange(false);
+  };
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -212,6 +229,17 @@ export function JobDetailsModal({
             </div>
           )}
         </div>
+
+        <DialogFooter className="flex gap-2 mt-4">
+          <Button variant="outline" onClick={handleEdit} className="flex-1">
+            <Pencil className="w-4 h-4 mr-2" />
+            Editar
+          </Button>
+          <Button variant="destructive" onClick={handleDelete} className="flex-1">
+            <Trash2 className="w-4 h-4 mr-2" />
+            Excluir
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
