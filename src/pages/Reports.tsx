@@ -2,26 +2,8 @@ import { useState, useMemo } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AnalyticsTab } from "@/components/reports/AnalyticsTab";
 import { ReportPreviewModal } from "@/components/reports/ReportPreviewModal";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,10 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Search,
-  Filter,
-  Download,
-  Eye,
   FileSpreadsheet,
   DollarSign,
   Users,
@@ -40,12 +18,11 @@ import {
   FileText,
   Package,
   MessageSquare,
-  BarChart3,
-  Sparkles,
-  ClipboardList,
   ChevronDown,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
 
 interface ReportData {
   id: number;
@@ -69,20 +46,142 @@ import {
 } from "@/data/systemData";
 
 export function Reports() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [activeTab, setActiveTab] = useState("analytics");
   const [selectedReport, setSelectedReport] = useState<ReportData | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const handleViewReport = (report: ReportData) => {
-    setSelectedReport(report);
-    setIsPreviewOpen(true);
-  };
-
   const handleExportReport = (report: ReportData) => {
-    console.log("Exporting report to Excel:", report.name);
-    // TODO: Implement Excel export using xlsx library
+    let data: Record<string, unknown>[] = [];
+    let fileName = "";
+
+    switch (report.id) {
+      case 1: // Relatório Financeiro
+        data = invoices.map((inv) => ({
+          "ID": inv.id,
+          "Cliente": inv.customer,
+          "Valor": inv.amount,
+          "Data": inv.date,
+          "Vencimento": inv.dueDate,
+          "Status": inv.status,
+          "Job ID": inv.jobId,
+        }));
+        fileName = "relatorio_financeiro";
+        break;
+      case 2: // Clientes
+        data = customers.map((c) => ({
+          "ID": c.id,
+          "Nome": c.name,
+          "Email": c.email,
+          "Telefone": c.phone,
+          "Telefone 2": c.phone2,
+          "Endereço": c.address,
+          "Status": c.status,
+          "Último Serviço": c.lastService,
+          "Total Jobs": c.totalJobs,
+          "Receita": c.revenue,
+          "Avaliação": c.rating,
+          "Frequência": c.frequency,
+          "Dia Preferido": c.preferredDay,
+          "Método Pagamento": c.paymentMethod,
+          "Cliente Desde": c.customerSince,
+        }));
+        fileName = "clientes";
+        break;
+      case 3: // Jobs
+        data = jobs.map((j) => ({
+          "ID": j.id,
+          "Cliente": j.customer,
+          "Serviço": j.service,
+          "Data": j.date,
+          "Hora": j.time,
+          "Funcionário 1": j.staff1,
+          "Funcionário 2": j.staff2,
+          "Status": j.status,
+          "Duração": j.duration,
+          "Valor": j.amount,
+          "Endereço": j.address,
+        }));
+        fileName = "jobs";
+        break;
+      case 4: // Agendamentos
+        data = schedule.map((s) => ({
+          "ID": s.id,
+          "Hora": s.time,
+          "Cliente": s.customer,
+          "Endereço": s.address,
+          "Serviço": s.service,
+          "Funcionário": s.staff,
+          "Status": s.status,
+          "Duração": s.duration,
+        }));
+        fileName = "agendamentos";
+        break;
+      case 5: // Orçamentos
+        data = estimates.map((e) => ({
+          "ID": e.id,
+          "Cliente": e.customer,
+          "Serviço": e.service,
+          "Valor": e.amount,
+          "Data": e.date,
+          "Validade": e.expiryDate,
+          "Status": e.status,
+          "Endereço": e.address,
+        }));
+        fileName = "orcamentos";
+        break;
+      case 6: // Payroll
+        data = staff
+          .filter((s) => s.role === "Cleaner")
+          .map((s) => ({
+            "ID": s.id,
+            "Nome": s.name,
+            "Cargo": s.role,
+            "Status": s.status,
+          }));
+        fileName = "payroll";
+        break;
+      case 7: // Equipe
+        data = staff.map((s) => ({
+          "ID": s.id,
+          "Nome": s.name,
+          "Cargo": s.role,
+          "Status": s.status,
+        }));
+        fileName = "equipe";
+        break;
+      case 8: // Comunicações
+        data = [{ "Mensagem": "Nenhum dado de comunicação disponível" }];
+        fileName = "comunicacoes";
+        break;
+      case 9: // Reservas Online
+        data = schedule
+          .filter((s) => s.status === "scheduled")
+          .map((s) => ({
+            "ID": s.id,
+            "Hora": s.time,
+            "Cliente": s.customer,
+            "Endereço": s.address,
+            "Serviço": s.service,
+            "Funcionário": s.staff,
+            "Status": s.status,
+            "Duração": s.duration,
+          }));
+        fileName = "reservas_online";
+        break;
+      default:
+        toast.error("Relatório não encontrado");
+        return;
+    }
+
+    // Create workbook and worksheet
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, report.name.substring(0, 31)); // Max 31 chars for sheet name
+
+    // Generate file and download
+    const dateStr = new Date().toISOString().split("T")[0];
+    XLSX.writeFile(wb, `${fileName}_${dateStr}.xlsx`);
+    
+    toast.success(`${report.name} exportado com sucesso!`);
   };
 
   // Calculate real data from system
@@ -195,17 +294,6 @@ export function Reports() {
     ];
   }, []);
 
-  const filteredReports = reportsData.filter((report) => {
-    const matchesSearch =
-      report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType =
-      selectedType === "all" || report.type.toLowerCase() === selectedType.toLowerCase();
-    return matchesSearch && matchesType;
-  });
-
-  const uniqueTypes = [...new Set(reportsData.map((r) => r.type))];
-
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
@@ -245,28 +333,8 @@ export function Reports() {
             </DropdownMenu>
           </div>
 
-          {/* Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="bg-muted/50 p-1">
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" />
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="ia-insights" className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                IA & Insights
-              </TabsTrigger>
-              <TabsTrigger value="auditoria" className="flex items-center gap-2">
-                <ClipboardList className="w-4 h-4" />
-                Auditoria
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="analytics" className="mt-6">
-              <AnalyticsTab />
-            </TabsContent>
-
-          </Tabs>
+          {/* Analytics Content */}
+          <AnalyticsTab />
 
           {/* Report Preview Modal */}
           <ReportPreviewModal
