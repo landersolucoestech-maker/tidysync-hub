@@ -87,6 +87,16 @@ interface AppointmentModalProps {
   mode: "create" | "view" | "edit";
   prefilledData?: PrefilledData;
   onJobCreated?: (invoiceData: { customer: string; address: string; service: string; amount: number }) => void;
+  onRequestEdit?: (appointment: {
+    id: number;
+    time: string;
+    customer: string;
+    address: string;
+    service: string;
+    staff: string;
+    status: string;
+    duration: string;
+  }) => void;
 }
 
 // Mock customers data - sorted alphabetically
@@ -309,6 +319,7 @@ export function AppointmentModal({
   mode,
   prefilledData,
   onJobCreated,
+  onRequestEdit,
 }: AppointmentModalProps) {
   const initialCustomer = prefilledData?.customer || appointment?.customer || "";
   const initialAddress = prefilledData?.address || appointment?.address || "";
@@ -399,6 +410,7 @@ export function AppointmentModal({
               appointment={appointment}
               onClose={() => onOpenChange(false)}
               onOpenInvoice={() => setInvoiceModalOpen(true)}
+              onEdit={() => onRequestEdit?.(appointment)}
             />
           </DialogContent>
         </Dialog>
