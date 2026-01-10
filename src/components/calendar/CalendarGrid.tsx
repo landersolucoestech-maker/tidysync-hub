@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 interface Appointment {
   id: number;
   time: string;
@@ -16,6 +16,7 @@ interface Appointment {
 interface CalendarGridProps {
   appointments: Appointment[];
   onAppointmentClick?: (appointment: Appointment) => void;
+  onEditClick?: (appointment: Appointment) => void;
 }
 const cleaners = [{
   id: 1,
@@ -95,7 +96,8 @@ const getServiceColor = (service: string): string => {
 };
 export function CalendarGrid({
   appointments,
-  onAppointmentClick
+  onAppointmentClick,
+  onEditClick
 }: CalendarGridProps) {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const getWeekDays = (date: Date) => {
@@ -140,6 +142,13 @@ export function CalendarGrid({
   const handleAppointmentClick = (appointment: Appointment) => {
     if (onAppointmentClick) {
       onAppointmentClick(appointment);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, appointment: Appointment) => {
+    e.stopPropagation();
+    if (onEditClick) {
+      onEditClick(appointment);
     }
   };
   return <div className="flex h-full bg-background">
@@ -239,10 +248,19 @@ export function CalendarGrid({
           {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r border-border/50 last:border-r-0 space-y-0.5">
               {getAppointmentsForDate(day).map((appointment, aptIndex) => <div key={aptIndex} className={`
                       ${getServiceColor(appointment.service)} text-white text-xs cursor-pointer
-                      hover:opacity-80 transition-opacity truncate flex items-center px-1
+                      hover:opacity-80 transition-opacity truncate flex items-center px-1 group relative
                     `} title={`${appointment.time} - ${appointment.customer} - ${appointment.service}`} onClick={() => handleAppointmentClick(appointment)}>
                     <span className="mr-1">{getStatusIcon(appointment.status)}</span>
-                    <span>{appointment.customer}</span>
+                    <span className="flex-1 truncate">{appointment.customer}</span>
+                    {onEditClick && (
+                      <button
+                        onClick={(e) => handleEditClick(e, appointment)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-white/20 rounded"
+                        title="Edit Job"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                    )}
                   </div>)}
             </div>)}
         </div>

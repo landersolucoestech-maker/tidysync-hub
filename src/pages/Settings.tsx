@@ -15,6 +15,7 @@ import { ViewPermissionsModal } from "@/components/settings/ViewPermissionsModal
 import { CreateRoleModal } from "@/components/settings/CreateRoleModal";
 import { EditRoleModal } from "@/components/settings/EditRoleModal";
 import { DeleteRoleDialog } from "@/components/settings/DeleteRoleDialog";
+import { TeamUserModal } from "@/components/settings/TeamUserModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   User,
@@ -153,6 +154,9 @@ export function Settings() {
   const [editRoleModalOpen, setEditRoleModalOpen] = useState(false);
   const [deleteRoleDialogOpen, setDeleteRoleDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [teamUserModalOpen, setTeamUserModalOpen] = useState(false);
+  const [teamUserModalMode, setTeamUserModalMode] = useState<"create" | "edit">("create");
+  const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMember | null>(null);
 
   // Security Settings
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -215,6 +219,30 @@ export function Settings() {
   const handleRemoveTeamMember = (id: string) => {
     setTeamMembers(teamMembers.filter((m) => m.id !== id));
     toast.success("Team member removed");
+  };
+
+  const handleOpenCreateUser = () => {
+    setTeamUserModalMode("create");
+    setSelectedTeamMember(null);
+    setTeamUserModalOpen(true);
+  };
+
+  const handleOpenEditUser = (member: TeamMember) => {
+    setTeamUserModalMode("edit");
+    setSelectedTeamMember(member);
+    setTeamUserModalOpen(true);
+  };
+
+  const handleSaveTeamUser = (user: TeamMember) => {
+    if (teamUserModalMode === "create") {
+      setTeamMembers([...teamMembers, user]);
+    } else {
+      setTeamMembers(teamMembers.map((m) => m.id === user.id ? user : m));
+    }
+  };
+
+  const handleDeleteTeamUser = (userId: string) => {
+    setTeamMembers(teamMembers.filter((m) => m.id !== userId));
   };
 
   const handleChangePassword = () => {
@@ -690,6 +718,10 @@ export function Settings() {
               <UserPlus className="w-4 h-4 mr-2" />
               {t("settings.invite")}
             </Button>
+            <Button onClick={handleOpenCreateUser} variant="hero">
+              <Plus className="w-4 h-4 mr-2" />
+              {t("settings.addTeamMember") || "Add User"}
+            </Button>
           </div>
 
           <Separator />
@@ -731,6 +763,9 @@ export function Settings() {
                       <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button variant="ghost" size="sm" onClick={() => handleOpenEditUser(member)}>
+                    <Edit className="w-4 h-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => handleRemoveTeamMember(member.id)}>
                     <Trash2 className="w-4 h-4 text-destructive" />
                   </Button>
@@ -1210,6 +1245,15 @@ export function Settings() {
           setRoles(roles.filter((r) => r.id !== roleId));
           toast.success("Função excluída com sucesso!");
         }}
+      />
+      <TeamUserModal
+        open={teamUserModalOpen}
+        onOpenChange={setTeamUserModalOpen}
+        mode={teamUserModalMode}
+        user={selectedTeamMember}
+        roles={roles}
+        onSave={handleSaveTeamUser}
+        onDelete={handleDeleteTeamUser}
       />
     </div>
   );

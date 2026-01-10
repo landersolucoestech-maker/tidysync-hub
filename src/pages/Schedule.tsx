@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { AppointmentModal } from "@/components/schedule/AppointmentModal";
 import { FilterModal } from "@/components/schedule/FilterModal";
+import { EditJobModal } from "@/components/jobs/EditJobModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -143,6 +144,27 @@ export function Schedule() {
     appointment: null
   });
   const [filterModal, setFilterModal] = useState(false);
+  const [editJobModal, setEditJobModal] = useState<{
+    open: boolean;
+    job: {
+      id: string;
+      customer: string;
+      service: string;
+      date: string;
+      time: string;
+      staff1: string;
+      staff2: string;
+      status: string;
+      duration: string;
+      amount: string;
+      address: string;
+      notes?: string;
+    } | null;
+  }>({
+    open: false,
+    job: null
+  });
+  const [appointments, setAppointments] = useState(scheduleData);
 
   const handleNewAppointment = () => {
     setAppointmentModal({
@@ -158,6 +180,39 @@ export function Schedule() {
       mode: "view",
       appointment
     });
+  };
+
+  const handleEditJob = (appointment: typeof scheduleData[0]) => {
+    setEditJobModal({
+      open: true,
+      job: {
+        id: appointment.id.toString(),
+        customer: appointment.customer,
+        service: appointment.service,
+        date: new Date().toISOString().split("T")[0],
+        time: appointment.time,
+        staff1: appointment.staff,
+        staff2: "",
+        status: appointment.status,
+        duration: appointment.duration,
+        amount: "",
+        address: appointment.address,
+        notes: ""
+      }
+    });
+  };
+
+  const handleSaveJob = (job: typeof editJobModal.job) => {
+    if (!job) return;
+    setAppointments(prev => prev.map(apt => 
+      apt.id.toString() === job.id 
+        ? { ...apt, customer: job.customer, service: job.service, time: job.time, staff: job.staff1, status: job.status, duration: job.duration, address: job.address }
+        : apt
+    ));
+  };
+
+  const handleDeleteJob = (jobId: string) => {
+    setAppointments(prev => prev.filter(apt => apt.id.toString() !== jobId));
   };
 
   const handleApplyFilters = (filters: {
@@ -194,7 +249,7 @@ export function Schedule() {
           {/* Calendar */}
           <Card>
             <CardContent className="p-0">
-              <CalendarGrid appointments={scheduleData} onAppointmentClick={handleViewAppointment} />
+              <CalendarGrid appointments={appointments} onAppointmentClick={handleViewAppointment} onEditClick={handleEditJob} />
             </CardContent>
           </Card>
         </main>
@@ -215,6 +270,14 @@ export function Schedule() {
         open={filterModal} 
         onOpenChange={setFilterModal} 
         onApplyFilters={handleApplyFilters} 
+      />
+
+      <EditJobModal
+        open={editJobModal.open}
+        onOpenChange={(open) => setEditJobModal(prev => ({ ...prev, open }))}
+        job={editJobModal.job}
+        onSave={handleSaveJob}
+        onDelete={handleDeleteJob}
       />
     </div>
   );
