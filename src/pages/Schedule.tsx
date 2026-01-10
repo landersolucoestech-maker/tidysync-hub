@@ -263,7 +263,11 @@ export function Schedule() {
           open
         }))} 
         appointment={appointmentModal.appointment} 
-        mode={appointmentModal.mode} 
+        mode={appointmentModal.mode}
+        onRequestEdit={(apt) => {
+          setAppointmentModal((prev) => ({ ...prev, open: false }));
+          handleEditJob(apt);
+        }}
       />
 
       <FilterModal 

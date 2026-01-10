@@ -110,10 +110,12 @@ export function AppointmentDetailsView({
   appointment,
   onClose,
   onOpenInvoice,
+  onEdit,
 }: {
   appointment: Appointment;
   onClose: () => void;
   onOpenInvoice: () => void;
+  onEdit?: () => void;
 }) {
   const [notesPage, setNotesPage] = useState(1);
   const [additionalNotesPage, setAdditionalNotesPage] = useState(1);
@@ -334,14 +336,27 @@ export function AppointmentDetailsView({
       <div className="bg-surface">
         <header className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">{appointment.customer}</h2>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 rounded-full px-4 text-xs shadow-none"
-            onClick={onClose}
-          >
-            Close
-          </Button>
+          <div className="flex items-center gap-2">
+            {onEdit ? (
+              <Button
+                variant="hero"
+                size="sm"
+                className="h-7 rounded-full px-4 text-xs shadow-none gap-1.5"
+                onClick={onEdit}
+              >
+                <Pencil className="h-4 w-4" />
+                Editar
+              </Button>
+            ) : null}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 rounded-full px-4 text-xs shadow-none"
+              onClick={onClose}
+            >
+              Close
+            </Button>
+          </div>
         </header>
 
         <main className="px-5 py-4 space-y-4">
