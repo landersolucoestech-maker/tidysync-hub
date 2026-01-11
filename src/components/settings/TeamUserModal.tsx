@@ -32,7 +32,7 @@ export interface TeamMember {
   status: "active" | "pending" | "inactive";
   phone?: string;
   username?: string;
-  driverCleaner?: string;
+  
 }
 
 interface Role {
@@ -60,12 +60,6 @@ const FUNCTION_ROLES = [
   { value: "virtual_assistant", label: "Virtual Assistant" },
 ];
 
-const DRIVER_CLEANER_OPTIONS = [
-  { value: "driver", label: "Driver" },
-  { value: "cleaner", label: "Cleaner" },
-  { value: "both", label: "Both" },
-  { value: "none", label: "None" },
-];
 
 interface FormData {
   id: string;
@@ -75,7 +69,7 @@ interface FormData {
   username: string;
   password: string;
   role: string;
-  driverCleaner: string;
+  
 }
 
 const getInitialFormData = (): FormData => ({
@@ -86,7 +80,7 @@ const getInitialFormData = (): FormData => ({
   username: "",
   password: "",
   role: "",
-  driverCleaner: "",
+  
 });
 
 export function TeamUserModal({
@@ -110,7 +104,7 @@ export function TeamUserModal({
         username: user.username || "",
         password: "",
         role: user.role,
-        driverCleaner: user.driverCleaner || "",
+        
       });
     } else if (mode === "create") {
       setFormData(getInitialFormData());
@@ -142,7 +136,7 @@ export function TeamUserModal({
       status: "active",
       phone: formData.phoneNumber,
       username: formData.username,
-      driverCleaner: formData.driverCleaner,
+      
     };
 
     onSave(teamMember);
@@ -251,25 +245,6 @@ export function TeamUserModal({
             />
           </div>
 
-          {/* Driver/Cleaner */}
-          <div className="space-y-2">
-            <Label>Driver/Cleaner</Label>
-            <Select
-              value={formData.driverCleaner}
-              onValueChange={(value) => handleChange("driverCleaner", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select option" />
-              </SelectTrigger>
-              <SelectContent>
-                {DRIVER_CLEANER_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </form>
 
         <DialogFooter className="flex justify-between sm:justify-between">
