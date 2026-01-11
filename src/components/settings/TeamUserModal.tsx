@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -297,6 +297,9 @@ export function TeamUserModal({
           <DialogTitle>
             {mode === "create" ? "Add Team Member" : "Edit Team Member"}
           </DialogTitle>
+          <DialogDescription>
+            Fill in the team member information below
+          </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4 -mr-4">
