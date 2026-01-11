@@ -25,7 +25,6 @@ import {
 import { DatePickerString } from "@/components/ui/date-picker";
 import { Trash2, Upload, FileText, X } from "lucide-react";
 import { toast } from "sonner";
-import { useLanguage } from "@/contexts/LanguageContext";
 
 // Extended interface for full team member data
 interface TeamMemberFormData {
@@ -123,7 +122,7 @@ const getInitialFormData = (): TeamMemberFormData => ({
   w9FileName: "",
   dateStarted: "",
   role: "",
-  paymentType: "",
+  paymentType: "wire_transfer",
   zelleKey: "",
   zelleHolderName: "",
   bankName: "",
@@ -146,7 +145,6 @@ export function TeamUserModal({
   onSave,
   onDelete,
 }: TeamUserModalProps) {
-  const { t } = useLanguage();
   const [formData, setFormData] = useState<TeamMemberFormData>(getInitialFormData());
   
   const contractInputRef = useRef<HTMLInputElement>(null);
@@ -175,7 +173,8 @@ export function TeamUserModal({
       
       // Reset payment type fields when country changes
       if (field === "country") {
-        updated.paymentType = value === "Brazil" ? "wire_transfer" : "";
+        // Default to Wire Transfer so os detalhes bancários já aparecem
+        updated.paymentType = "wire_transfer";
         updated.zelleKey = "";
         updated.zelleHolderName = "";
         updated.bankName = "";
