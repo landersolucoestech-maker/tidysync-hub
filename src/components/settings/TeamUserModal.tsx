@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, RefreshCw, Upload, X, User } from "lucide-react";
 import { toast } from "sonner";
 
 export interface TeamMember {
@@ -32,7 +32,7 @@ export interface TeamMember {
   status: "active" | "pending" | "inactive";
   phone?: string;
   username?: string;
-  
+  profileImage?: string;
 }
 
 interface Role {
@@ -60,7 +60,6 @@ const FUNCTION_ROLES = [
   { value: "virtual_assistant", label: "Virtual Assistant" },
 ];
 
-
 interface FormData {
   id: string;
   fullName: string;
@@ -69,8 +68,19 @@ interface FormData {
   username: string;
   password: string;
   role: string;
-  
+  profileImage: string;
+  profileImageFile: File | null;
 }
+
+// Generate a random password
+const generatePassword = (): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
+  let password = "";
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
 
 const getInitialFormData = (): FormData => ({
   id: Date.now().toString(),
@@ -78,9 +88,10 @@ const getInitialFormData = (): FormData => ({
   email: "",
   phoneNumber: "",
   username: "",
-  password: "",
+  password: generatePassword(),
   role: "",
-  
+  profileImage: "",
+  profileImageFile: null,
 });
 
 export function TeamUserModal({
@@ -93,6 +104,7 @@ export function TeamUserModal({
   onDelete,
 }: TeamUserModalProps) {
   const [formData, setFormData] = useState<FormData>(getInitialFormData());
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (mode === "edit" && user) {
@@ -104,7 +116,8 @@ export function TeamUserModal({
         username: user.username || "",
         password: "",
         role: user.role,
-        
+        profileImage: user.profileImage || "",
+        profileImageFile: null,
       });
     } else if (mode === "create") {
       setFormData(getInitialFormData());
@@ -115,6 +128,41 @@ export function TeamUserModal({
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleRegeneratePassword = () => {
+    handleChange("password", generatePassword());
+    toast.success("New password generated!");
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image must be less than 5MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          profileImage: reader.result as string,
+          profileImageFile: file,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData((prev) => ({
+      ...prev,
+      profileImage: "",
+      profileImageFile: null,
+    }));
+    if (imageInputRef.current) {
+      imageInputRef.current.value = "";
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -123,8 +171,8 @@ export function TeamUserModal({
       return;
     }
 
-    if (mode === "create" && !formData.password) {
-      toast.error("Password is required for new team members");
+    if (mode === "create" && !formData.username) {
+      toast.error("Username is required");
       return;
     }
 
@@ -136,7 +184,7 @@ export function TeamUserModal({
       status: "active",
       phone: formData.phoneNumber,
       username: formData.username,
-      
+      profileImage: formData.profileImage,
     };
 
     onSave(teamMember);
@@ -169,6 +217,57 @@ export function TeamUserModal({
         </DialogHeader>
 
         <form id="team-user-form" onSubmit={handleSubmit} className="space-y-4 py-4">
+          {/* Profile Image Upload */}
+          <div className="space-y-2">
+            <Label>Profile Image</Label>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                {formData.profileImage ? (
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-border">
+                    <img 
+                      src={formData.profileImage} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-1 hover:bg-destructive/90"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border">
+                    <User className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <input
+                  type="file"
+                  ref={imageInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Image
+                </Button>
+                <p className="text-xs text-muted-foreground mt-1">
+                  JPG, PNG or GIF. Max 5MB.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Role */}
           <div className="space-y-2">
             <Label>Role *</Label>
@@ -233,17 +332,34 @@ export function TeamUserModal({
             />
           </div>
 
-          {/* Password */}
-          <div className="space-y-2">
-            <Label>{mode === "create" ? "Password *" : "Password (leave blank to keep current)"}</Label>
-            <Input
-              type="password"
-              value={formData.password}
-              onChange={(e) => handleChange("password", e.target.value)}
-              placeholder={mode === "create" ? "Enter password" : "Enter new password"}
-              required={mode === "create"}
-            />
-          </div>
+          {/* Password - Auto-generated and visible */}
+          {mode === "create" && (
+            <div className="space-y-2">
+              <Label>Password (Auto-generated)</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={formData.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
+                  placeholder="Auto-generated password"
+                  className="font-mono"
+                  readOnly
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleRegeneratePassword}
+                  title="Generate new password"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                This password will be sent to the user. They must change it on first login.
+              </p>
+            </div>
+          )}
 
         </form>
 
