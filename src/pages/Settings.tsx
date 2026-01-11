@@ -720,7 +720,7 @@ export function Settings() {
             </Button>
             <Button onClick={handleOpenCreateUser} variant="hero">
               <Plus className="w-4 h-4 mr-2" />
-              {t("settings.addTeamMember") || "Add User"}
+              {t("settings.addTeamMember")}
             </Button>
           </div>
 
