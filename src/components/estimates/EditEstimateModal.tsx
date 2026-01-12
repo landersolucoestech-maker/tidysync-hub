@@ -576,7 +576,6 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                           <SelectItem value="Wednesday">Wednesday</SelectItem>
                           <SelectItem value="Thursday">Thursday</SelectItem>
                           <SelectItem value="Friday">Friday</SelectItem>
-                          <SelectItem value="Weekdays">Weekdays</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
