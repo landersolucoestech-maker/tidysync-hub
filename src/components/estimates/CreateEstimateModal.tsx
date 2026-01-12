@@ -503,7 +503,6 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                           <SelectItem value="Wednesday">Wednesday</SelectItem>
                           <SelectItem value="Thursday">Thursday</SelectItem>
                           <SelectItem value="Friday">Friday</SelectItem>
-                          <SelectItem value="Weekdays">Weekdays</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
