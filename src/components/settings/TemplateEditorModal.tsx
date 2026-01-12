@@ -36,6 +36,7 @@ interface TemplateConfig {
   companyAddress: string;
   companyPhone: string;
   companyEmail: string;
+  companyTaxId: string;
   
   // Styling
   primaryColor: string;
@@ -48,12 +49,16 @@ interface TemplateConfig {
   introText: string;
   footerText: string;
   termsAndConditions: string;
+  notesText: string;
+  legalText: string;
   
   // Options
   showTerms: boolean;
   showSignatureLine: boolean;
   showPaymentInfo: boolean;
   showDueDate: boolean;
+  showNotes: boolean;
+  showLegal: boolean;
 }
 
 interface TemplateEditorModalProps {
@@ -71,6 +76,7 @@ const getDefaultConfigForType = (templateType: "estimate" | "contract" | "invoic
     companyAddress: "123 Business Center, City, State 12345",
     companyPhone: "(555) 987-6543",
     companyEmail: "info@cleanpro.com",
+    companyTaxId: "",
     primaryColor: "#dc2626",
     secondaryColor: "#1f2937",
     fontFamily: "Inter",
@@ -79,10 +85,14 @@ const getDefaultConfigForType = (templateType: "estimate" | "contract" | "invoic
     introText: "Thank you for choosing our services. Please find the details below.",
     footerText: "Thank you for your business!",
     termsAndConditions: "Payment is due within 30 days of invoice date. Late payments may incur additional fees.",
+    notesText: "",
+    legalText: "",
     showTerms: true,
     showSignatureLine: false,
     showPaymentInfo: true,
     showDueDate: true,
+    showNotes: false,
+    showLegal: false,
   };
 
   switch (templateType) {
@@ -109,14 +119,18 @@ const getDefaultConfigForType = (templateType: "estimate" | "contract" | "invoic
     case "receipt":
       return {
         ...baseConfig,
-        title: "Payment Receipt",
+        title: "RECEIPT",
         primaryColor: "#16a34a",
-        introText: "Thank you for your payment! This receipt confirms your transaction.",
-        footerText: "Payment received - Thank you for your business!",
-        termsAndConditions: "This receipt serves as proof of payment. Please keep for your records.",
+        introText: "",
+        footerText: "",
+        termsAndConditions: "",
+        notesText: "Thank you for doing business with us.\nThis receipt confirms that your payment has been successfully processed.\n\nFor support or billing inquiries, contact:\n📧 billing@company.com",
+        legalText: "This document is a digital receipt and does not replace a fiscal invoice unless explicitly stated.",
         showTerms: false,
-        showPaymentInfo: false,
+        showPaymentInfo: true,
         showDueDate: false,
+        showNotes: true,
+        showLegal: true,
       };
     case "invoice":
     default:
@@ -125,11 +139,13 @@ const getDefaultConfigForType = (templateType: "estimate" | "contract" | "invoic
 };
 
 // Sample data for preview
-const sampleData = {
+const sampleInvoiceData = {
   clientName: "John Smith",
+  clientCompany: "Smith Enterprises",
   clientEmail: "john.smith@email.com",
   clientPhone: "(555) 123-4567",
   clientAddress: "456 Customer St, City, State 67890",
+  clientCountry: "United States",
   invoiceNumber: "INV-2024-001",
   invoiceDate: "January 12, 2026",
   dueDate: "February 12, 2026",
@@ -141,7 +157,36 @@ const sampleData = {
   ],
   subtotal: 450,
   tax: 36,
+  discount: 0,
   total: 486,
+};
+
+// Sample data for receipt preview
+const sampleReceiptData = {
+  receiptNumber: "LST-000001",
+  invoiceNumber: "INV-000001",
+  date: "10/01/2026",
+  paymentStatus: "Paid",
+  paymentMethod: "Credit Card",
+  clientName: "John Smith",
+  clientCompany: "Smith Enterprises",
+  clientEmail: "john.smith@email.com",
+  clientPhone: "(555) 123-4567",
+  clientAddress: "456 Customer St, City, State 67890",
+  clientCountry: "United States",
+  items: [
+    { id: "01", description: "SaaS Subscription – Platform", qty: 1, price: 49 },
+    { id: "02", description: "Website Development", qty: 1, price: 500 },
+  ],
+  subtotal: 549,
+  tax: 0,
+  discount: 0,
+  total: 549,
+  transactionId: "TXN-938402934",
+  gateway: "Stripe",
+  cardInfo: "**** 4582",
+  paymentDate: "10/01/2026",
+  currency: "USD",
 };
 
 export function TemplateEditorModal({ 
@@ -277,6 +322,17 @@ export function TemplateEditorModal({
                       />
                     </div>
                   </div>
+
+                  {templateType === "receipt" && (
+                    <div className="space-y-2">
+                      <Label>CNPJ / Tax ID</Label>
+                      <Input 
+                        value={config.companyTaxId}
+                        onChange={(e) => updateConfig("companyTaxId", e.target.value)}
+                        placeholder="e.g., 12.345.678/0001-90"
+                      />
+                    </div>
+                  )}
                 </div>
               </TabsContent>
 
@@ -290,43 +346,80 @@ export function TemplateEditorModal({
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Introduction Text</Label>
-                  <Textarea 
-                    value={config.introText}
-                    onChange={(e) => updateConfig("introText", e.target.value)}
-                    rows={3}
-                  />
-                </div>
+                {templateType !== "receipt" && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Introduction Text</Label>
+                      <Textarea 
+                        value={config.introText}
+                        onChange={(e) => updateConfig("introText", e.target.value)}
+                        rows={3}
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Footer Text</Label>
-                  <Textarea 
-                    value={config.footerText}
-                    onChange={(e) => updateConfig("footerText", e.target.value)}
-                    rows={2}
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label>Footer Text</Label>
+                      <Textarea 
+                        value={config.footerText}
+                        onChange={(e) => updateConfig("footerText", e.target.value)}
+                        rows={2}
+                      />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Terms & Conditions</Label>
-                  <Textarea 
-                    value={config.termsAndConditions}
-                    onChange={(e) => updateConfig("termsAndConditions", e.target.value)}
-                    rows={4}
-                  />
-                </div>
+                    <div className="space-y-2">
+                      <Label>Terms & Conditions</Label>
+                      <Textarea 
+                        value={config.termsAndConditions}
+                        onChange={(e) => updateConfig("termsAndConditions", e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                  </>
+                )}
+
+                {templateType === "receipt" && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Notes Text</Label>
+                      <p className="text-xs text-muted-foreground">Thank you message and contact information</p>
+                      <Textarea 
+                        value={config.notesText}
+                        onChange={(e) => updateConfig("notesText", e.target.value)}
+                        rows={5}
+                        placeholder="Thank you for doing business with us.&#10;This receipt confirms that your payment has been successfully processed.&#10;&#10;For support or billing inquiries, contact:&#10;📧 billing@company.com"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Legal Text</Label>
+                      <p className="text-xs text-muted-foreground">Legal disclaimer shown at the bottom</p>
+                      <Textarea 
+                        value={config.legalText}
+                        onChange={(e) => updateConfig("legalText", e.target.value)}
+                        rows={3}
+                        placeholder="This document is a digital receipt and does not replace a fiscal invoice unless explicitly stated."
+                      />
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm">Available Variables</h4>
                   <div className="flex flex-wrap gap-2">
-                    {["{ClientName}", "{CompanyName}", "{InvoiceNumber}", "{JobDate}", "{DueDate}", "{Total}"].map((v) => (
-                      <span key={v} className="px-2 py-1 bg-muted rounded text-xs font-mono">
-                        {v}
-                      </span>
-                    ))}
+                    {templateType === "receipt" 
+                      ? ["{ClientName}", "{CompanyName}", "{ReceiptNumber}", "{InvoiceNumber}", "{PaymentDate}", "{Total}", "{TransactionId}"].map((v) => (
+                          <span key={v} className="px-2 py-1 bg-muted rounded text-xs font-mono">
+                            {v}
+                          </span>
+                        ))
+                      : ["{ClientName}", "{CompanyName}", "{InvoiceNumber}", "{JobDate}", "{DueDate}", "{Total}"].map((v) => (
+                          <span key={v} className="px-2 py-1 bg-muted rounded text-xs font-mono">
+                            {v}
+                          </span>
+                        ))
+                    }
                   </div>
                 </div>
               </TabsContent>
@@ -409,36 +502,57 @@ export function TemplateEditorModal({
               {/* Options Tab */}
               <TabsContent value="options" className="space-y-4">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Show Terms & Conditions</Label>
-                      <p className="text-xs text-muted-foreground">Display terms at the bottom</p>
-                    </div>
-                    <Switch 
-                      checked={config.showTerms} 
-                      onCheckedChange={(v) => updateConfig("showTerms", v)} 
-                    />
-                  </div>
+                  {templateType !== "receipt" && (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label>Show Terms & Conditions</Label>
+                          <p className="text-xs text-muted-foreground">Display terms at the bottom</p>
+                        </div>
+                        <Switch 
+                          checked={config.showTerms} 
+                          onCheckedChange={(v) => updateConfig("showTerms", v)} 
+                        />
+                      </div>
 
-                  <Separator />
+                      <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Show Signature Line</Label>
-                      <p className="text-xs text-muted-foreground">Add signature field for contracts</p>
-                    </div>
-                    <Switch 
-                      checked={config.showSignatureLine} 
-                      onCheckedChange={(v) => updateConfig("showSignatureLine", v)} 
-                    />
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label>Show Signature Line</Label>
+                          <p className="text-xs text-muted-foreground">Add signature field for contracts</p>
+                        </div>
+                        <Switch 
+                          checked={config.showSignatureLine} 
+                          onCheckedChange={(v) => updateConfig("showSignatureLine", v)} 
+                        />
+                      </div>
 
-                  <Separator />
+                      <Separator />
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label>Show Due Date</Label>
+                          <p className="text-xs text-muted-foreground">Display payment due date</p>
+                        </div>
+                        <Switch 
+                          checked={config.showDueDate} 
+                          onCheckedChange={(v) => updateConfig("showDueDate", v)} 
+                        />
+                      </div>
+
+                      <Separator />
+                    </>
+                  )}
 
                   <div className="flex items-center justify-between">
                     <div>
                       <Label>Show Payment Information</Label>
-                      <p className="text-xs text-muted-foreground">Display payment details section</p>
+                      <p className="text-xs text-muted-foreground">
+                        {templateType === "receipt" 
+                          ? "Display transaction details (ID, gateway, card info)" 
+                          : "Display payment details section"}
+                      </p>
                     </div>
                     <Switch 
                       checked={config.showPaymentInfo} 
@@ -446,18 +560,35 @@ export function TemplateEditorModal({
                     />
                   </div>
 
-                  <Separator />
+                  {templateType === "receipt" && (
+                    <>
+                      <Separator />
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Show Due Date</Label>
-                      <p className="text-xs text-muted-foreground">Display payment due date</p>
-                    </div>
-                    <Switch 
-                      checked={config.showDueDate} 
-                      onCheckedChange={(v) => updateConfig("showDueDate", v)} 
-                    />
-                  </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label>Show Notes Section</Label>
+                          <p className="text-xs text-muted-foreground">Display thank you message and contact info</p>
+                        </div>
+                        <Switch 
+                          checked={config.showNotes} 
+                          onCheckedChange={(v) => updateConfig("showNotes", v)} 
+                        />
+                      </div>
+
+                      <Separator />
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <Label>Show Legal Disclaimer</Label>
+                          <p className="text-xs text-muted-foreground">Display legal text at the bottom</p>
+                        </div>
+                        <Switch 
+                          checked={config.showLegal} 
+                          onCheckedChange={(v) => updateConfig("showLegal", v)} 
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -473,187 +604,413 @@ export function TemplateEditorModal({
               <span className="text-xs text-muted-foreground">Updates in real-time</span>
             </div>
 
-            {/* Document Preview */}
-            <div 
-              className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-[500px] text-sm"
-              style={{ fontFamily: config.fontFamily }}
-            >
-              {/* Header */}
+            {/* Receipt Preview */}
+            {templateType === "receipt" ? (
               <div 
-                className="p-4 rounded-lg mb-6 -mx-4 -mt-4"
-                style={{ backgroundColor: config.headerBgColor }}
+                className="bg-white rounded-lg shadow-lg p-6 mx-auto max-w-[500px] text-sm"
+                style={{ fontFamily: config.fontFamily }}
               >
-                <div className={`flex items-start gap-4 ${
-                  config.logoPosition === "center" ? "flex-col items-center text-center" :
-                  config.logoPosition === "right" ? "flex-row-reverse" : ""
-                }`}>
-                  {config.showLogo && (
-                    <div 
-                      className="w-16 h-16 rounded-lg flex items-center justify-center text-white font-bold text-xl"
-                      style={{ backgroundColor: config.primaryColor }}
-                    >
-                      <ImageIcon className="w-8 h-8" />
-                    </div>
-                  )}
-                  <div className={config.logoPosition === "center" ? "text-center" : ""}>
-                    <h1 
-                      className="text-xl font-bold"
-                      style={{ color: config.primaryColor }}
-                    >
-                      {config.companyName}
-                    </h1>
-                    <div className="text-xs text-gray-600 mt-1 space-y-0.5">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {config.companyAddress}
+                {/* Receipt Header Badge */}
+                <div className="text-center mb-4">
+                  <span className="text-xs uppercase tracking-wider text-gray-500 font-medium">
+                    Receipt / Payment Confirmation
+                  </span>
+                </div>
+
+                {/* Company Header */}
+                <div 
+                  className="p-4 rounded-lg mb-4"
+                  style={{ backgroundColor: config.headerBgColor }}
+                >
+                  <div className="flex items-start gap-4">
+                    {config.showLogo && (
+                      <div 
+                        className="w-14 h-14 rounded-lg flex items-center justify-center text-white font-bold"
+                        style={{ backgroundColor: config.primaryColor }}
+                      >
+                        <ImageIcon className="w-7 h-7" />
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1">
-                          <Phone className="w-3 h-3" />
-                          {config.companyPhone}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" />
-                          {config.companyEmail}
-                        </span>
+                    )}
+                    <div className="flex-1">
+                      <h1 className="text-lg font-bold" style={{ color: config.primaryColor }}>
+                        {config.companyName}
+                      </h1>
+                      <div className="text-xs text-gray-600 mt-1 space-y-0.5">
+                        {config.companyTaxId && (
+                          <div>CNPJ / Tax ID: {config.companyTaxId}</div>
+                        )}
+                        <div>{config.companyAddress}</div>
+                        <div>Email: {config.companyEmail}</div>
+                        <div>Phone: {config.companyPhone}</div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Title & Info */}
-              <div className="flex justify-between items-start mb-6">
-                <div>
+                {/* RECEIPT Title */}
+                <div className="text-center mb-4">
                   <h2 
                     className="text-2xl font-bold"
                     style={{ color: config.secondaryColor }}
                   >
                     {config.title}
                   </h2>
-                  <div className="text-xs text-gray-500 mt-1 space-y-0.5">
-                    <div className="flex items-center gap-1">
-                      <Hash className="w-3 h-3" />
-                      {sampleData.invoiceNumber}
+                </div>
+
+                {/* Receipt Info */}
+                <div className="bg-gray-50 rounded-lg p-3 mb-4 text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Receipt Nº:</span>
+                    <span className="font-medium">{sampleReceiptData.receiptNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Invoice Nº:</span>
+                    <span className="font-medium">{sampleReceiptData.invoiceNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Date:</span>
+                    <span className="font-medium">{sampleReceiptData.date}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Payment Status:</span>
+                    <span className="font-medium text-green-600">✅ {sampleReceiptData.paymentStatus}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Payment Method:</span>
+                    <span className="font-medium">{sampleReceiptData.paymentMethod}</span>
+                  </div>
+                </div>
+
+                {/* Bill To */}
+                <div className="mb-4">
+                  <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                    Bill To
+                  </h3>
+                  <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Customer Name:</span>
+                      <span>{sampleReceiptData.clientName}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3" />
-                      {sampleData.invoiceDate}
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Company:</span>
+                      <span>{sampleReceiptData.clientCompany}</span>
                     </div>
-                    {config.showDueDate && (
-                      <div className="flex items-center gap-1 text-amber-600">
-                        <Calendar className="w-3 h-3" />
-                        Due: {sampleData.dueDate}
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Email:</span>
+                      <span>{sampleReceiptData.clientEmail}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Phone:</span>
+                      <span>{sampleReceiptData.clientPhone}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Billing Address:</span>
+                      <span>{sampleReceiptData.clientAddress}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Country:</span>
+                      <span>{sampleReceiptData.clientCountry}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transaction Details */}
+                <div className="mb-4">
+                  <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                    Transaction Details
+                  </h3>
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr 
+                        className="text-white"
+                        style={{ backgroundColor: config.primaryColor }}
+                      >
+                        <th className="text-left p-2 rounded-l">Item</th>
+                        <th className="text-left p-2">Description</th>
+                        <th className="text-center p-2">Qty</th>
+                        <th className="text-right p-2">Unit Price</th>
+                        <th className="text-right p-2 rounded-r">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sampleReceiptData.items.map((item, i) => (
+                        <tr key={i} className="border-b border-gray-100">
+                          <td className="p-2">{item.id}</td>
+                          <td className="p-2">{item.description}</td>
+                          <td className="p-2 text-center">{item.qty}</td>
+                          <td className="p-2 text-right">${item.price.toFixed(2)}</td>
+                          <td className="p-2 text-right">${(item.qty * item.price).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Totals */}
+                <div className="flex justify-end mb-4">
+                  <div className="w-56 text-xs">
+                    <div className="flex justify-between py-1">
+                      <span>Subtotal:</span>
+                      <span>${sampleReceiptData.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span>Tax (VAT / Sales Tax):</span>
+                      <span>${sampleReceiptData.tax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b">
+                      <span>Discount:</span>
+                      <span>-${sampleReceiptData.discount.toFixed(2)}</span>
+                    </div>
+                    <div 
+                      className="flex justify-between py-2 font-bold text-sm"
+                      style={{ color: config.primaryColor }}
+                    >
+                      <span>Total Paid:</span>
+                      <span>${sampleReceiptData.total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Information */}
+                {config.showPaymentInfo && (
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                      Payment Information
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Transaction ID:</span>
+                        <span className="font-mono">{sampleReceiptData.transactionId}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Gateway:</span>
+                        <span>{sampleReceiptData.gateway}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Card / Pix / Wallet:</span>
+                        <span>{sampleReceiptData.cardInfo}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Payment Date:</span>
+                        <span>{sampleReceiptData.paymentDate}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Currency:</span>
+                        <span>{sampleReceiptData.currency}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes */}
+                {config.showNotes && config.notesText && (
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                      Notes
+                    </h3>
+                    <div className="bg-green-50 rounded-lg p-3 text-xs text-gray-700 whitespace-pre-line">
+                      {config.notesText}
+                    </div>
+                  </div>
+                )}
+
+                {/* Legal */}
+                {config.showLegal && config.legalText && (
+                  <div className="border-t pt-3">
+                    <h3 className="font-semibold text-xs mb-1 text-gray-500">Legal</h3>
+                    <p className="text-xs text-gray-500 italic">
+                      {config.legalText}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Standard Invoice/Estimate/Contract Preview */
+              <div 
+                className="bg-white rounded-lg shadow-lg p-8 mx-auto max-w-[500px] text-sm"
+                style={{ fontFamily: config.fontFamily }}
+              >
+                {/* Header */}
+                <div 
+                  className="p-4 rounded-lg mb-6 -mx-4 -mt-4"
+                  style={{ backgroundColor: config.headerBgColor }}
+                >
+                  <div className={`flex items-start gap-4 ${
+                    config.logoPosition === "center" ? "flex-col items-center text-center" :
+                    config.logoPosition === "right" ? "flex-row-reverse" : ""
+                  }`}>
+                    {config.showLogo && (
+                      <div 
+                        className="w-16 h-16 rounded-lg flex items-center justify-center text-white font-bold text-xl"
+                        style={{ backgroundColor: config.primaryColor }}
+                      >
+                        <ImageIcon className="w-8 h-8" />
                       </div>
                     )}
+                    <div className={config.logoPosition === "center" ? "text-center" : ""}>
+                      <h1 
+                        className="text-xl font-bold"
+                        style={{ color: config.primaryColor }}
+                      >
+                        {config.companyName}
+                      </h1>
+                      <div className="text-xs text-gray-600 mt-1 space-y-0.5">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {config.companyAddress}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {config.companyPhone}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {config.companyEmail}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="text-right text-xs">
-                  <div className="font-medium" style={{ color: config.secondaryColor }}>Bill To:</div>
-                  <div className="text-gray-600">
-                    <div className="font-medium">{sampleData.clientName}</div>
-                    <div>{sampleData.clientAddress}</div>
-                    <div>{sampleData.clientEmail}</div>
-                    <div>{sampleData.clientPhone}</div>
+
+                {/* Title & Info */}
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h2 
+                      className="text-2xl font-bold"
+                      style={{ color: config.secondaryColor }}
+                    >
+                      {config.title}
+                    </h2>
+                    <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                      <div className="flex items-center gap-1">
+                        <Hash className="w-3 h-3" />
+                        {sampleInvoiceData.invoiceNumber}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {sampleInvoiceData.invoiceDate}
+                      </div>
+                      {config.showDueDate && (
+                        <div className="flex items-center gap-1 text-amber-600">
+                          <Calendar className="w-3 h-3" />
+                          Due: {sampleInvoiceData.dueDate}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right text-xs">
+                    <div className="font-medium" style={{ color: config.secondaryColor }}>Bill To:</div>
+                    <div className="text-gray-600">
+                      <div className="font-medium">{sampleInvoiceData.clientName}</div>
+                      <div>{sampleInvoiceData.clientAddress}</div>
+                      <div>{sampleInvoiceData.clientEmail}</div>
+                      <div>{sampleInvoiceData.clientPhone}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Intro Text */}
-              <p className="text-xs text-gray-600 mb-4">{config.introText}</p>
+                {/* Intro Text */}
+                {config.introText && (
+                  <p className="text-xs text-gray-600 mb-4">{config.introText}</p>
+                )}
 
-              {/* Items Table */}
-              <table className="w-full text-xs mb-6">
-                <thead>
-                  <tr 
-                    className="text-white"
-                    style={{ backgroundColor: config.primaryColor }}
-                  >
-                    <th className="text-left p-2 rounded-l">Description</th>
-                    <th className="text-center p-2">Qty</th>
-                    <th className="text-right p-2">Price</th>
-                    <th className="text-right p-2 rounded-r">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sampleData.items.map((item, i) => (
-                    <tr key={i} className="border-b border-gray-100">
-                      <td className="p-2">{item.description}</td>
-                      <td className="p-2 text-center">{item.qty}</td>
-                      <td className="p-2 text-right">${item.price.toFixed(2)}</td>
-                      <td className="p-2 text-right">${(item.qty * item.price).toFixed(2)}</td>
+                {/* Items Table */}
+                <table className="w-full text-xs mb-6">
+                  <thead>
+                    <tr 
+                      className="text-white"
+                      style={{ backgroundColor: config.primaryColor }}
+                    >
+                      <th className="text-left p-2 rounded-l">Description</th>
+                      <th className="text-center p-2">Qty</th>
+                      <th className="text-right p-2">Price</th>
+                      <th className="text-right p-2 rounded-r">Total</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sampleInvoiceData.items.map((item, i) => (
+                      <tr key={i} className="border-b border-gray-100">
+                        <td className="p-2">{item.description}</td>
+                        <td className="p-2 text-center">{item.qty}</td>
+                        <td className="p-2 text-right">${item.price.toFixed(2)}</td>
+                        <td className="p-2 text-right">${(item.qty * item.price).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-              {/* Totals */}
-              <div className="flex justify-end mb-6">
-                <div className="w-48 text-xs">
-                  <div className="flex justify-between py-1">
-                    <span>Subtotal:</span>
-                    <span>${sampleData.subtotal.toFixed(2)}</span>
+                {/* Totals */}
+                <div className="flex justify-end mb-6">
+                  <div className="w-48 text-xs">
+                    <div className="flex justify-between py-1">
+                      <span>Subtotal:</span>
+                      <span>${sampleInvoiceData.subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b">
+                      <span>Tax (8%):</span>
+                      <span>${sampleInvoiceData.tax.toFixed(2)}</span>
+                    </div>
+                    <div 
+                      className="flex justify-between py-2 font-bold text-sm"
+                      style={{ color: config.primaryColor }}
+                    >
+                      <span>Total:</span>
+                      <span>${sampleInvoiceData.total.toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between py-1 border-b">
-                    <span>Tax (8%):</span>
-                    <span>${sampleData.tax.toFixed(2)}</span>
+                </div>
+
+                {/* Payment Info */}
+                {config.showPaymentInfo && (
+                  <div className="bg-gray-50 rounded-lg p-3 mb-4 text-xs">
+                    <div className="font-medium mb-1" style={{ color: config.secondaryColor }}>
+                      Payment Information
+                    </div>
+                    <div className="text-gray-600">
+                      <div>Bank: Chase Bank</div>
+                      <div>Account: **** 1234</div>
+                      <div>Or pay online at: payments.cleanpro.com</div>
+                    </div>
                   </div>
+                )}
+
+                {/* Signature Line */}
+                {config.showSignatureLine && (
+                  <div className="mb-6 pt-4">
+                    <div className="flex gap-8">
+                      <div className="flex-1">
+                        <div className="border-b border-gray-300 h-8"></div>
+                        <div className="text-xs text-gray-500 mt-1">Client Signature</div>
+                      </div>
+                      <div className="w-32">
+                        <div className="border-b border-gray-300 h-8"></div>
+                        <div className="text-xs text-gray-500 mt-1">Date</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Terms */}
+                {config.showTerms && config.termsAndConditions && (
+                  <div className="border-t pt-4 text-xs text-gray-500">
+                    <div className="font-medium mb-1">Terms & Conditions</div>
+                    <p>{config.termsAndConditions}</p>
+                  </div>
+                )}
+
+                {/* Footer */}
+                {config.footerText && (
                   <div 
-                    className="flex justify-between py-2 font-bold text-sm"
+                    className="text-center text-xs mt-6 pt-4 border-t"
                     style={{ color: config.primaryColor }}
                   >
-                    <span>Total:</span>
-                    <span>${sampleData.total.toFixed(2)}</span>
+                    {config.footerText}
                   </div>
-                </div>
+                )}
               </div>
-
-              {/* Payment Info */}
-              {config.showPaymentInfo && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-4 text-xs">
-                  <div className="font-medium mb-1" style={{ color: config.secondaryColor }}>
-                    Payment Information
-                  </div>
-                  <div className="text-gray-600">
-                    <div>Bank: Chase Bank</div>
-                    <div>Account: **** 1234</div>
-                    <div>Or pay online at: payments.cleanpro.com</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Signature Line */}
-              {config.showSignatureLine && (
-                <div className="mb-6 pt-4">
-                  <div className="flex gap-8">
-                    <div className="flex-1">
-                      <div className="border-b border-gray-300 h-8"></div>
-                      <div className="text-xs text-gray-500 mt-1">Client Signature</div>
-                    </div>
-                    <div className="w-32">
-                      <div className="border-b border-gray-300 h-8"></div>
-                      <div className="text-xs text-gray-500 mt-1">Date</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Terms */}
-              {config.showTerms && (
-                <div className="border-t pt-4 text-xs text-gray-500">
-                  <div className="font-medium mb-1">Terms & Conditions</div>
-                  <p>{config.termsAndConditions}</p>
-                </div>
-              )}
-
-              {/* Footer */}
-              <div 
-                className="text-center text-xs mt-6 pt-4 border-t"
-                style={{ color: config.primaryColor }}
-              >
-                {config.footerText}
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
