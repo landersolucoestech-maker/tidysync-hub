@@ -110,7 +110,7 @@ export function IntegrationsTab() {
             )}
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
               {items.map((integration) => (
                 <div key={integration.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex items-center gap-3">
