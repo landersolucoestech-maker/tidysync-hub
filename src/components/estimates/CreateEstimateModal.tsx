@@ -17,12 +17,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, MapPin, MessageSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, MapPin, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 interface CreateEstimateModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+export interface Interaction {
+  id: string;
+  date: string;
+  time: string;
+  subject: string;
+  attendedBy: string;
+  notes: string;
+}
+
+interface RoomSelection {
+  kitchen: boolean;
+  bathroom: boolean;
+  bedroom: boolean;
+  diningLiving: boolean;
+  laundryRoom: boolean;
+  addOns: boolean;
 }
 
 interface AddressEntry {
@@ -35,16 +54,103 @@ interface AddressEntry {
   amount: string;
   notes: string;
   additionalNotes: string;
+  rooms: RoomSelection;
 }
 
-export interface Interaction {
-  id: string;
-  date: string;
-  time: string;
-  subject: string;
-  attendedBy: string;
-  notes: string;
-}
+const ROOM_SERVICES = {
+  kitchen: {
+    label: "KITCHEN",
+    items: [
+      "Clean major appliance exteriors (interior upon request)",
+      "Dust window sills",
+      "Clean table and chairs",
+      "Clean microwave - interior & exterior",
+      "Clean/disinfect/polish sinks & faucets",
+      "Clean and disinfect counters & backsplash",
+      "Clean floors (vacuum, sweep, mop)",
+      "Wipe doors, handles & light switches",
+      "Wipe outside cabinets & drawers",
+      "Remove cobwebs",
+      "Empty trash and replace liner",
+      "Dust baseboards",
+    ],
+  },
+  bathroom: {
+    label: "BATHROOM",
+    items: [
+      "Clean tub shower door and inside of the shower",
+      "Clean and polish countertop, sinks, and faucets",
+      "Clean mirrors",
+      "Dust window sills",
+      "Clean and disinfect towel bars",
+      "Dust picture frames",
+      "Fold and hang towels neatly",
+      "Empty trash and replace liner",
+      "Remove cobwebs",
+      "Clean & sanitize toilets in/out",
+      "Wipe doors, handles & light switches",
+      "Clean floors (vacuum, sweep, mop)",
+      "Clean exterior of vanities",
+      "Dust baseboards",
+    ],
+  },
+  bedroom: {
+    label: "BEDROOM",
+    items: [
+      "Clean floors (vacuum, sweep, mop)",
+      "Dust baseboards",
+      "Dust furniture within reach (top, front & underneath)",
+      "Clean mirrors and glass surfaces",
+      "Dust window sills",
+      "Remove cobwebs",
+      "Dust lamps and lamp shades",
+      "Dust picture frames",
+      "Wipe doors, handles & light switches",
+      "Dust light fixtures, ceiling fans, and vents",
+      "Empty trash and replace liner",
+    ],
+  },
+  diningLiving: {
+    label: "DINING ROOM / LIVING AREAS",
+    items: [
+      "Vacuum/dust upholstered furniture",
+      "Dust lamps and lamp shades",
+      "Dust furniture within reach (top, front & underneath)",
+      "Dust picture frames",
+      "Dust windowsills",
+      "Clean counters & backsplash",
+      "Clean mirrors and glass surfaces",
+      "Empty trash and replace liner",
+      "Clean floors (vacuum, sweep, mop)",
+      "Remove cobwebs",
+      "Wipe doors & light switches",
+      "Dust baseboards",
+    ],
+  },
+  laundryRoom: {
+    label: "LAUNDRY ROOM",
+    items: [
+      "Dust windowsill",
+      "Wipe tops of washer and dryer",
+      "Empty trash and replace liner",
+      "Clean floors (vacuum, sweep, mop)",
+      "Remove cobwebs",
+      "Wipe doors, handles & light switches",
+      "Wipe outside cabinets and drawers",
+      "Dust baseboards",
+    ],
+  },
+  addOns: {
+    label: "ADD-ON SERVICES",
+    items: [
+      "Clean inside refrigerator",
+      "Clean inside oven",
+      "Clean the garage",
+      "Clean inside cabinets",
+      "*By request only",
+    ],
+  },
+} as const;
 
 const serviceTypes = [
   "Standard Cleaning",
@@ -59,14 +165,17 @@ const serviceTypes = [
 ];
 
 const originOptions = [
-  "Website",
+  "Google",
   "Phone Call",
-  "Email",
+  "Instagram",
   "Referral",
+  "Facebook",
+  "Nextdoor",
+  "Website",
+  "Email",
   "Social Media",
   "Google Ads",
   "Walk-in",
-  "Influencer",
   "Other",
 ];
 
@@ -78,25 +187,50 @@ const staffOptions = [
   "Carla Souza",
 ];
 
+const formatCurrency = (value: string): string => {
+  const numericValue = value.replace(/[^0-9.]/g, "");
+  const number = parseFloat(numericValue);
+  if (isNaN(number)) {
+    return "";
+  }
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number);
+};
+
 export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalProps) {
+  const defaultRooms: RoomSelection = {
+    kitchen: false,
+    bathroom: false,
+    bedroom: false,
+    diningLiving: false,
+    laundryRoom: false,
+    addOns: false,
+  };
+
   const [formData, setFormData] = useState({
     customerName: "",
     email: "",
     phoneNumber1: "",
     phoneNumber2: "",
     origin: "",
+    expiryDate: "",
   });
 
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" },
+    { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [expandedRooms, setExpandedRooms] = useState<Record<string, Record<string, boolean>>>({});
 
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" },
+      { id: Date.now().toString(), addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
   };
 
@@ -104,6 +238,37 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
     if (addresses.length > 1) {
       setAddresses(addresses.filter((addr) => addr.id !== id));
     }
+  };
+
+  const updateAddress = (id: string, field: keyof AddressEntry, value: string) => {
+    setAddresses(
+      addresses.map((addr) =>
+        addr.id === id ? { ...addr, [field]: value } : addr
+      )
+    );
+  };
+
+  const handleAmountBlur = (id: string, value: string) => {
+    const formatted = formatCurrency(value);
+    updateAddress(id, "amount", formatted);
+  };
+
+  const toggleRoomExpand = (addressId: string, roomKey: string) => {
+    setExpandedRooms(prev => ({
+      ...prev,
+      [addressId]: {
+        ...prev[addressId],
+        [roomKey]: !prev[addressId]?.[roomKey],
+      }
+    }));
+  };
+
+  const updateRoomSelection = (addressId: string, roomKey: keyof RoomSelection, checked: boolean) => {
+    setAddresses(addresses.map(addr =>
+      addr.id === addressId
+        ? { ...addr, rooms: { ...addr.rooms, [roomKey]: checked } }
+        : addr
+    ));
   };
 
   const addInteraction = () => {
@@ -133,31 +298,6 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
     );
   };
 
-  const formatCurrency = (value: string): string => {
-    const numericValue = value.replace(/[^0-9.]/g, "");
-    const number = parseFloat(numericValue);
-    if (isNaN(number)) return "";
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(number);
-  };
-
-  const handleAmountBlur = (id: string, value: string) => {
-    const formatted = formatCurrency(value);
-    updateAddress(id, "amount", formatted);
-  };
-
-  const updateAddress = (id: string, field: keyof AddressEntry, value: string) => {
-    setAddresses(
-      addresses.map((addr) =>
-        addr.id === id ? { ...addr, [field]: value } : addr
-      )
-    );
-  };
-
   const handleCreateEstimate = () => {
     if (!formData.customerName.trim()) {
       toast.error("Por favor, insira o nome do cliente");
@@ -178,9 +318,11 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
       phoneNumber1: "",
       phoneNumber2: "",
       origin: "",
+      expiryDate: "",
     });
-    setAddresses([{ id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" }]);
+    setAddresses([{ id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
     setInteractions([]);
+    setExpandedRooms({});
   };
 
   return (
@@ -261,6 +403,17 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expiryDate">Válido Até</Label>
+                <Input
+                  id="expiryDate"
+                  type="date"
+                  value={formData.expiryDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, expiryDate: e.target.value })
+                  }
+                />
               </div>
             </div>
           </div>
@@ -364,6 +517,77 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                       />
                     </div>
                   </div>
+
+                  {/* Room Services Grid */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Service Areas</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {(Object.keys(ROOM_SERVICES) as Array<keyof typeof ROOM_SERVICES>).map((roomKey) => {
+                        const room = ROOM_SERVICES[roomKey];
+                        const isExpanded = expandedRooms[addr.id]?.[roomKey] || false;
+                        const isChecked = addr.rooms[roomKey];
+
+                        return (
+                          <div
+                            key={roomKey}
+                            className={`border rounded-lg p-3 transition-all ${
+                              isChecked 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border bg-muted/20 hover:border-muted-foreground/50"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <Checkbox
+                                id={`${addr.id}-${roomKey}`}
+                                checked={isChecked}
+                                onCheckedChange={(checked) => 
+                                  updateRoomSelection(addr.id, roomKey, checked as boolean)
+                                }
+                                className="mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <label
+                                  htmlFor={`${addr.id}-${roomKey}`}
+                                  className="text-sm font-semibold cursor-pointer block"
+                                >
+                                  {room.label}
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleRoomExpand(addr.id, roomKey)}
+                                  className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      <ChevronUp className="w-3 h-3" />
+                                      Hide details
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3 h-3" />
+                                      View details
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {isExpanded && (
+                              <ul className="mt-3 space-y-1 text-xs text-muted-foreground border-t border-border/50 pt-2">
+                                {room.items.map((item, idx) => (
+                                  <li key={idx} className="flex items-start gap-1.5">
+                                    <span className="text-primary mt-0.5">•</span>
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label>Observações</Label>
                     <Textarea
@@ -485,11 +709,13 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleCreateEstimate}>Criar Lead</Button>
+          <Button onClick={handleCreateEstimate}>
+            Criar Lead
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
