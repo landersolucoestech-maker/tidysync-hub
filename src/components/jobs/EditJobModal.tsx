@@ -424,14 +424,14 @@ export function EditJobModal({ open, onOpenChange, job, onSave, onDelete }: Edit
             <div className="space-y-2">
               <Label htmlFor="staff2">Funcionário 2</Label>
               <Select
-                value={formData.staff2}
-                onValueChange={(value) => handleChange("staff2", value)}
+                value={formData.staff2 || "none"}
+                onValueChange={(value) => handleChange("staff2", value === "none" ? "" : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar funcionário (opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {staffMembers
                     .filter((staff) => staff !== formData.staff1)
                     .map((staff) => (
