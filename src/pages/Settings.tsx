@@ -28,32 +28,24 @@ import {
   Globe,
   Smartphone,
   Mail,
-  Zap,
-  Save,
   Key,
   Lock,
   Eye,
   EyeOff,
-  UserPlus,
   Trash2,
   Edit,
   Clock,
   Phone,
   MapPin,
   Upload,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  MessageSquare,
-  Send,
   Plus,
-  Settings as SettingsIcon,
   Landmark,
-  Link2,
   SlidersHorizontal,
+  UserPlus,
+  AlertTriangle,
 } from "lucide-react";
 
-type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "integrations" | "options";
+type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "options";
 
 interface TeamMember {
   id: string;
@@ -78,15 +70,6 @@ interface Role {
   permissions: string[];
 }
 
-interface Automation {
-  id: string;
-  name: string;
-  description: string;
-  enabled: boolean;
-  trigger: string;
-  sendTime?: string;
-  condition?: string;
-}
 
 export function Settings() {
   const { t } = useLanguage();
@@ -173,21 +156,6 @@ export function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Integration Settings
-  const [quickbooksConnected, setQuickbooksConnected] = useState(true);
-  const [quickbooksSyncInvoices, setQuickbooksSyncInvoices] = useState(true);
-  const [quickbooksSyncPayments, setQuickbooksSyncPayments] = useState(true);
-  const [twilioConnected, setTwilioConnected] = useState(true);
-  const [sendgridConnected, setSendgridConnected] = useState(false);
-
-  // Automations
-  const [automations, setAutomations] = useState<Automation[]>([
-    { id: "1", name: "On Our Way", description: "When team is on the way → Send message", enabled: true, trigger: "on_the_way" },
-    { id: "2", name: "Job Started", description: "When job is started → Send message", enabled: true, trigger: "job_started" },
-    { id: "3", name: "Job Finished", description: "When job is finished → Send message", enabled: true, trigger: "job_finished" },
-    { id: "4", name: "Job Date Reminder", description: "2 days before job", enabled: true, trigger: "job_reminder", sendTime: "10:00" },
-    { id: "5", name: "Invoice Payment Reminder", description: "3 days after invoice due date", enabled: true, trigger: "payment_reminder", sendTime: "10:00", condition: "only_if_unpaid" },
-  ]);
 
   const handleSaveProfile = () => {
     toast.success("Profile saved successfully!");
@@ -282,31 +250,6 @@ export function Settings() {
     toast.success("Default payment method updated");
   };
 
-  const handleToggleAutomation = (id: string) => {
-    setAutomations(automations.map((a) => 
-      a.id === id ? { ...a, enabled: !a.enabled } : a
-    ));
-  };
-
-  const handleConnectQuickbooks = () => {
-    setQuickbooksConnected(!quickbooksConnected);
-    toast.success(quickbooksConnected ? "QuickBooks disconnected" : "QuickBooks connected");
-  };
-
-  const handleConnectTwilio = () => {
-    setTwilioConnected(!twilioConnected);
-    toast.success(twilioConnected ? "Twilio disconnected" : "Twilio connected");
-  };
-
-  const handleConnectSendgrid = () => {
-    setSendgridConnected(!sendgridConnected);
-    toast.success(sendgridConnected ? "SendGrid disconnected" : "SendGrid connected");
-  };
-
-  const getIntegrationStatus = (connected: boolean) => {
-    if (connected) return { label: "Connected", variant: "default" as const, icon: CheckCircle };
-    return { label: "Disconnected", variant: "outline" as const, icon: XCircle };
-  };
 
   const tabs = [
     { id: "profile" as SettingsTab, label: t("settings.profile"), icon: User },
@@ -315,7 +258,6 @@ export function Settings() {
     { id: "billing" as SettingsTab, label: t("settings.billing"), icon: CreditCard },
     { id: "team" as SettingsTab, label: t("settings.team"), icon: Users },
     { id: "security" as SettingsTab, label: t("settings.security"), icon: Shield },
-    { id: "integrations" as SettingsTab, label: t("settings.integrations"), icon: Link2 },
     { id: "options" as SettingsTab, label: "Options", icon: SlidersHorizontal },
   ];
 
@@ -997,165 +939,6 @@ export function Settings() {
     </div>
   );
 
-  const renderIntegrationSettings = () => (
-    <div className="space-y-6">
-      {/* Accounting */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            {t("settings.accounting")}
-          </CardTitle>
-          <CardDescription>{t("settings.connectAccountingSoftware")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 border border-border rounded-lg space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  <CreditCard className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <h4 className="font-medium">QuickBooks</h4>
-                  <p className="text-sm text-muted-foreground">{t("settings.syncInvoicesPayments")}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={getIntegrationStatus(quickbooksConnected).variant}>
-                  {quickbooksConnected ? t("settings.connected") : t("settings.disconnected")}
-                </Badge>
-                <Button 
-                  variant={quickbooksConnected ? "destructive" : "default"} 
-                  size="sm"
-                  onClick={handleConnectQuickbooks}
-                >
-                  {quickbooksConnected ? t("settings.disconnect") : t("settings.connect")}
-                </Button>
-              </div>
-            </div>
-            
-            {quickbooksConnected && (
-              <>
-                <Separator />
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h5 className="font-medium text-sm">{t("settings.syncInvoices")}</h5>
-                      <p className="text-xs text-muted-foreground">{t("settings.autoSyncInvoices")}</p>
-                    </div>
-                    <Switch checked={quickbooksSyncInvoices} onCheckedChange={setQuickbooksSyncInvoices} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h5 className="font-medium text-sm">{t("settings.syncPayments")}</h5>
-                      <p className="text-xs text-muted-foreground">{t("settings.autoSyncPayments")}</p>
-                    </div>
-                    <Switch checked={quickbooksSyncPayments} onCheckedChange={setQuickbooksSyncPayments} />
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Communication */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5" />
-            {t("settings.communication")}
-          </CardTitle>
-          <CardDescription>{t("settings.smsEmailServices")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-success/10 rounded-lg">
-                <Smartphone className="w-5 h-5 text-success" />
-              </div>
-              <div>
-                <h4 className="font-medium">Twilio (SMS)</h4>
-                <p className="text-sm text-muted-foreground">{t("settings.sendSmsNotifications")}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={getIntegrationStatus(twilioConnected).variant}>
-                {twilioConnected ? t("settings.connected") : t("settings.disconnected")}
-              </Badge>
-              <Button 
-                variant={twilioConnected ? "destructive" : "default"} 
-                size="sm"
-                onClick={handleConnectTwilio}
-              >
-                {twilioConnected ? t("settings.disconnect") : t("settings.connect")}
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-warning/10 rounded-lg">
-                <Mail className="w-5 h-5 text-warning" />
-              </div>
-              <div>
-                <h4 className="font-medium">SendGrid (Email)</h4>
-                <p className="text-sm text-muted-foreground">{t("settings.sendEmailNotifications")}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant={getIntegrationStatus(sendgridConnected).variant}>
-                {sendgridConnected ? t("settings.connected") : t("settings.disconnected")}
-              </Badge>
-              <Button 
-                variant={sendgridConnected ? "destructive" : "default"} 
-                size="sm"
-                onClick={handleConnectSendgrid}
-              >
-                {sendgridConnected ? t("settings.disconnect") : t("settings.connect")}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Automations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5" />
-            {t("settings.automations")}
-          </CardTitle>
-          <CardDescription>{t("settings.configureAutoMessages")}</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {automations.map((automation) => (
-            <div key={automation.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${automation.enabled ? "bg-success/10" : "bg-muted"}`}>
-                  <Send className={`w-5 h-5 ${automation.enabled ? "text-success" : "text-muted-foreground"}`} />
-                </div>
-                <div>
-                  <h4 className="font-medium">{automation.name}</h4>
-                  <p className="text-sm text-muted-foreground">{automation.description}</p>
-                  {automation.sendTime && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("settings.sendAt")} {automation.sendTime}
-                      {automation.condition && ` • ${t("settings.onlyIfUnpaid")}`}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <Switch 
-                checked={automation.enabled} 
-                onCheckedChange={() => handleToggleAutomation(automation.id)} 
-              />
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
 
   const renderContent = () => {
     switch (activeTab) {
@@ -1171,8 +954,6 @@ export function Settings() {
         return renderTeamSettings();
       case "security":
         return renderSecuritySettings();
-      case "integrations":
-        return renderIntegrationSettings();
       case "options":
         return <OptionsTab />;
       default:
