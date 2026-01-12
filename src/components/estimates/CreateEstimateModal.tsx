@@ -386,6 +386,8 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                   placeholder="(11) 88888-8888"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="origin">Origem</Label>
                 <Select

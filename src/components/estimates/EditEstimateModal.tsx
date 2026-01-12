@@ -458,6 +458,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   placeholder="(11) 88888-8888"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-origin">Origem</Label>
                 <Select
