@@ -129,6 +129,83 @@ export function OptionsTab() {
       message: "Hi {ClientName}!\nFriendly reminder: your invoice {InvoiceNumber} is still pending.\n{InvoiceLink}\nThank you!\n{CompanyName}",
       enabled: true,
     },
+    {
+      id: "6",
+      label: "Invoice",
+      category: "invoice",
+      trigger: "invoice_created",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nHere is your cleaning invoice {InvoiceNumber}.\n{InvoiceLink}\n\nThank you!\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "7",
+      label: "Receipt",
+      category: "invoice",
+      trigger: "payment_received",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nHere is your cleaning receipt.\n{ReceiptLink}\n\nThank you!\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "8",
+      label: "Job Payment Reminder",
+      category: "job",
+      trigger: "time_after",
+      delayType: "days",
+      delayDays: 3,
+      hour: "10:00",
+      condition: "payment_no",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nFriendly reminder: your cleaning on {JobDate} is still pending for payment.\n\nThank you!\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "9",
+      label: "Review Request",
+      category: "job",
+      trigger: "finished",
+      delayType: "days",
+      delayDays: 1,
+      hour: "10:00",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nPlease review our cleaning on {JobDate}.\n{ReviewLink}\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "10",
+      label: "Lead / Estimate",
+      category: "job",
+      trigger: "estimate_created",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nHere is your estimate.\n{EstimateLink}\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "11",
+      label: "Cleaning Agreement",
+      category: "job",
+      trigger: "contract_created",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nHere is your cleaning agreement.\n{ContractLink}\n– {CompanyName}",
+      enabled: true,
+    },
+    {
+      id: "12",
+      label: "Cleaning Agreement Signed",
+      category: "job",
+      trigger: "contract_signed",
+      action: "send_message",
+      messageTo: "text_phone_1",
+      message: "Hi {ClientName}!\n\nHere is your signed cleaning agreement.\n{ContractLink}\n– {CompanyName}",
+      enabled: true,
+    },
   ]);
 
   // Messages State
@@ -333,6 +410,11 @@ export function OptionsTab() {
                             <SelectItem value="finished">Finished</SelectItem>
                             <SelectItem value="time_before">Time Before</SelectItem>
                             <SelectItem value="time_after">Time After</SelectItem>
+                            <SelectItem value="invoice_created">Invoice Created</SelectItem>
+                            <SelectItem value="payment_received">Payment Received</SelectItem>
+                            <SelectItem value="estimate_created">Estimate Created</SelectItem>
+                            <SelectItem value="contract_created">Contract Created</SelectItem>
+                            <SelectItem value="contract_signed">Contract Signed</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
