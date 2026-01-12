@@ -248,20 +248,33 @@ export function AppointmentDetailsView({
   };
 
   const handleRequestReview = () => {
-    // Open Google Review link (placeholder - should be configured with actual business Google Place ID)
+    // Generate review link (placeholder - should be configured with actual business Google Place ID)
     const googleReviewUrl = "https://search.google.com/local/writereview?placeid=YOUR_GOOGLE_PLACE_ID";
+    const companyName = "Sparkle Clean Co.";
+    const jobDate = "December 23, 2024";
     
-    // Copy message to clipboard with review link
-    const reviewMessage = `Hi ${appointment.customer}! Thank you for choosing our cleaning service. We'd love to hear your feedback! Please leave us a review here: ${googleReviewUrl}`;
+    // Build the review request message using the automation template
+    const reviewMessage = `Hi ${appointment.customer}!\nPlease review our cleaning on ${jobDate}.\n${googleReviewUrl}\n– ${companyName}`;
     
-    navigator.clipboard.writeText(reviewMessage).then(() => {
-      toast.success("Review request message copied to clipboard! You can now send it via SMS or email.");
-    }).catch(() => {
-      toast.info("Review link ready to share");
+    // Simulate sending the automation (in real app, this would call an API)
+    console.log("Sending Review Request automation:", {
+      recipient: appointment.customer,
+      message: reviewMessage,
+      reviewLink: googleReviewUrl,
+      automationType: "Review Request",
+      triggeredAt: new Date().toISOString(),
     });
     
-    // Also open in new tab
-    window.open(googleReviewUrl, '_blank');
+    // Copy message to clipboard as backup
+    navigator.clipboard.writeText(reviewMessage).then(() => {
+      toast.success(`Review request sent to ${appointment.customer}!`, {
+        description: "Automation triggered: Review Request message with link sent via SMS/Email.",
+      });
+    }).catch(() => {
+      toast.success(`Review request sent to ${appointment.customer}!`, {
+        description: "Automation triggered: Review Request message with link sent via SMS/Email.",
+      });
+    });
   };
 
   const handleSendInvoice = () => {
