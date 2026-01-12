@@ -336,27 +336,14 @@ export function AppointmentDetailsView({
       <div className="bg-surface">
         <header className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
           <h2 className="text-lg font-semibold text-foreground">{appointment.customer}</h2>
-          <div className="flex items-center gap-2">
-            {onEdit ? (
-              <Button
-                variant="hero"
-                size="sm"
-                className="h-7 rounded-full px-4 text-xs shadow-none gap-1.5"
-                onClick={onEdit}
-              >
-                <Pencil className="h-4 w-4" />
-                Editar
-              </Button>
-            ) : null}
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 rounded-full px-4 text-xs shadow-none"
-              onClick={onClose}
-            >
-              Close
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 rounded-full px-4 text-xs shadow-none"
+            onClick={onClose}
+          >
+            Close
+          </Button>
         </header>
 
         <main className="px-5 py-4 space-y-4">
@@ -709,7 +696,20 @@ export function AppointmentDetailsView({
           </section>
         </main>
 
-        <footer className="flex justify-end px-5 py-3 bg-surface-muted border-t border-border">
+        <footer className="flex justify-between px-5 py-3 bg-surface-muted border-t border-border">
+          <div>
+            {onEdit && (
+              <Button
+                variant="hero"
+                size="sm"
+                className="h-8 rounded-full px-4 text-xs shadow-none gap-1.5"
+                onClick={onEdit}
+              >
+                <Pencil className="h-4 w-4" />
+                Editar
+              </Button>
+            )}
+          </div>
           <Button
             variant="outline"
             size="sm"
