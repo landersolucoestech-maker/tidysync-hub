@@ -16,6 +16,7 @@ import { CreateRoleModal } from "@/components/settings/CreateRoleModal";
 import { EditRoleModal } from "@/components/settings/EditRoleModal";
 import { DeleteRoleDialog } from "@/components/settings/DeleteRoleDialog";
 import { TeamUserModal } from "@/components/settings/TeamUserModal";
+import { OptionsTab } from "@/components/settings/OptionsTab";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   User,
@@ -49,9 +50,10 @@ import {
   Settings as SettingsIcon,
   Landmark,
   Link2,
+  SlidersHorizontal,
 } from "lucide-react";
 
-type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "integrations";
+type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "integrations" | "options";
 
 interface TeamMember {
   id: string;
@@ -314,6 +316,7 @@ export function Settings() {
     { id: "team" as SettingsTab, label: t("settings.team"), icon: Users },
     { id: "security" as SettingsTab, label: t("settings.security"), icon: Shield },
     { id: "integrations" as SettingsTab, label: t("settings.integrations"), icon: Link2 },
+    { id: "options" as SettingsTab, label: "Options", icon: SlidersHorizontal },
   ];
 
   const renderProfileSettings = () => (
@@ -1170,6 +1173,8 @@ export function Settings() {
         return renderSecuritySettings();
       case "integrations":
         return renderIntegrationSettings();
+      case "options":
+        return <OptionsTab />;
       default:
         return renderProfileSettings();
     }
