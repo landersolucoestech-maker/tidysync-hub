@@ -11,12 +11,11 @@ import { Download, Printer, X } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
 interface ReportData {
-  id: number;
+  id: string;
   name: string;
   description: string;
   type: string;
   records: number;
-  status: string;
   icon: LucideIcon;
   iconColor: string;
   iconBg: string;
@@ -64,9 +63,6 @@ export function ReportPreviewModal({
           {/* Report Info */}
           <div className="flex items-center gap-4">
             <Badge variant="secondary">{report.type}</Badge>
-            <Badge className="bg-green-500 hover:bg-green-600 text-white">
-              {report.status}
-            </Badge>
             <span className="text-sm text-muted-foreground">
               {report.records} registros
             </span>
