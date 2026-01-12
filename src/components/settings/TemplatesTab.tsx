@@ -224,24 +224,38 @@ export function TemplatesTab() {
               />
               
               {termsData.file ? (
-                <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <div>
-                      <p className="text-sm font-medium">{termsData.file.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(termsData.file.size)}
-                      </p>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">{termsData.file.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatFileSize(termsData.file.size)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
-                      <Upload className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
+                  
+                  {/* PDF Preview in content box */}
+                  {termsData.file.url && termsData.file.name.toLowerCase().endsWith('.pdf') && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">Document Preview</Label>
+                      <iframe
+                        src={termsData.file.url}
+                        className="w-full h-[300px] border border-border rounded-lg bg-white"
+                        title="PDF Preview"
+                      />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
