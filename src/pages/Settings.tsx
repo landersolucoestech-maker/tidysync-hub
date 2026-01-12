@@ -16,7 +16,9 @@ import { CreateRoleModal } from "@/components/settings/CreateRoleModal";
 import { EditRoleModal } from "@/components/settings/EditRoleModal";
 import { DeleteRoleDialog } from "@/components/settings/DeleteRoleDialog";
 import { TeamUserModal } from "@/components/settings/TeamUserModal";
-import { OptionsTab } from "@/components/settings/OptionsTab";
+import { AutomationsTab } from "@/components/settings/AutomationsTab";
+import { IntegrationsTab } from "@/components/settings/IntegrationsTab";
+import { TemplatesTab } from "@/components/settings/TemplatesTab";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   User,
@@ -40,12 +42,14 @@ import {
   Upload,
   Plus,
   Landmark,
-  SlidersHorizontal,
   UserPlus,
   AlertTriangle,
+  Zap,
+  Link2,
+  FileText,
 } from "lucide-react";
 
-type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "options";
+type SettingsTab = "profile" | "company" | "notifications" | "billing" | "team" | "security" | "automations" | "integrations" | "templates";
 
 interface TeamMember {
   id: string;
@@ -258,7 +262,9 @@ export function Settings() {
     { id: "billing" as SettingsTab, label: t("settings.billing"), icon: CreditCard },
     { id: "team" as SettingsTab, label: t("settings.team"), icon: Users },
     { id: "security" as SettingsTab, label: t("settings.security"), icon: Shield },
-    { id: "options" as SettingsTab, label: "Options", icon: SlidersHorizontal },
+    { id: "automations" as SettingsTab, label: "Automations", icon: Zap },
+    { id: "integrations" as SettingsTab, label: t("settings.integrations"), icon: Link2 },
+    { id: "templates" as SettingsTab, label: "Templates", icon: FileText },
   ];
 
   const renderProfileSettings = () => (
@@ -954,8 +960,12 @@ export function Settings() {
         return renderTeamSettings();
       case "security":
         return renderSecuritySettings();
-      case "options":
-        return <OptionsTab />;
+      case "automations":
+        return <AutomationsTab />;
+      case "integrations":
+        return <IntegrationsTab />;
+      case "templates":
+        return <TemplatesTab />;
       default:
         return renderProfileSettings();
     }
