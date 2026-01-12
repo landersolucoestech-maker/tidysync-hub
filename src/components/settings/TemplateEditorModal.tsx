@@ -390,16 +390,6 @@ export function TemplateEditorModal({
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Legal Text</Label>
-                      <p className="text-xs text-muted-foreground">Legal disclaimer shown at the bottom</p>
-                      <Textarea 
-                        value={config.legalText}
-                        onChange={(e) => updateConfig("legalText", e.target.value)}
-                        rows={3}
-                        placeholder="This document is a digital receipt and does not replace a fiscal invoice unless explicitly stated."
-                      />
-                    </div>
                   </>
                 )}
 
@@ -574,19 +564,6 @@ export function TemplateEditorModal({
                           onCheckedChange={(v) => updateConfig("showNotes", v)} 
                         />
                       </div>
-
-                      <Separator />
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label>Show Legal Disclaimer</Label>
-                          <p className="text-xs text-muted-foreground">Display legal text at the bottom</p>
-                        </div>
-                        <Switch 
-                          checked={config.showLegal} 
-                          onCheckedChange={(v) => updateConfig("showLegal", v)} 
-                        />
-                      </div>
                     </>
                   )}
                 </div>
@@ -681,38 +658,6 @@ export function TemplateEditorModal({
                   </div>
                 </div>
 
-                {/* Bill To */}
-                <div className="mb-4">
-                  <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
-                    Bill To
-                  </h3>
-                  <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Customer Name:</span>
-                      <span>{sampleReceiptData.clientName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Company:</span>
-                      <span>{sampleReceiptData.clientCompany}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Email:</span>
-                      <span>{sampleReceiptData.clientEmail}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Phone:</span>
-                      <span>{sampleReceiptData.clientPhone}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Billing Address:</span>
-                      <span>{sampleReceiptData.clientAddress}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Country:</span>
-                      <span>{sampleReceiptData.clientCountry}</span>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Transaction Details */}
                 <div className="mb-4">
@@ -814,15 +759,6 @@ export function TemplateEditorModal({
                   </div>
                 )}
 
-                {/* Legal */}
-                {config.showLegal && config.legalText && (
-                  <div className="border-t pt-3">
-                    <h3 className="font-semibold text-xs mb-1 text-gray-500">Legal</h3>
-                    <p className="text-xs text-gray-500 italic">
-                      {config.legalText}
-                    </p>
-                  </div>
-                )}
               </div>
             ) : (
               /* Standard Invoice/Estimate/Contract Preview */
