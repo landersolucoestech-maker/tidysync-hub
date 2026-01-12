@@ -585,12 +585,6 @@ export function TemplateEditorModal({
                 className="bg-white rounded-lg shadow-lg p-6 mx-auto max-w-[500px] text-sm"
                 style={{ fontFamily: config.fontFamily }}
               >
-                {/* Receipt Header Badge */}
-                <div className="text-center mb-4">
-                  <span className="text-xs uppercase tracking-wider text-gray-500 font-medium">
-                    Receipt / Payment Confirmation
-                  </span>
-                </div>
 
                 {/* Company Header */}
                 <div 
