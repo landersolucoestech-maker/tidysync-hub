@@ -4,28 +4,49 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  Phone,
   Calendar,
+  Megaphone,
+  Shield,
+  Globe,
 } from "lucide-react";
 
 interface Integration {
   id: string;
   name: string;
+  description: string;
   category: string;
   icon: React.ReactNode;
   status: "connected" | "disconnected" | "available";
 }
 
 export function IntegrationsTab() {
-  const [integrations] = useState<Integration[]>([
-    // Communication
-    { id: "ringcentral", name: "RingCentral", category: "communication", icon: <Phone className="w-5 h-5" />, status: "available" },
+  const [integrations, setIntegrations] = useState<Integration[]>([
     // Scheduling
-    { id: "google_calendar", name: "Google Calendar", category: "scheduling", icon: <Calendar className="w-5 h-5" />, status: "connected" },
+    { id: "google_calendar", name: "Google Calendar", description: "Sync job schedules with Google Calendar", category: "scheduling", icon: <Calendar className="w-5 h-5" />, status: "available" },
+    // Lead Sources
+    { id: "google_ads", name: "Google Ads", description: "Auto-import leads from Google Ads forms", category: "lead_sources", icon: <Megaphone className="w-5 h-5" />, status: "available" },
+    { id: "google_lsa", name: "Google Local Services (LSA)", description: "Auto-import leads from Google Local Services", category: "lead_sources", icon: <Shield className="w-5 h-5" />, status: "available" },
+    { id: "website_form", name: "Website Form", description: "Auto-import leads from your website forms", category: "lead_sources", icon: <Globe className="w-5 h-5" />, status: "available" },
   ]);
 
   const handleConnectIntegration = (id: string) => {
-    toast.info("Integration connection flow would start here");
+    setIntegrations(prev => prev.map(integration => 
+      integration.id === id 
+        ? { ...integration, status: "connected" as const }
+        : integration
+    ));
+    const integration = integrations.find(i => i.id === id);
+    toast.success(`${integration?.name} connected successfully!`);
+  };
+
+  const handleDisconnectIntegration = (id: string) => {
+    setIntegrations(prev => prev.map(integration => 
+      integration.id === id 
+        ? { ...integration, status: "available" as const }
+        : integration
+    ));
+    const integration = integrations.find(i => i.id === id);
+    toast.info(`${integration?.name} disconnected.`);
   };
 
   const getStatusBadge = (status: string) => {
@@ -41,8 +62,8 @@ export function IntegrationsTab() {
 
   const getCategoryLabel = (category: string) => {
     const labels: Record<string, string> = {
-      communication: "Communication",
-      scheduling: "Scheduling",
+      scheduling: "Schedule",
+      lead_sources: "Lead Sources",
     };
     return labels[category] || category;
   };
@@ -76,16 +97,35 @@ export function IntegrationsTab() {
                     </div>
                     <div>
                       <h4 className="font-medium">{integration.name}</h4>
-                      {getStatusBadge(integration.status)}
+                      <p className="text-sm text-muted-foreground">{integration.description}</p>
+                      <div className="mt-1">
+                        {getStatusBadge(integration.status)}
+                      </div>
                     </div>
                   </div>
-                  <Button 
-                    variant={integration.status === "connected" ? "outline" : "default"} 
-                    size="sm"
-                    onClick={() => handleConnectIntegration(integration.id)}
-                  >
-                    {integration.status === "connected" ? "Configure" : "Connect"}
-                  </Button>
+                  {integration.status === "connected" ? (
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm">
+                        Configure
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => handleDisconnectIntegration(integration.id)}
+                      >
+                        Disconnect
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      onClick={() => handleConnectIntegration(integration.id)}
+                    >
+                      Connect
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
