@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, MapPin, MessageSquare } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Trash2, MapPin, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 export interface Interaction {
@@ -53,6 +54,15 @@ interface EditEstimateModalProps {
   onSave: (updatedEstimate: Estimate) => void;
 }
 
+interface RoomSelection {
+  kitchen: boolean;
+  bathroom: boolean;
+  bedroom: boolean;
+  diningLiving: boolean;
+  laundryRoom: boolean;
+  addOns: boolean;
+}
+
 interface AddressEntry {
   id: string;
   addressName: string;
@@ -63,7 +73,103 @@ interface AddressEntry {
   amount: string;
   notes: string;
   additionalNotes: string;
+  rooms: RoomSelection;
 }
+
+const ROOM_SERVICES = {
+  kitchen: {
+    label: "KITCHEN",
+    items: [
+      "Clean major appliance exteriors (interior upon request)",
+      "Dust window sills",
+      "Clean table and chairs",
+      "Clean microwave - interior & exterior",
+      "Clean/disinfect/polish sinks & faucets",
+      "Clean and disinfect counters & backsplash",
+      "Clean floors (vacuum, sweep, mop)",
+      "Wipe doors, handles & light switches",
+      "Wipe outside cabinets & drawers",
+      "Remove cobwebs",
+      "Empty trash and replace liner",
+      "Dust baseboards",
+    ],
+  },
+  bathroom: {
+    label: "BATHROOM",
+    items: [
+      "Clean tub shower door and inside of the shower",
+      "Clean and polish countertop, sinks, and faucets",
+      "Clean mirrors",
+      "Dust window sills",
+      "Clean and disinfect towel bars",
+      "Dust picture frames",
+      "Fold and hang towels neatly",
+      "Empty trash and replace liner",
+      "Remove cobwebs",
+      "Clean & sanitize toilets in/out",
+      "Wipe doors, handles & light switches",
+      "Clean floors (vacuum, sweep, mop)",
+      "Clean exterior of vanities",
+      "Dust baseboards",
+    ],
+  },
+  bedroom: {
+    label: "BEDROOM",
+    items: [
+      "Clean floors (vacuum, sweep, mop)",
+      "Dust baseboards",
+      "Dust furniture within reach (top, front & underneath)",
+      "Clean mirrors and glass surfaces",
+      "Dust window sills",
+      "Remove cobwebs",
+      "Dust lamps and lamp shades",
+      "Dust picture frames",
+      "Wipe doors, handles & light switches",
+      "Dust light fixtures, ceiling fans, and vents",
+      "Empty trash and replace liner",
+    ],
+  },
+  diningLiving: {
+    label: "DINING ROOM / LIVING AREAS",
+    items: [
+      "Vacuum/dust upholstered furniture",
+      "Dust lamps and lamp shades",
+      "Dust furniture within reach (top, front & underneath)",
+      "Dust picture frames",
+      "Dust windowsills",
+      "Clean counters & backsplash",
+      "Clean mirrors and glass surfaces",
+      "Empty trash and replace liner",
+      "Clean floors (vacuum, sweep, mop)",
+      "Remove cobwebs",
+      "Wipe doors & light switches",
+      "Dust baseboards",
+    ],
+  },
+  laundryRoom: {
+    label: "LAUNDRY ROOM",
+    items: [
+      "Dust windowsill",
+      "Wipe tops of washer and dryer",
+      "Empty trash and replace liner",
+      "Clean floors (vacuum, sweep, mop)",
+      "Remove cobwebs",
+      "Wipe doors, handles & light switches",
+      "Wipe outside cabinets and drawers",
+      "Dust baseboards",
+    ],
+  },
+  addOns: {
+    label: "ADD-ON SERVICES",
+    items: [
+      "Clean inside refrigerator",
+      "Clean inside oven",
+      "Clean the garage",
+      "Clean inside cabinets",
+      "*By request only",
+    ],
+  },
+} as const;
 
 const serviceTypes = [
   "Standard Cleaning",
@@ -129,11 +235,21 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     expiryDate: "",
   });
 
+  const defaultRooms: RoomSelection = {
+    kitchen: false,
+    bathroom: false,
+    bedroom: false,
+    diningLiving: false,
+    laundryRoom: false,
+    addOns: false,
+  };
+
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" },
+    { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
+  const [expandedRooms, setExpandedRooms] = useState<Record<string, Record<string, boolean>>>({});
 
   // Load estimate data when modal opens
   useEffect(() => {
@@ -157,6 +273,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         amount: estimate.amount,
         notes: "",
         additionalNotes: "",
+        rooms: { ...defaultRooms },
       }]);
 
       setInteractions(estimate.interactions || []);
@@ -166,8 +283,26 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "" },
+      { id: Date.now().toString(), addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
+  };
+
+  const toggleRoomExpand = (addressId: string, roomKey: string) => {
+    setExpandedRooms(prev => ({
+      ...prev,
+      [addressId]: {
+        ...prev[addressId],
+        [roomKey]: !prev[addressId]?.[roomKey],
+      }
+    }));
+  };
+
+  const updateRoomSelection = (addressId: string, roomKey: keyof RoomSelection, checked: boolean) => {
+    setAddresses(addresses.map(addr =>
+      addr.id === addressId
+        ? { ...addr, rooms: { ...addr.rooms, [roomKey]: checked } }
+        : addr
+    ));
   };
 
   const removeAddress = (id: string) => {
@@ -454,6 +589,77 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                       />
                     </div>
                   </div>
+
+                  {/* Room Services Grid */}
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Service Areas</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {(Object.keys(ROOM_SERVICES) as Array<keyof typeof ROOM_SERVICES>).map((roomKey) => {
+                        const room = ROOM_SERVICES[roomKey];
+                        const isExpanded = expandedRooms[addr.id]?.[roomKey] || false;
+                        const isChecked = addr.rooms[roomKey];
+
+                        return (
+                          <div
+                            key={roomKey}
+                            className={`border rounded-lg p-3 transition-all ${
+                              isChecked 
+                                ? "border-primary bg-primary/5" 
+                                : "border-border bg-muted/20 hover:border-muted-foreground/50"
+                            }`}
+                          >
+                            <div className="flex items-start gap-2">
+                              <Checkbox
+                                id={`${addr.id}-${roomKey}`}
+                                checked={isChecked}
+                                onCheckedChange={(checked) => 
+                                  updateRoomSelection(addr.id, roomKey, checked as boolean)
+                                }
+                                className="mt-0.5"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <label
+                                  htmlFor={`${addr.id}-${roomKey}`}
+                                  className="text-sm font-semibold cursor-pointer block"
+                                >
+                                  {room.label}
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleRoomExpand(addr.id, roomKey)}
+                                  className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 mt-1"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      <ChevronUp className="w-3 h-3" />
+                                      Hide details
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3 h-3" />
+                                      View details
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            {isExpanded && (
+                              <ul className="mt-3 space-y-1 text-xs text-muted-foreground border-t border-border/50 pt-2">
+                                {room.items.map((item, idx) => (
+                                  <li key={idx} className="flex items-start gap-1.5">
+                                    <span className="text-primary mt-0.5">•</span>
+                                    <span>{item}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label>Observações</Label>
                     <Textarea
