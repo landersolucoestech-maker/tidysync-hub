@@ -195,12 +195,15 @@ export function Leads() {
 
   const getOriginBadge = (origin: string) => {
     const colors: Record<string, string> = {
-      "Google": "bg-blue-500/10 text-blue-500",
-      "Phone Call": "bg-green-500/10 text-green-500",
-      "Instagram": "bg-pink-500/10 text-pink-500",
-      "Facebook": "bg-indigo-500/10 text-indigo-500",
-      "Referral": "bg-amber-500/10 text-amber-500",
-      "Nextdoor": "bg-emerald-500/10 text-emerald-500",
+      "Google": "bg-primary/10 text-primary",
+      "Phone Call": "bg-success/10 text-success",
+      "Instagram": "bg-rose/10 text-rose",
+      "Facebook": "bg-primary/10 text-primary",
+      "Referral": "bg-warning/10 text-warning",
+      "Nextdoor": "bg-secondary/10 text-secondary",
+      "Website": "bg-primary/10 text-primary",
+      "Google Ads": "bg-primary/10 text-primary",
+      "Email": "bg-muted text-muted-foreground",
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[origin] || "bg-muted text-muted-foreground"}`}>
@@ -299,7 +302,7 @@ export function Leads() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6 space-y-6 pl-[10px] pb-0 pr-[10px] pt-px mx-[8px] py-0 my-[4px]">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">
             <div>

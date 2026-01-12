@@ -11,125 +11,7 @@ import { EditJobModal } from "@/components/jobs/EditJobModal";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Calendar, Plus } from "lucide-react";
 import { toast } from "sonner";
-
-const scheduleData = [{
-  id: 1,
-  time: "09:00 AM",
-  customer: "Sarah Johnson",
-  address: "123 Oak Street",
-  service: "Deep Cleaning",
-  staff: "Maria Silva",
-  status: "scheduled",
-  duration: "3 hours"
-}, {
-  id: 2,
-  time: "01:00 PM",
-  customer: "Tech Startup Inc.",
-  address: "456 Business Park",
-  service: "Regular Cleaning 2weeks",
-  staff: "John Doe",
-  status: "in-progress",
-  duration: "2 hours"
-}, {
-  id: 3,
-  time: "04:00 PM",
-  customer: "Miller Family",
-  address: "789 Maple Avenue",
-  service: "Deep Move-Out Cleaning",
-  staff: "Ana Garcia",
-  status: "completed",
-  duration: "4 hours"
-}, {
-  id: 4,
-  time: "10:00 AM",
-  customer: "Emma Wilson",
-  address: "987 Cedar Court",
-  service: "Regular Cleaning 3weeks",
-  staff: "Maria Silva",
-  status: "scheduled",
-  duration: "2 hours"
-}, {
-  id: 5,
-  time: "02:00 PM",
-  customer: "David Johnson",
-  address: "321 Pine Road",
-  service: "Regular Cleaning 4weeks",
-  staff: "Carlos Santos",
-  status: "scheduled",
-  duration: "2 hours"
-}, {
-  id: 6,
-  time: "08:00 AM",
-  customer: "Lisa Chen",
-  address: "369 Birch Avenue",
-  service: "Regular Cleaning weekly",
-  staff: "Joana Costa",
-  status: "in-progress",
-  duration: "2 hours"
-}, {
-  id: 7,
-  time: "11:00 AM",
-  customer: "Michael Brown",
-  address: "963 Spruce Drive",
-  service: "Regular Cleaning 3times a week",
-  staff: "Carla Oliveira",
-  status: "scheduled",
-  duration: "1.5 hours"
-}, {
-  id: 8,
-  time: "03:00 PM",
-  customer: "Ana Garcia",
-  address: "123 Oak Street",
-  service: "Once a Month",
-  staff: "Paula Ferreira",
-  status: "completed",
-  duration: "3 hours"
-}, {
-  id: 9,
-  time: "09:30 AM",
-  customer: "Carlos Santos",
-  address: "789 Maple Lane",
-  service: "Clean Extra",
-  staff: "Lucia Pereira",
-  status: "scheduled",
-  duration: "1 hour"
-}, {
-  id: 10,
-  time: "01:30 PM",
-  customer: "Sean Eldridge",
-  address: "8227 Lake Norman Pl",
-  service: "Cleaning For Reason",
-  staff: "Rosa Almeida",
-  status: "in-progress",
-  duration: "2 hours"
-}, {
-  id: 11,
-  time: "10:30 AM",
-  customer: "John Doe",
-  address: "147 Elm Street",
-  service: "Deep Move-in Cleaning",
-  staff: "Clara Rodrigues",
-  status: "scheduled",
-  duration: "4 hours"
-}, {
-  id: 12,
-  time: "02:30 PM",
-  customer: "Sarah Miller",
-  address: "159 Ash Lane",
-  service: "Once Every 2 Months",
-  staff: "Maria Silva",
-  status: "completed",
-  duration: "3 hours"
-}, {
-  id: 13,
-  time: "04:30 PM",
-  customer: "Emma Wilson",
-  address: "987 Cedar Court",
-  service: "Regular Cleaning 8weeks",
-  staff: "Ana Santos",
-  status: "scheduled",
-  duration: "2 hours"
-}];
+import { schedule } from "@/data/systemData";
 
 export function Schedule() {
   const { t } = useLanguage();
@@ -137,7 +19,7 @@ export function Schedule() {
   const [appointmentModal, setAppointmentModal] = useState<{
     open: boolean;
     mode: "create" | "view" | "edit";
-    appointment: typeof scheduleData[0] | null;
+    appointment: typeof schedule[0] | null;
   }>({
     open: false,
     mode: "create",
@@ -164,7 +46,7 @@ export function Schedule() {
     open: false,
     job: null
   });
-  const [appointments, setAppointments] = useState(scheduleData);
+  const [appointments, setAppointments] = useState(schedule);
 
   const handleNewAppointment = () => {
     setAppointmentModal({
@@ -174,7 +56,7 @@ export function Schedule() {
     });
   };
 
-  const handleViewAppointment = (appointment: typeof scheduleData[0]) => {
+  const handleViewAppointment = (appointment: typeof schedule[0]) => {
     setAppointmentModal({
       open: true,
       mode: "view",
@@ -182,7 +64,7 @@ export function Schedule() {
     });
   };
 
-  const handleEditJob = (appointment: typeof scheduleData[0]) => {
+  const handleEditJob = (appointment: typeof schedule[0]) => {
     setEditJobModal({
       open: true,
       job: {
@@ -231,7 +113,7 @@ export function Schedule() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6 space-y-6 pl-[10px] pb-0 pr-[10px] pt-px mx-[8px] py-0 my-[4px]">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">
             <div>

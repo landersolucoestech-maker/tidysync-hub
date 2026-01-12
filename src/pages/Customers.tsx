@@ -11,77 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Plus, Search, MoreHorizontal, UserPlus, Users, UserCheck, UserX, Repeat, Eye, Pencil, Trash2, LayoutGrid, List, Phone, Mail, MapPin } from "lucide-react";
 import { CustomerModal } from "@/components/customers/CustomerModal";
 import { CustomerDetailsModal } from "@/components/customers/CustomerDetailsModal";
-const customers = [{
-  id: 1,
-  name: "Sarah Johnson",
-  email: "sarah.j@email.com",
-  phone: "(555) 123-4567",
-  phone2: "(555) 234-5678",
-  address: "123 Oak Street, Springfield",
-  addresses: [{
-    name: "Home",
-    address: "123 Oak Street, Springfield",
-    notes: "Gate code: 1234. Ring doorbell twice."
-  }, {
-    name: "Work",
-    address: "456 Corporate Blvd, Springfield",
-    notes: "Park in visitor lot. Check in at front desk."
-  }],
-  status: "Active",
-  lastService: "2024-01-10",
-  totalJobs: 24,
-  revenue: "$2,400",
-  rating: 5,
-  frequency: "Weekly",
-  preferredDay: "Monday",
-  paymentMethod: "QuickBooks",
-  customerSince: "2022-03-15",
-  additionalInfo: "Prefers morning appointments. Has two dogs."
-}, {
-  id: 2,
-  name: "Tech Startup Inc.",
-  email: "office@techstartup.com",
-  phone: "(555) 987-6543",
-  phone2: "",
-  address: "456 Business Park Drive",
-  addresses: [{
-    name: "Office",
-    address: "456 Business Park Drive",
-    notes: "Use service entrance on the back."
-  }],
-  status: "Active",
-  lastService: "2024-01-08",
-  totalJobs: 12,
-  revenue: "$3,600",
-  rating: 4,
-  frequency: "Every 2 Weeks",
-  preferredDay: "Wednesday",
-  paymentMethod: "Check",
-  customerSince: "2023-01-10",
-  additionalInfo: "Contact reception upon arrival."
-}, {
-  id: 3,
-  name: "Miller Family",
-  email: "miller.family@email.com",
-  phone: "(555) 456-7890",
-  phone2: "(555) 567-8901",
-  address: "789 Maple Avenue, Downtown",
-  addresses: [{
-    name: "Home",
-    address: "789 Maple Avenue, Downtown",
-    notes: ""
-  }],
-  status: "Inactive",
-  lastService: "2023-12-15",
-  totalJobs: 8,
-  revenue: "$800",
-  rating: 5,
-  frequency: "Monthly",
-  preferredDay: "Friday",
-  paymentMethod: "Venmo",
-  customerSince: "2021-06-20",
-  additionalInfo: ""
-}];
+import { customers } from "@/data/systemData";
 import { toast } from "sonner";
 
 export function Customers() {
@@ -114,7 +44,7 @@ export function Customers() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
-        <main className="flex-1 overflow-y-auto p-6 space-y-6 pl-[10px] pb-0 pr-[10px] pt-px mx-[8px] py-0 my-[4px]">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Page Header */}
           <div className="flex items-center justify-between">
             <div>

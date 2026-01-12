@@ -317,7 +317,7 @@ export function Settings() {
           />
         </div>
 
-        <Button onClick={handleSaveProfile} className="bg-destructive hover:bg-destructive/90">
+        <Button onClick={handleSaveProfile} variant="hero">
           {t("settings.saveChanges")}
         </Button>
       </CardContent>
@@ -459,7 +459,7 @@ export function Settings() {
               </div>
             ))}
           </div>
-          <Button className="mt-4 bg-destructive hover:bg-destructive/90" onClick={handleSaveCompany}>
+          <Button className="mt-4" variant="hero" onClick={handleSaveCompany}>
             {t("settings.saveChanges")}
           </Button>
         </CardContent>
@@ -563,7 +563,7 @@ export function Settings() {
         </CardContent>
       </Card>
 
-      <Button onClick={handleSaveNotifications} className="bg-destructive hover:bg-destructive/90">
+      <Button onClick={handleSaveNotifications} variant="hero">
         {t("settings.saveChanges")}
       </Button>
     </div>
@@ -846,7 +846,7 @@ export function Settings() {
             </div>
           </div>
 
-          <Button onClick={handleChangePassword} className="bg-destructive hover:bg-destructive/90">
+          <Button onClick={handleChangePassword} variant="hero">
             {t("settings.changePassword")}
           </Button>
         </CardContent>
@@ -976,7 +976,7 @@ export function Settings() {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6 space-y-6 pl-[10px] pb-0 pr-[10px] pt-px mx-[8px] py-0 my-[4px]">
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="space-y-6">
             {/* Header */}
             <div>

@@ -205,9 +205,9 @@ export function Transactions() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "conciliado":
-        return <Badge className="bg-green-500/20 text-green-600 hover:bg-green-500/30">Conciliado</Badge>;
+        return <Badge className="bg-success/20 text-success hover:bg-success/30">Conciliado</Badge>;
       case "pendente":
-        return <Badge className="bg-yellow-500/20 text-yellow-600 hover:bg-yellow-500/30">Pendente</Badge>;
+        return <Badge className="bg-warning/20 text-warning hover:bg-warning/30">Pendente</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }

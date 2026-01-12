@@ -1,7 +1,33 @@
 // Centralized data store for the system
 // This file exports all mock data that can be shared across pages
 
-export const customers = [
+export interface CustomerAddress {
+  name: string;
+  address: string;
+  notes: string;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  phone2: string;
+  address: string;
+  addresses: CustomerAddress[];
+  status: string;
+  lastService: string;
+  totalJobs: number;
+  revenue: string;
+  rating: number;
+  frequency: string;
+  preferredDay: string;
+  paymentMethod: string;
+  customerSince: string;
+  additionalInfo: string;
+}
+
+export const customers: Customer[] = [
   {
     id: 1,
     name: "Sarah Johnson",
@@ -9,6 +35,10 @@ export const customers = [
     phone: "(555) 123-4567",
     phone2: "(555) 234-5678",
     address: "123 Oak Street, Springfield",
+    addresses: [
+      { name: "Home", address: "123 Oak Street, Springfield", notes: "Gate code: 1234. Ring doorbell twice." },
+      { name: "Work", address: "456 Corporate Blvd, Springfield", notes: "Park in visitor lot. Check in at front desk." }
+    ],
     status: "Active",
     lastService: "2024-01-10",
     totalJobs: 24,
@@ -18,6 +48,7 @@ export const customers = [
     preferredDay: "Monday",
     paymentMethod: "QuickBooks",
     customerSince: "2022-03-15",
+    additionalInfo: "Prefers morning appointments. Has two dogs."
   },
   {
     id: 2,
@@ -26,6 +57,9 @@ export const customers = [
     phone: "(555) 987-6543",
     phone2: "",
     address: "456 Business Park Drive",
+    addresses: [
+      { name: "Office", address: "456 Business Park Drive", notes: "Use service entrance on the back." }
+    ],
     status: "Active",
     lastService: "2024-01-08",
     totalJobs: 12,
@@ -35,6 +69,7 @@ export const customers = [
     preferredDay: "Wednesday",
     paymentMethod: "Check",
     customerSince: "2023-01-10",
+    additionalInfo: "Contact reception upon arrival."
   },
   {
     id: 3,
@@ -43,6 +78,9 @@ export const customers = [
     phone: "(555) 456-7890",
     phone2: "(555) 567-8901",
     address: "789 Maple Avenue, Downtown",
+    addresses: [
+      { name: "Home", address: "789 Maple Avenue, Downtown", notes: "" }
+    ],
     status: "Inactive",
     lastService: "2023-12-15",
     totalJobs: 8,
@@ -52,6 +90,7 @@ export const customers = [
     preferredDay: "Friday",
     paymentMethod: "Venmo",
     customerSince: "2021-06-20",
+    additionalInfo: ""
   },
 ];
 
