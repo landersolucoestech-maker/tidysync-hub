@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { 
@@ -16,230 +15,195 @@ import {
   Eye, 
   Building2,
   User,
-  MapPin,
-  MessageSquare,
+  FileText,
   Palette,
-  Layout,
-  ChevronDown,
-  ChevronUp,
-  Home,
-  Bath,
-  Bed,
-  Sofa,
-  WashingMachine,
-  Plus,
+  Table,
+  DollarSign,
+  FileSignature,
+  Upload,
   Settings2,
 } from "lucide-react";
 
-// Room services configuration
-const ROOM_SERVICES = {
-  kitchen: {
-    label: "KITCHEN",
-    icon: Home,
-    items: [
-      "Clean major appliance exteriors (interior upon request)",
-      "Dust window sills",
-      "Clean table and chairs",
-      "Clean microwave - interior & exterior",
-      "Clean/disinfect/polish sinks & faucets",
-      "Clean and disinfect counters & backsplash",
-      "Clean floors (vacuum, sweep, mop)",
-      "Wipe doors, handles & light switches",
-      "Wipe outside cabinets & drawers",
-      "Remove cobwebs",
-      "Empty trash and replace liner",
-      "Dust baseboards",
-    ],
-  },
-  bathroom: {
-    label: "BATHROOM",
-    icon: Bath,
-    items: [
-      "Clean tub shower door and inside of the shower",
-      "Clean and polish countertop, sinks, and faucets",
-      "Clean mirrors",
-      "Dust window sills",
-      "Clean and disinfect towel bars",
-      "Dust picture frames",
-      "Fold and hang towels neatly",
-      "Empty trash and replace liner",
-      "Remove cobwebs",
-      "Clean & sanitize toilets in/out",
-      "Wipe doors, handles & light switches",
-      "Clean floors (vacuum, sweep, mop)",
-      "Clean exterior of vanities",
-      "Dust baseboards",
-    ],
-  },
-  bedroom: {
-    label: "BEDROOM",
-    icon: Bed,
-    items: [
-      "Clean floors (vacuum, sweep, mop)",
-      "Dust baseboards",
-      "Dust furniture within reach (top, front & underneath)",
-      "Clean mirrors and glass surfaces",
-      "Dust window sills",
-      "Remove cobwebs",
-      "Dust lamps and lamp shades",
-      "Dust picture frames",
-      "Wipe doors, handles & light switches",
-      "Dust light fixtures, ceiling fans, and vents",
-      "Empty trash and replace liner",
-    ],
-  },
-  diningLiving: {
-    label: "DINING ROOM / LIVING AREAS",
-    icon: Sofa,
-    items: [
-      "Vacuum/dust upholstered furniture",
-      "Dust lamps and lamp shades",
-      "Dust furniture within reach (top, front & underneath)",
-      "Dust picture frames",
-      "Dust windowsills",
-      "Clean counters & backsplash",
-      "Clean mirrors and glass surfaces",
-      "Empty trash and replace liner",
-      "Clean floors (vacuum, sweep, mop)",
-      "Remove cobwebs",
-      "Wipe doors & light switches",
-      "Dust baseboards",
-    ],
-  },
-  laundryRoom: {
-    label: "LAUNDRY ROOM",
-    icon: WashingMachine,
-    items: [
-      "Dust windowsill",
-      "Wipe tops of washer and dryer",
-      "Empty trash and replace liner",
-      "Clean floors (vacuum, sweep, mop)",
-      "Remove cobwebs",
-      "Wipe doors, handles & light switches",
-      "Wipe outside cabinets and drawers",
-      "Dust baseboards",
-    ],
-  },
-  addOns: {
-    label: "ADD-ON SERVICES",
-    icon: Plus,
-    items: [
-      "Clean inside refrigerator",
-      "Clean inside oven",
-      "Clean the garage",
-      "Clean inside cabinets",
-      "*By request only",
-    ],
-  },
-} as const;
-
-interface LeadEstimateTemplateConfig {
-  // Company section
-  showCompanyLogo: boolean;
+interface EstimateTemplateConfig {
+  // Header / Company
+  showLogo: boolean;
+  logoPosition: "left" | "center" | "right";
   companyName: string;
   companyAddress: string;
   companyPhone: string;
   companyEmail: string;
+  companyWebsite: string;
+  documentTitle: string;
 
-  // Customer section visibility
-  showCustomerName: boolean;
-  showCustomerEmail: boolean;
-  showCustomerPhone1: boolean;
-  showCustomerPhone2: boolean;
-  showOrigin: boolean;
-  showExpiryDate: boolean;
+  // Estimate Info
+  showEstimateNumber: boolean;
+  estimateNumberPrefix: string;
+  showEstimateDate: boolean;
+  showExpirationDate: boolean;
+  showReference: boolean;
+  referenceLabel: string;
 
-  // Address section
-  showAddressName: boolean;
-  showAddress: boolean;
-  showDate: boolean;
-  showTime: boolean;
-  showServiceType: boolean;
-  showAmount: boolean;
+  // Client Block
+  clientBlockTitle: string;
+  showClientName: boolean;
+  showClientCompany: boolean;
+  showClientAddress: boolean;
+  showClientPhone: boolean;
+  showClientEmail: boolean;
+
+  // Items Table
+  tableColumns: {
+    item: boolean;
+    description: boolean;
+    quantity: boolean;
+    rate: boolean;
+    amount: boolean;
+  };
+  itemColumnLabel: string;
+  descriptionColumnLabel: string;
+  quantityColumnLabel: string;
+  rateColumnLabel: string;
+  amountColumnLabel: string;
+
+  // Totals
+  showSubtotal: boolean;
+  showTax: boolean;
+  taxLabel: string;
+  defaultTaxRate: number;
+  showDiscount: boolean;
+  discountLabel: string;
+  showFees: boolean;
+  feesLabel: string;
+  totalLabel: string;
+
+  // Terms & Conditions
+  showTerms: boolean;
+  termsTitle: string;
+  termsContent: string;
+
+  // Notes
   showNotes: boolean;
-  showAdditionalNotes: boolean;
+  notesTitle: string;
+  notesPlaceholder: string;
 
-  // Room services
-  enableRoomServices: boolean;
-  enabledRooms: {
-    kitchen: boolean;
-    bathroom: boolean;
-    bedroom: boolean;
-    diningLiving: boolean;
-    laundryRoom: boolean;
-    addOns: boolean;
-  };
-  roomServicesItems: {
-    kitchen: string[];
-    bathroom: string[];
-    bedroom: string[];
-    diningLiving: string[];
-    laundryRoom: string[];
-    addOns: string[];
-  };
-
-  // Interactions section
-  showInteractions: boolean;
+  // Signature
+  showSignature: boolean;
+  showClientSignature: boolean;
+  showAuthorizedSignature: boolean;
+  signatureDate: boolean;
 
   // Styling
   primaryColor: string;
   secondaryColor: string;
+  accentColor: string;
   fontFamily: string;
-
-  // Footer
-  footerText: string;
-  termsAndConditions: string;
+  headerBgColor: string;
+  tableBorderColor: string;
+  tableHeaderBg: string;
 }
 
-const defaultConfig: LeadEstimateTemplateConfig = {
-  showCompanyLogo: true,
+const defaultConfig: EstimateTemplateConfig = {
+  // Header
+  showLogo: true,
+  logoPosition: "left",
   companyName: "CleanPro Services",
-  companyAddress: "123 Business Center, City, State 12345",
+  companyAddress: "123 Business Center, Suite 100\nCity, State 12345",
   companyPhone: "(555) 987-6543",
   companyEmail: "info@cleanpro.com",
+  companyWebsite: "www.cleanpro.com",
+  documentTitle: "ESTIMATE",
 
-  showCustomerName: true,
-  showCustomerEmail: true,
-  showCustomerPhone1: true,
-  showCustomerPhone2: true,
-  showOrigin: true,
-  showExpiryDate: true,
+  // Estimate Info
+  showEstimateNumber: true,
+  estimateNumberPrefix: "EST-",
+  showEstimateDate: true,
+  showExpirationDate: true,
+  showReference: false,
+  referenceLabel: "Reference",
 
-  showAddressName: true,
-  showAddress: true,
-  showDate: true,
-  showTime: true,
-  showServiceType: true,
-  showAmount: true,
+  // Client Block
+  clientBlockTitle: "ESTIMATE FOR",
+  showClientName: true,
+  showClientCompany: true,
+  showClientAddress: true,
+  showClientPhone: true,
+  showClientEmail: true,
+
+  // Items Table
+  tableColumns: {
+    item: true,
+    description: true,
+    quantity: true,
+    rate: true,
+    amount: true,
+  },
+  itemColumnLabel: "Item",
+  descriptionColumnLabel: "Description",
+  quantityColumnLabel: "Qty",
+  rateColumnLabel: "Rate",
+  amountColumnLabel: "Amount",
+
+  // Totals
+  showSubtotal: true,
+  showTax: true,
+  taxLabel: "Tax",
+  defaultTaxRate: 8,
+  showDiscount: true,
+  discountLabel: "Discount",
+  showFees: false,
+  feesLabel: "Fees",
+  totalLabel: "TOTAL",
+
+  // Terms & Conditions
+  showTerms: true,
+  termsTitle: "Terms & Conditions",
+  termsContent: "• This estimate is valid for 30 days from the date of issue.\n• 50% deposit required to schedule service.\n• Final payment due upon completion.\n• Cancellation within 24 hours may incur a fee.",
+
+  // Notes
   showNotes: true,
-  showAdditionalNotes: true,
+  notesTitle: "Notes",
+  notesPlaceholder: "Additional notes or observations...",
 
-  enableRoomServices: true,
-  enabledRooms: {
-    kitchen: true,
-    bathroom: true,
-    bedroom: true,
-    diningLiving: true,
-    laundryRoom: true,
-    addOns: true,
-  },
-  roomServicesItems: {
-    kitchen: [...ROOM_SERVICES.kitchen.items],
-    bathroom: [...ROOM_SERVICES.bathroom.items],
-    bedroom: [...ROOM_SERVICES.bedroom.items],
-    diningLiving: [...ROOM_SERVICES.diningLiving.items],
-    laundryRoom: [...ROOM_SERVICES.laundryRoom.items],
-    addOns: [...ROOM_SERVICES.addOns.items],
-  },
+  // Signature
+  showSignature: true,
+  showClientSignature: true,
+  showAuthorizedSignature: true,
+  signatureDate: true,
 
-  showInteractions: true,
-
+  // Styling
   primaryColor: "#dc2626",
   secondaryColor: "#1f2937",
+  accentColor: "#f3f4f6",
   fontFamily: "Inter",
+  headerBgColor: "#1f2937",
+  tableBorderColor: "#e5e7eb",
+  tableHeaderBg: "#f9fafb",
+};
 
-  footerText: "Thank you for your interest in our services!",
-  termsAndConditions: "This estimate is valid for 30 days. Final pricing may vary based on actual conditions.",
+// Sample data for preview
+const sampleData = {
+  estimateNumber: "EST-2024-0042",
+  estimateDate: "January 12, 2026",
+  expirationDate: "February 11, 2026",
+  reference: "Deep Clean Project",
+  client: {
+    name: "John Smith",
+    company: "Smith Enterprises LLC",
+    address: "456 Customer Street\nCity, State 67890",
+    phone: "(555) 123-4567",
+    email: "john.smith@email.com",
+  },
+  items: [
+    { item: "1", description: "Deep Cleaning - Kitchen", qty: 1, rate: 200, amount: 200 },
+    { item: "2", description: "Deep Cleaning - Living Room", qty: 1, rate: 150, amount: 150 },
+    { item: "3", description: "Deep Cleaning - Bedrooms", qty: 3, rate: 100, amount: 300 },
+    { item: "4", description: "Window Cleaning (interior)", qty: 8, rate: 25, amount: 200 },
+  ],
+  subtotal: 850,
+  tax: 68,
+  discount: 50,
+  fees: 0,
+  total: 868,
 };
 
 interface LeadEstimateTemplateEditorProps {
@@ -247,44 +211,36 @@ interface LeadEstimateTemplateEditorProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Store saved config
-let savedLeadEstimateConfig: LeadEstimateTemplateConfig | null = null;
+let savedEstimateConfig: EstimateTemplateConfig | null = null;
 
 export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateTemplateEditorProps) {
-  const [config, setConfig] = useState<LeadEstimateTemplateConfig>(
-    savedLeadEstimateConfig || defaultConfig
+  const [config, setConfig] = useState<EstimateTemplateConfig>(
+    savedEstimateConfig || defaultConfig
   );
-  const [activeTab, setActiveTab] = useState("company");
-  const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState("header");
 
-  const updateConfig = <K extends keyof LeadEstimateTemplateConfig>(
+  const updateConfig = <K extends keyof EstimateTemplateConfig>(
     key: K, 
-    value: LeadEstimateTemplateConfig[K]
+    value: EstimateTemplateConfig[K]
   ) => {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 
-  const toggleRoom = (roomKey: keyof typeof config.enabledRooms) => {
+  const updateTableColumn = (column: keyof EstimateTemplateConfig['tableColumns'], value: boolean) => {
     setConfig(prev => ({
       ...prev,
-      enabledRooms: {
-        ...prev.enabledRooms,
-        [roomKey]: !prev.enabledRooms[roomKey],
-      },
-    }));
-  };
-
-  const toggleRoomExpand = (roomKey: string) => {
-    setExpandedRooms(prev => ({
-      ...prev,
-      [roomKey]: !prev[roomKey],
+      tableColumns: { ...prev.tableColumns, [column]: value },
     }));
   };
 
   const handleSave = () => {
-    savedLeadEstimateConfig = config;
-    toast.success("Lead/Estimate template saved successfully!");
+    savedEstimateConfig = config;
+    toast.success("Estimate template saved successfully!");
     onOpenChange(false);
+  };
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
   };
 
   return (
@@ -293,7 +249,7 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="flex items-center gap-2">
             <Settings2 className="w-5 h-5" />
-            Edit Lead / Estimate Template
+            Edit Estimate Template
           </DialogTitle>
         </DialogHeader>
         
@@ -301,38 +257,76 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
           {/* Editor Panel */}
           <div className="w-1/2 border-r border-border overflow-y-auto p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-5 mb-6">
-                <TabsTrigger value="company" className="text-xs">
+              <TabsList className="grid w-full grid-cols-6 mb-6">
+                <TabsTrigger value="header" className="text-xs">
                   <Building2 className="w-3 h-3 mr-1" />
-                  Company
+                  Header
                 </TabsTrigger>
-                <TabsTrigger value="customer" className="text-xs">
+                <TabsTrigger value="client" className="text-xs">
                   <User className="w-3 h-3 mr-1" />
-                  Customer
+                  Client
                 </TabsTrigger>
-                <TabsTrigger value="address" className="text-xs">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  Address
+                <TabsTrigger value="table" className="text-xs">
+                  <Table className="w-3 h-3 mr-1" />
+                  Items
                 </TabsTrigger>
-                <TabsTrigger value="rooms" className="text-xs">
-                  <Home className="w-3 h-3 mr-1" />
-                  Rooms
+                <TabsTrigger value="totals" className="text-xs">
+                  <DollarSign className="w-3 h-3 mr-1" />
+                  Totals
+                </TabsTrigger>
+                <TabsTrigger value="footer" className="text-xs">
+                  <FileSignature className="w-3 h-3 mr-1" />
+                  Footer
                 </TabsTrigger>
                 <TabsTrigger value="styling" className="text-xs">
                   <Palette className="w-3 h-3 mr-1" />
-                  Styling
+                  Style
                 </TabsTrigger>
               </TabsList>
 
-              {/* Company Tab */}
-              <TabsContent value="company" className="space-y-4">
-                <h3 className="font-semibold">Company Information</h3>
+              {/* Header Tab */}
+              <TabsContent value="header" className="space-y-4">
+                <h3 className="font-semibold">Company Header</h3>
                 
-                <div className="flex items-center justify-between">
-                  <Label>Show Company Logo</Label>
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <Label>Show Logo</Label>
                   <Switch 
-                    checked={config.showCompanyLogo} 
-                    onCheckedChange={(v) => updateConfig("showCompanyLogo", v)} 
+                    checked={config.showLogo} 
+                    onCheckedChange={(v) => updateConfig("showLogo", v)} 
+                  />
+                </div>
+
+                {config.showLogo && (
+                  <div className="space-y-2">
+                    <Label>Logo Position</Label>
+                    <Select 
+                      value={config.logoPosition} 
+                      onValueChange={(v: "left" | "center" | "right") => updateConfig("logoPosition", v)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="left">Left</SelectItem>
+                        <SelectItem value="center">Center</SelectItem>
+                        <SelectItem value="right">Right</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Logo
+                    </Button>
+                  </div>
+                )}
+
+                <Separator />
+
+                <div className="space-y-2">
+                  <Label>Document Title</Label>
+                  <Input 
+                    value={config.documentTitle}
+                    onChange={(e) => updateConfig("documentTitle", e.target.value)}
+                    placeholder="ESTIMATE"
                   />
                 </div>
 
@@ -345,7 +339,7 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Address</Label>
+                  <Label>Company Address</Label>
                   <Textarea 
                     value={config.companyAddress}
                     onChange={(e) => updateConfig("companyAddress", e.target.value)}
@@ -370,226 +364,390 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
                   </div>
                 </div>
 
-                <Separator className="my-4" />
-
                 <div className="space-y-2">
-                  <Label>Footer Text</Label>
-                  <Textarea 
-                    value={config.footerText}
-                    onChange={(e) => updateConfig("footerText", e.target.value)}
-                    rows={2}
+                  <Label>Website</Label>
+                  <Input 
+                    value={config.companyWebsite}
+                    onChange={(e) => updateConfig("companyWebsite", e.target.value)}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Terms & Conditions</Label>
-                  <Textarea 
-                    value={config.termsAndConditions}
-                    onChange={(e) => updateConfig("termsAndConditions", e.target.value)}
-                    rows={3}
-                  />
+                <Separator />
+                <h4 className="font-medium text-sm">Estimate Info Block</h4>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Show Estimate Number</Label>
+                    <Switch 
+                      checked={config.showEstimateNumber} 
+                      onCheckedChange={(v) => updateConfig("showEstimateNumber", v)} 
+                    />
+                  </div>
+                  {config.showEstimateNumber && (
+                    <div className="space-y-2 pl-4">
+                      <Label>Number Prefix</Label>
+                      <Input 
+                        value={config.estimateNumberPrefix}
+                        onChange={(e) => updateConfig("estimateNumberPrefix", e.target.value)}
+                        placeholder="EST-"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Show Estimate Date</Label>
+                    <Switch 
+                      checked={config.showEstimateDate} 
+                      onCheckedChange={(v) => updateConfig("showEstimateDate", v)} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Show Expiration Date</Label>
+                    <Switch 
+                      checked={config.showExpirationDate} 
+                      onCheckedChange={(v) => updateConfig("showExpirationDate", v)} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Show Reference/Project</Label>
+                    <Switch 
+                      checked={config.showReference} 
+                      onCheckedChange={(v) => updateConfig("showReference", v)} 
+                    />
+                  </div>
                 </div>
               </TabsContent>
 
-              {/* Customer Tab */}
-              <TabsContent value="customer" className="space-y-4">
-                <h3 className="font-semibold">Customer Information Fields</h3>
-                <p className="text-sm text-muted-foreground">Choose which fields to display in the template</p>
+              {/* Client Tab */}
+              <TabsContent value="client" className="space-y-4">
+                <h3 className="font-semibold">Client Information Block</h3>
                 
+                <div className="space-y-2">
+                  <Label>Block Title</Label>
+                  <Input 
+                    value={config.clientBlockTitle}
+                    onChange={(e) => updateConfig("clientBlockTitle", e.target.value)}
+                    placeholder="ESTIMATE FOR"
+                  />
+                </div>
+
+                <Separator />
+                <p className="text-sm text-muted-foreground">Choose which client fields to display</p>
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Customer Name</Label>
+                    <Label>Client Name</Label>
                     <Switch 
-                      checked={config.showCustomerName} 
-                      onCheckedChange={(v) => updateConfig("showCustomerName", v)} 
+                      checked={config.showClientName} 
+                      onCheckedChange={(v) => updateConfig("showClientName", v)} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Company Name</Label>
+                    <Switch 
+                      checked={config.showClientCompany} 
+                      onCheckedChange={(v) => updateConfig("showClientCompany", v)} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Address</Label>
+                    <Switch 
+                      checked={config.showClientAddress} 
+                      onCheckedChange={(v) => updateConfig("showClientAddress", v)} 
+                    />
+                  </div>
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Phone</Label>
+                    <Switch 
+                      checked={config.showClientPhone} 
+                      onCheckedChange={(v) => updateConfig("showClientPhone", v)} 
                     />
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded-lg">
                     <Label>Email</Label>
                     <Switch 
-                      checked={config.showCustomerEmail} 
-                      onCheckedChange={(v) => updateConfig("showCustomerEmail", v)} 
+                      checked={config.showClientEmail} 
+                      onCheckedChange={(v) => updateConfig("showClientEmail", v)} 
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Phone 1</Label>
-                    <Switch 
-                      checked={config.showCustomerPhone1} 
-                      onCheckedChange={(v) => updateConfig("showCustomerPhone1", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Phone 2</Label>
-                    <Switch 
-                      checked={config.showCustomerPhone2} 
-                      onCheckedChange={(v) => updateConfig("showCustomerPhone2", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Origin</Label>
-                    <Switch 
-                      checked={config.showOrigin} 
-                      onCheckedChange={(v) => updateConfig("showOrigin", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Expiry Date</Label>
-                    <Switch 
-                      checked={config.showExpiryDate} 
-                      onCheckedChange={(v) => updateConfig("showExpiryDate", v)} 
-                    />
-                  </div>
-                </div>
-
-                <Separator className="my-4" />
-
-                <div className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <Label>Lead Interactions</Label>
-                    <p className="text-xs text-muted-foreground">Show interaction history section</p>
-                  </div>
-                  <Switch 
-                    checked={config.showInteractions} 
-                    onCheckedChange={(v) => updateConfig("showInteractions", v)} 
-                  />
                 </div>
               </TabsContent>
 
-              {/* Address Tab */}
-              <TabsContent value="address" className="space-y-4">
-                <h3 className="font-semibold">Service Address Fields</h3>
-                <p className="text-sm text-muted-foreground">Choose which address fields to display</p>
-                
+              {/* Table Tab */}
+              <TabsContent value="table" className="space-y-4">
+                <h3 className="font-semibold">Items Table Configuration</h3>
+                <p className="text-sm text-muted-foreground">Configure table columns and labels</p>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <Label>Item Column</Label>
+                      {config.tableColumns.item && (
+                        <Input 
+                          value={config.itemColumnLabel}
+                          onChange={(e) => updateConfig("itemColumnLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Item"
+                        />
+                      )}
+                    </div>
+                    <Switch 
+                      checked={config.tableColumns.item} 
+                      onCheckedChange={(v) => updateTableColumn("item", v)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <Label>Description Column</Label>
+                      {config.tableColumns.description && (
+                        <Input 
+                          value={config.descriptionColumnLabel}
+                          onChange={(e) => updateConfig("descriptionColumnLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Description"
+                        />
+                      )}
+                    </div>
+                    <Switch 
+                      checked={config.tableColumns.description} 
+                      onCheckedChange={(v) => updateTableColumn("description", v)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <Label>Quantity Column</Label>
+                      {config.tableColumns.quantity && (
+                        <Input 
+                          value={config.quantityColumnLabel}
+                          onChange={(e) => updateConfig("quantityColumnLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Qty"
+                        />
+                      )}
+                    </div>
+                    <Switch 
+                      checked={config.tableColumns.quantity} 
+                      onCheckedChange={(v) => updateTableColumn("quantity", v)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <Label>Rate Column</Label>
+                      {config.tableColumns.rate && (
+                        <Input 
+                          value={config.rateColumnLabel}
+                          onChange={(e) => updateConfig("rateColumnLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Rate"
+                        />
+                      )}
+                    </div>
+                    <Switch 
+                      checked={config.tableColumns.rate} 
+                      onCheckedChange={(v) => updateTableColumn("rate", v)} 
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <Label>Amount Column</Label>
+                      {config.tableColumns.amount && (
+                        <Input 
+                          value={config.amountColumnLabel}
+                          onChange={(e) => updateConfig("amountColumnLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Amount"
+                        />
+                      )}
+                    </div>
+                    <Switch 
+                      checked={config.tableColumns.amount} 
+                      onCheckedChange={(v) => updateTableColumn("amount", v)} 
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              {/* Totals Tab */}
+              <TabsContent value="totals" className="space-y-4">
+                <h3 className="font-semibold">Totals Configuration</h3>
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Address Name</Label>
+                    <Label>Show Subtotal</Label>
                     <Switch 
-                      checked={config.showAddressName} 
-                      onCheckedChange={(v) => updateConfig("showAddressName", v)} 
+                      checked={config.showSubtotal} 
+                      onCheckedChange={(v) => updateConfig("showSubtotal", v)} 
                     />
                   </div>
+
                   <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Full Address</Label>
+                    <div className="flex-1">
+                      <Label>Show Tax</Label>
+                      {config.showTax && (
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <Input 
+                            value={config.taxLabel}
+                            onChange={(e) => updateConfig("taxLabel", e.target.value)}
+                            placeholder="Tax"
+                          />
+                          <Input 
+                            type="number"
+                            value={config.defaultTaxRate}
+                            onChange={(e) => updateConfig("defaultTaxRate", parseFloat(e.target.value) || 0)}
+                            placeholder="Rate %"
+                          />
+                        </div>
+                      )}
+                    </div>
                     <Switch 
-                      checked={config.showAddress} 
-                      onCheckedChange={(v) => updateConfig("showAddress", v)} 
+                      checked={config.showTax} 
+                      onCheckedChange={(v) => updateConfig("showTax", v)} 
                     />
                   </div>
+
                   <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Date</Label>
+                    <div className="flex-1">
+                      <Label>Show Discount</Label>
+                      {config.showDiscount && (
+                        <Input 
+                          value={config.discountLabel}
+                          onChange={(e) => updateConfig("discountLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Discount"
+                        />
+                      )}
+                    </div>
                     <Switch 
-                      checked={config.showDate} 
-                      onCheckedChange={(v) => updateConfig("showDate", v)} 
+                      checked={config.showDiscount} 
+                      onCheckedChange={(v) => updateConfig("showDiscount", v)} 
                     />
                   </div>
+
                   <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Time</Label>
+                    <div className="flex-1">
+                      <Label>Show Fees</Label>
+                      {config.showFees && (
+                        <Input 
+                          value={config.feesLabel}
+                          onChange={(e) => updateConfig("feesLabel", e.target.value)}
+                          className="mt-2"
+                          placeholder="Fees"
+                        />
+                      )}
+                    </div>
                     <Switch 
-                      checked={config.showTime} 
-                      onCheckedChange={(v) => updateConfig("showTime", v)} 
+                      checked={config.showFees} 
+                      onCheckedChange={(v) => updateConfig("showFees", v)} 
                     />
                   </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Service Type</Label>
-                    <Switch 
-                      checked={config.showServiceType} 
-                      onCheckedChange={(v) => updateConfig("showServiceType", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Amount</Label>
-                    <Switch 
-                      checked={config.showAmount} 
-                      onCheckedChange={(v) => updateConfig("showAmount", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Notes</Label>
-                    <Switch 
-                      checked={config.showNotes} 
-                      onCheckedChange={(v) => updateConfig("showNotes", v)} 
-                    />
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded-lg">
-                    <Label>Additional Notes</Label>
-                    <Switch 
-                      checked={config.showAdditionalNotes} 
-                      onCheckedChange={(v) => updateConfig("showAdditionalNotes", v)} 
+
+                  <Separator />
+
+                  <div className="space-y-2">
+                    <Label>Total Label</Label>
+                    <Input 
+                      value={config.totalLabel}
+                      onChange={(e) => updateConfig("totalLabel", e.target.value)}
+                      placeholder="TOTAL"
                     />
                   </div>
                 </div>
               </TabsContent>
 
-              {/* Rooms Tab */}
-              <TabsContent value="rooms" className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold">Room Services</h3>
-                    <p className="text-sm text-muted-foreground">Configure room service cards for each address</p>
-                  </div>
+              {/* Footer Tab */}
+              <TabsContent value="footer" className="space-y-4">
+                <h3 className="font-semibold">Terms & Conditions</h3>
+                
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <Label>Show Terms</Label>
                   <Switch 
-                    checked={config.enableRoomServices} 
-                    onCheckedChange={(v) => updateConfig("enableRoomServices", v)} 
+                    checked={config.showTerms} 
+                    onCheckedChange={(v) => updateConfig("showTerms", v)} 
                   />
                 </div>
 
-                {config.enableRoomServices && (
-                  <div className="space-y-3">
-                    {(Object.keys(ROOM_SERVICES) as Array<keyof typeof ROOM_SERVICES>).map((roomKey) => {
-                      const room = ROOM_SERVICES[roomKey];
-                      const RoomIcon = room.icon;
-                      const isExpanded = expandedRooms[roomKey];
-                      const isEnabled = config.enabledRooms[roomKey];
+                {config.showTerms && (
+                  <>
+                    <div className="space-y-2">
+                      <Label>Terms Title</Label>
+                      <Input 
+                        value={config.termsTitle}
+                        onChange={(e) => updateConfig("termsTitle", e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Terms Content</Label>
+                      <Textarea 
+                        value={config.termsContent}
+                        onChange={(e) => updateConfig("termsContent", e.target.value)}
+                        rows={5}
+                      />
+                    </div>
+                  </>
+                )}
 
-                      return (
-                        <div
-                          key={roomKey}
-                          className={`border rounded-lg transition-all ${
-                            isEnabled ? "border-primary bg-primary/5" : "border-border"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between p-3">
-                            <div className="flex items-center gap-3">
-                              <Checkbox
-                                checked={isEnabled}
-                                onCheckedChange={() => toggleRoom(roomKey)}
-                              />
-                              <RoomIcon className="w-4 h-4 text-primary" />
-                              <span className="font-medium text-sm">{room.label}</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleRoomExpand(roomKey)}
-                            >
-                              {isExpanded ? (
-                                <ChevronUp className="w-4 h-4" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
+                <Separator />
+                <h3 className="font-semibold">Notes Section</h3>
 
-                          {isExpanded && (
-                            <div className="px-3 pb-3 border-t">
-                              <p className="text-xs text-muted-foreground py-2">
-                                Services included in this room:
-                              </p>
-                              <div className="space-y-1 max-h-[200px] overflow-y-auto">
-                                {config.roomServicesItems[roomKey].map((item, idx) => (
-                                  <div key={idx} className="flex items-start gap-2 text-xs">
-                                    <span className="text-primary mt-0.5">•</span>
-                                    <span>{item}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <Label>Show Notes</Label>
+                  <Switch 
+                    checked={config.showNotes} 
+                    onCheckedChange={(v) => updateConfig("showNotes", v)} 
+                  />
+                </div>
+
+                {config.showNotes && (
+                  <div className="space-y-2">
+                    <Label>Notes Title</Label>
+                    <Input 
+                      value={config.notesTitle}
+                      onChange={(e) => updateConfig("notesTitle", e.target.value)}
+                    />
                   </div>
                 )}
+
+                <Separator />
+                <h3 className="font-semibold">Signature Area</h3>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <Label>Show Signature Section</Label>
+                    <Switch 
+                      checked={config.showSignature} 
+                      onCheckedChange={(v) => updateConfig("showSignature", v)} 
+                    />
+                  </div>
+
+                  {config.showSignature && (
+                    <>
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <Label>Client Signature</Label>
+                        <Switch 
+                          checked={config.showClientSignature} 
+                          onCheckedChange={(v) => updateConfig("showClientSignature", v)} 
+                        />
+                      </div>
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <Label>Authorized Signature</Label>
+                        <Switch 
+                          checked={config.showAuthorizedSignature} 
+                          onCheckedChange={(v) => updateConfig("showAuthorizedSignature", v)} 
+                        />
+                      </div>
+                      <div className="flex items-center justify-between p-3 border rounded-lg">
+                        <Label>Signature Date</Label>
+                        <Switch 
+                          checked={config.signatureDate} 
+                          onCheckedChange={(v) => updateConfig("signatureDate", v)} 
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </TabsContent>
 
               {/* Styling Tab */}
@@ -632,6 +790,42 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Header Background</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="color"
+                        value={config.headerBgColor}
+                        onChange={(e) => updateConfig("headerBgColor", e.target.value)}
+                        className="w-12 h-10 p-1 cursor-pointer"
+                      />
+                      <Input 
+                        value={config.headerBgColor}
+                        onChange={(e) => updateConfig("headerBgColor", e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Table Header Background</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        type="color"
+                        value={config.tableHeaderBg}
+                        onChange={(e) => updateConfig("tableHeaderBg", e.target.value)}
+                        className="w-12 h-10 p-1 cursor-pointer"
+                      />
+                      <Input 
+                        value={config.tableHeaderBg}
+                        onChange={(e) => updateConfig("tableHeaderBg", e.target.value)}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <Label>Font Family</Label>
                   <Select 
@@ -647,6 +841,8 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
                       <SelectItem value="Open Sans">Open Sans</SelectItem>
                       <SelectItem value="Lato">Lato</SelectItem>
                       <SelectItem value="Montserrat">Montserrat</SelectItem>
+                      <SelectItem value="Arial">Arial</SelectItem>
+                      <SelectItem value="Georgia">Georgia</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -665,214 +861,262 @@ export function LeadEstimateTemplateEditor({ open, onOpenChange }: LeadEstimateT
           </div>
 
           {/* Preview Panel */}
-          <div className="w-1/2 bg-muted/30 overflow-y-auto">
+          <div className="w-1/2 bg-muted/30 overflow-hidden flex flex-col">
             <div className="sticky top-0 bg-background border-b p-4 flex items-center gap-2">
               <Eye className="w-4 h-4" />
               <span className="font-medium">Live Preview</span>
             </div>
             
-            <ScrollArea className="h-[calc(100%-57px)]">
+            <ScrollArea className="flex-1">
               <div className="p-6">
                 <div 
-                  className="bg-white rounded-lg shadow-lg p-6 space-y-6"
+                  className="bg-white rounded-lg shadow-lg overflow-hidden"
                   style={{ fontFamily: config.fontFamily }}
                 >
-                  {/* Company Header */}
-                  <div className="border-b pb-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        {config.showCompanyLogo && (
+                  {/* Header */}
+                  <div 
+                    className="p-6 text-white"
+                    style={{ backgroundColor: config.headerBgColor }}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-start gap-4">
+                        {config.showLogo && (
                           <div 
-                            className="w-16 h-16 rounded-lg flex items-center justify-center text-white font-bold mb-2"
+                            className="w-16 h-16 rounded flex items-center justify-center font-bold text-sm"
                             style={{ backgroundColor: config.primaryColor }}
                           >
                             LOGO
                           </div>
                         )}
-                        <h1 
-                          className="text-xl font-bold"
-                          style={{ color: config.primaryColor }}
-                        >
-                          {config.companyName}
-                        </h1>
-                        <p className="text-sm text-gray-600">{config.companyAddress}</p>
-                        <p className="text-sm text-gray-600">{config.companyPhone} • {config.companyEmail}</p>
+                        <div>
+                          <h1 className="text-xl font-bold">{config.companyName}</h1>
+                          <p className="text-sm opacity-80 whitespace-pre-line">{config.companyAddress}</p>
+                          <p className="text-sm opacity-80">{config.companyPhone}</p>
+                          <p className="text-sm opacity-80">{config.companyEmail}</p>
+                          {config.companyWebsite && (
+                            <p className="text-sm opacity-80">{config.companyWebsite}</p>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right">
                         <h2 
-                          className="text-2xl font-bold"
-                          style={{ color: config.secondaryColor }}
+                          className="text-3xl font-bold tracking-wider"
+                          style={{ color: config.primaryColor }}
                         >
-                          ESTIMATE
+                          {config.documentTitle}
                         </h2>
-                        <p className="text-sm text-gray-500">EST-2024-001</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Customer Information */}
-                  <div className="space-y-2">
-                    <h3 
-                      className="text-sm font-semibold uppercase tracking-wide"
-                      style={{ color: config.primaryColor }}
-                    >
-                      Customer Information
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      {config.showCustomerName && (
-                        <div>
-                          <span className="text-gray-500">Name:</span>
-                          <span className="ml-2 font-medium">John Smith</span>
-                        </div>
-                      )}
-                      {config.showCustomerEmail && (
-                        <div>
-                          <span className="text-gray-500">Email:</span>
-                          <span className="ml-2">john@email.com</span>
-                        </div>
-                      )}
-                      {config.showCustomerPhone1 && (
-                        <div>
-                          <span className="text-gray-500">Phone 1:</span>
-                          <span className="ml-2">(555) 123-4567</span>
-                        </div>
-                      )}
-                      {config.showCustomerPhone2 && (
-                        <div>
-                          <span className="text-gray-500">Phone 2:</span>
-                          <span className="ml-2">(555) 987-6543</span>
-                        </div>
-                      )}
-                      {config.showOrigin && (
-                        <div>
-                          <span className="text-gray-500">Origin:</span>
-                          <span className="ml-2">Google</span>
-                        </div>
-                      )}
-                      {config.showExpiryDate && (
-                        <div>
-                          <span className="text-gray-500">Valid Until:</span>
-                          <span className="ml-2">Feb 15, 2024</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Service Address */}
-                  <div className="space-y-3">
-                    <h3 
-                      className="text-sm font-semibold uppercase tracking-wide"
-                      style={{ color: config.primaryColor }}
-                    >
-                      Service Address
-                    </h3>
-                    <div 
-                      className="p-4 rounded-lg border"
-                      style={{ borderColor: `${config.primaryColor}30` }}
-                    >
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        {config.showAddressName && (
-                          <div>
-                            <span className="text-gray-500">Location:</span>
-                            <span className="ml-2 font-medium">Home</span>
-                          </div>
-                        )}
-                        {config.showAddress && (
-                          <div className="col-span-2">
-                            <span className="text-gray-500">Address:</span>
-                            <span className="ml-2">456 Customer St, City, State 12345</span>
-                          </div>
-                        )}
-                        {config.showDate && (
-                          <div>
-                            <span className="text-gray-500">Date:</span>
-                            <span className="ml-2">Jan 15, 2024</span>
-                          </div>
-                        )}
-                        {config.showTime && (
-                          <div>
-                            <span className="text-gray-500">Time:</span>
-                            <span className="ml-2">9:00 AM</span>
-                          </div>
-                        )}
-                        {config.showServiceType && (
-                          <div>
-                            <span className="text-gray-500">Service:</span>
-                            <span className="ml-2">Deep Cleaning</span>
-                          </div>
-                        )}
-                        {config.showAmount && (
-                          <div>
-                            <span className="text-gray-500">Amount:</span>
-                            <span className="ml-2 font-bold" style={{ color: config.primaryColor }}>$350.00</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Room Services Preview */}
-                      {config.enableRoomServices && (
-                        <div className="mt-4 pt-4 border-t">
-                          <p className="text-xs font-medium text-gray-500 mb-2">SERVICE AREAS</p>
-                          <div className="grid grid-cols-3 gap-2">
-                            {(Object.keys(config.enabledRooms) as Array<keyof typeof config.enabledRooms>).map((roomKey) => {
-                              if (!config.enabledRooms[roomKey]) return null;
-                              const room = ROOM_SERVICES[roomKey];
-                              return (
-                                <div 
-                                  key={roomKey}
-                                  className="text-xs p-2 rounded border flex items-center gap-1"
-                                  style={{ 
-                                    borderColor: config.primaryColor,
-                                    backgroundColor: `${config.primaryColor}10`
-                                  }}
-                                >
-                                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: config.primaryColor }} />
-                                  <span className="truncate">{room.label}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {config.showNotes && (
-                        <div className="mt-3 text-sm">
-                          <span className="text-gray-500">Notes:</span>
-                          <p className="mt-1 text-gray-600 italic">Special attention to kitchen appliances</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Interactions */}
-                  {config.showInteractions && (
-                    <div className="space-y-2">
-                      <h3 
-                        className="text-sm font-semibold uppercase tracking-wide"
-                        style={{ color: config.primaryColor }}
-                      >
-                        Lead Interactions
-                      </h3>
+                  <div className="p-6 space-y-6">
+                    {/* Estimate Info & Client Block */}
+                    <div className="grid grid-cols-2 gap-6">
+                      {/* Estimate Info */}
                       <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded text-sm">
-                          <div className="flex justify-between text-gray-500 text-xs mb-1">
-                            <span>Jan 10, 2024 • 10:30 AM</span>
-                            <span>Maria Silva</span>
+                        {config.showEstimateNumber && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Estimate #:</span>
+                            <span className="font-medium">{sampleData.estimateNumber}</span>
                           </div>
-                          <p className="font-medium">Initial Contact</p>
-                          <p className="text-gray-600 text-xs">Customer interested in deep cleaning service</p>
+                        )}
+                        {config.showEstimateDate && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Date:</span>
+                            <span>{sampleData.estimateDate}</span>
+                          </div>
+                        )}
+                        {config.showExpirationDate && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">Valid Until:</span>
+                            <span>{sampleData.expirationDate}</span>
+                          </div>
+                        )}
+                        {config.showReference && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-500">{config.referenceLabel}:</span>
+                            <span>{sampleData.reference}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Client Block */}
+                      <div 
+                        className="p-4 rounded-lg"
+                        style={{ backgroundColor: config.accentColor }}
+                      >
+                        <h3 
+                          className="text-xs font-bold tracking-wider mb-2"
+                          style={{ color: config.primaryColor }}
+                        >
+                          {config.clientBlockTitle}
+                        </h3>
+                        <div className="space-y-1 text-sm">
+                          {config.showClientName && (
+                            <p className="font-semibold">{sampleData.client.name}</p>
+                          )}
+                          {config.showClientCompany && (
+                            <p className="text-gray-600">{sampleData.client.company}</p>
+                          )}
+                          {config.showClientAddress && (
+                            <p className="text-gray-600 whitespace-pre-line">{sampleData.client.address}</p>
+                          )}
+                          {config.showClientPhone && (
+                            <p className="text-gray-600">{sampleData.client.phone}</p>
+                          )}
+                          {config.showClientEmail && (
+                            <p className="text-gray-600">{sampleData.client.email}</p>
+                          )}
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Footer */}
-                  <div className="border-t pt-4 space-y-2">
-                    {config.footerText && (
-                      <p className="text-sm text-gray-600 text-center">{config.footerText}</p>
+                    {/* Items Table */}
+                    <div className="border rounded-lg overflow-hidden" style={{ borderColor: config.tableBorderColor }}>
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr style={{ backgroundColor: config.tableHeaderBg }}>
+                            {config.tableColumns.item && (
+                              <th className="px-4 py-3 text-left font-semibold" style={{ color: config.secondaryColor }}>
+                                {config.itemColumnLabel}
+                              </th>
+                            )}
+                            {config.tableColumns.description && (
+                              <th className="px-4 py-3 text-left font-semibold" style={{ color: config.secondaryColor }}>
+                                {config.descriptionColumnLabel}
+                              </th>
+                            )}
+                            {config.tableColumns.quantity && (
+                              <th className="px-4 py-3 text-center font-semibold" style={{ color: config.secondaryColor }}>
+                                {config.quantityColumnLabel}
+                              </th>
+                            )}
+                            {config.tableColumns.rate && (
+                              <th className="px-4 py-3 text-right font-semibold" style={{ color: config.secondaryColor }}>
+                                {config.rateColumnLabel}
+                              </th>
+                            )}
+                            {config.tableColumns.amount && (
+                              <th className="px-4 py-3 text-right font-semibold" style={{ color: config.secondaryColor }}>
+                                {config.amountColumnLabel}
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sampleData.items.map((item, index) => (
+                            <tr 
+                              key={index} 
+                              className="border-t"
+                              style={{ borderColor: config.tableBorderColor }}
+                            >
+                              {config.tableColumns.item && (
+                                <td className="px-4 py-3">{item.item}</td>
+                              )}
+                              {config.tableColumns.description && (
+                                <td className="px-4 py-3">{item.description}</td>
+                              )}
+                              {config.tableColumns.quantity && (
+                                <td className="px-4 py-3 text-center">{item.qty}</td>
+                              )}
+                              {config.tableColumns.rate && (
+                                <td className="px-4 py-3 text-right">{formatCurrency(item.rate)}</td>
+                              )}
+                              {config.tableColumns.amount && (
+                                <td className="px-4 py-3 text-right font-medium">{formatCurrency(item.amount)}</td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Totals */}
+                    <div className="flex justify-end">
+                      <div className="w-64 space-y-2">
+                        {config.showSubtotal && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Subtotal:</span>
+                            <span>{formatCurrency(sampleData.subtotal)}</span>
+                          </div>
+                        )}
+                        {config.showDiscount && sampleData.discount > 0 && (
+                          <div className="flex justify-between text-sm text-green-600">
+                            <span>{config.discountLabel}:</span>
+                            <span>-{formatCurrency(sampleData.discount)}</span>
+                          </div>
+                        )}
+                        {config.showTax && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">{config.taxLabel} ({config.defaultTaxRate}%):</span>
+                            <span>{formatCurrency(sampleData.tax)}</span>
+                          </div>
+                        )}
+                        {config.showFees && sampleData.fees > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">{config.feesLabel}:</span>
+                            <span>{formatCurrency(sampleData.fees)}</span>
+                          </div>
+                        )}
+                        <div 
+                          className="flex justify-between pt-2 border-t-2 font-bold text-lg"
+                          style={{ borderColor: config.primaryColor }}
+                        >
+                          <span>{config.totalLabel}:</span>
+                          <span style={{ color: config.primaryColor }}>{formatCurrency(sampleData.total)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Terms & Conditions */}
+                    {config.showTerms && (
+                      <div className="pt-4 border-t">
+                        <h4 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                          {config.termsTitle}
+                        </h4>
+                        <p className="text-xs text-gray-600 whitespace-pre-line">
+                          {config.termsContent}
+                        </p>
+                      </div>
                     )}
-                    {config.termsAndConditions && (
-                      <p className="text-xs text-gray-400 text-center">{config.termsAndConditions}</p>
+
+                    {/* Notes */}
+                    {config.showNotes && (
+                      <div className="pt-4 border-t">
+                        <h4 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
+                          {config.notesTitle}
+                        </h4>
+                        <div 
+                          className="p-3 rounded text-xs text-gray-500 italic"
+                          style={{ backgroundColor: config.accentColor }}
+                        >
+                          {config.notesPlaceholder}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Signature */}
+                    {config.showSignature && (
+                      <div className="pt-6 border-t grid grid-cols-2 gap-8">
+                        {config.showClientSignature && (
+                          <div className="space-y-2">
+                            <div className="border-b border-gray-400 pb-8"></div>
+                            <p className="text-xs text-gray-600">Client Signature</p>
+                            {config.signatureDate && (
+                              <p className="text-xs text-gray-400">Date: _______________</p>
+                            )}
+                          </div>
+                        )}
+                        {config.showAuthorizedSignature && (
+                          <div className="space-y-2">
+                            <div className="border-b border-gray-400 pb-8"></div>
+                            <p className="text-xs text-gray-600">Authorized Signature</p>
+                            {config.signatureDate && (
+                              <p className="text-xs text-gray-400">Date: _______________</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
