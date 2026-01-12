@@ -22,7 +22,11 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
+  Star,
+  HardDrive,
+  Megaphone,
 } from "lucide-react";
+import { toast } from "sonner";
 import { QBSettingsModal } from "@/components/billing/QBSettingsModal";
 
 export function Integrations() {
@@ -31,6 +35,18 @@ export function Integrations() {
   const [zapierWebhook, setZapierWebhook] = useState("");
   const [autoInvoicing, setAutoInvoicing] = useState(true);
   const [qbSettingsOpen, setQbSettingsOpen] = useState(false);
+  const [googleWorkspaceConnected, setGoogleWorkspaceConnected] = useState(false);
+
+  const handleConnectGoogleWorkspace = () => {
+    // Simulate OAuth connection flow
+    setGoogleWorkspaceConnected(true);
+    toast.success("Google Workspace connected successfully! Gmail, Calendar, Reviews, Ads, and Drive are now linked.");
+  };
+
+  const handleDisconnectGoogleWorkspace = () => {
+    setGoogleWorkspaceConnected(false);
+    toast.info("Google Workspace disconnected.");
+  };
 
   const integrations = {
     accounting: [
@@ -100,20 +116,59 @@ export function Integrations() {
     ],
     scheduling: [
       {
-        name: "Google Calendar",
-        description: "Sync appointments with Google Calendar",
-        icon: Calendar,
-        status: "connected",
-        features: ["Two-way Sync", "Availability Checking", "Meeting Links"],
-        enabled: true
-      },
-      {
         name: "Calendly",
         description: "Online booking and scheduling integration",
         icon: Clock,
         status: "available",
         features: ["Online Booking", "Availability Management", "Buffer Times"],
         enabled: false
+      }
+    ],
+    google: [
+      {
+        name: "Gmail",
+        description: "Email communication and notifications",
+        icon: Mail,
+        status: googleWorkspaceConnected ? "connected" : "available",
+        features: ["Email Sync", "Customer Communication", "Notifications"],
+        enabled: googleWorkspaceConnected,
+        isGoogleService: true
+      },
+      {
+        name: "Google Calendar",
+        description: "Sync appointments with Google Calendar",
+        icon: Calendar,
+        status: googleWorkspaceConnected ? "connected" : "available",
+        features: ["Two-way Sync", "Availability Checking", "Meeting Links"],
+        enabled: googleWorkspaceConnected,
+        isGoogleService: true
+      },
+      {
+        name: "Google Reviews",
+        description: "Manage and respond to customer reviews",
+        icon: Star,
+        status: googleWorkspaceConnected ? "connected" : "available",
+        features: ["Review Monitoring", "Auto Responses", "Rating Analytics"],
+        enabled: googleWorkspaceConnected,
+        isGoogleService: true
+      },
+      {
+        name: "Google Ads",
+        description: "Manage advertising campaigns",
+        icon: Megaphone,
+        status: googleWorkspaceConnected ? "connected" : "available",
+        features: ["Campaign Management", "Lead Tracking", "ROI Analytics"],
+        enabled: googleWorkspaceConnected,
+        isGoogleService: true
+      },
+      {
+        name: "Google Drive",
+        description: "Cloud storage for documents and files",
+        icon: HardDrive,
+        status: googleWorkspaceConnected ? "connected" : "available",
+        features: ["Document Storage", "File Sharing", "Backup"],
+        enabled: googleWorkspaceConnected,
+        isGoogleService: true
       }
     ]
   };
@@ -213,13 +268,128 @@ export function Integrations() {
           <QBSettingsModal open={qbSettingsOpen} onOpenChange={setQbSettingsOpen} />
 
           {/* Integration Categories */}
-          <Tabs defaultValue="accounting" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="google" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="google">Google Workspace</TabsTrigger>
               <TabsTrigger value="accounting">Accounting</TabsTrigger>
               <TabsTrigger value="communication">Communication</TabsTrigger>
               <TabsTrigger value="automation">Automation</TabsTrigger>
               <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
             </TabsList>
+
+            {/* Google Workspace Tab */}
+            <TabsContent value="google" className="space-y-4">
+              {/* Google Workspace Connection Card */}
+              <Card className={`border-2 ${googleWorkspaceConnected ? 'border-success/50 bg-success/5' : 'border-primary/20 bg-primary/5'}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`p-3 rounded-lg ${googleWorkspaceConnected ? 'bg-success/10' : 'bg-primary/10'}`}>
+                        <Mail className={`w-6 h-6 ${googleWorkspaceConnected ? 'text-success' : 'text-primary'}`} />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">Google Workspace Integration</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Connect your Gmail account to automatically link Calendar, Reviews, Ads, and Drive
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-foreground">
+                          {googleWorkspaceConnected ? "Connected" : "Not Connected"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {googleWorkspaceConnected ? "5 services linked" : "Click to connect"}
+                        </p>
+                      </div>
+                      {googleWorkspaceConnected ? (
+                        <Button variant="outline" size="sm" onClick={handleDisconnectGoogleWorkspace}>
+                          Disconnect
+                        </Button>
+                      ) : (
+                        <Button variant="hero" size="sm" onClick={handleConnectGoogleWorkspace}>
+                          <Plus className="w-4 h-4 mr-1" />
+                          Connect Gmail
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Google Services Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {integrations.google.map((integration) => {
+                  const IconComponent = integration.icon;
+                  return (
+                    <Card key={integration.name} className={`relative ${googleWorkspaceConnected ? 'border-success/20' : ''}`}>
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-3 rounded-lg ${googleWorkspaceConnected ? 'bg-success/10' : 'bg-primary/10'}`}>
+                              <IconComponent className={`w-6 h-6 ${googleWorkspaceConnected ? 'text-success' : 'text-primary'}`} />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">{integration.name}</CardTitle>
+                              <p className="text-sm text-muted-foreground">
+                                {integration.description}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      
+                      <CardContent className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                          {googleWorkspaceConnected ? (
+                            <>
+                              <CheckCircle className="w-4 h-4 text-success" />
+                              <Badge variant="default" className="bg-success text-success-foreground">Connected</Badge>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4 text-muted-foreground" />
+                              <Badge variant="outline">Available</Badge>
+                            </>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Features</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {integration.features.map((feature) => (
+                              <Badge key={feature} variant="outline" className="text-xs">
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-2">
+                          {googleWorkspaceConnected ? (
+                            <Button variant="outline" size="sm" className="w-full">
+                              <Settings className="w-4 h-4 mr-1" />
+                              Configure
+                            </Button>
+                          ) : (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full"
+                              onClick={handleConnectGoogleWorkspace}
+                            >
+                              <Plus className="w-4 h-4 mr-1" />
+                              Connect via Gmail
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </TabsContent>
 
             {/* Accounting Tab with QuickBooks Auto-Invoicing Card */}
             <TabsContent value="accounting" className="space-y-4">
@@ -343,7 +513,7 @@ export function Integrations() {
               </div>
             </TabsContent>
 
-            {Object.entries(integrations).filter(([category]) => category !== 'accounting').map(([category, apps]) => (
+            {Object.entries(integrations).filter(([category]) => category !== 'accounting' && category !== 'google').map(([category, apps]) => (
               <TabsContent key={category} value={category} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {apps.map((integration) => {
