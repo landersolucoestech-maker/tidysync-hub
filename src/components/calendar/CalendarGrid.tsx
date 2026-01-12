@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Car } from "lucide-react";
 interface Appointment {
   id: number;
   time: string;
@@ -22,42 +22,50 @@ const cleaners = [{
   id: 1,
   name: "Maria Silva",
   color: "bg-blue-600",
-  jobs: 4
+  jobs: 4,
+  isDriver: true
 }, {
   id: 2,
   name: "Ana Santos",
   color: "bg-purple-600",
-  jobs: 6
+  jobs: 6,
+  isDriver: false
 }, {
   id: 3,
   name: "Joana Costa",
   color: "bg-emerald-600",
-  jobs: 3
+  jobs: 3,
+  isDriver: false
 }, {
   id: 4,
   name: "Carla Oliveira",
   color: "bg-red-600",
-  jobs: 5
+  jobs: 5,
+  isDriver: true
 }, {
   id: 5,
   name: "Paula Ferreira",
   color: "bg-amber-600",
-  jobs: 2
+  jobs: 2,
+  isDriver: false
 }, {
   id: 6,
   name: "Lucia Pereira",
   color: "bg-cyan-600",
-  jobs: 4
+  jobs: 4,
+  isDriver: true
 }, {
   id: 7,
   name: "Rosa Almeida",
   color: "bg-pink-600",
-  jobs: 3
+  jobs: 3,
+  isDriver: false
 }, {
   id: 8,
   name: "Clara Rodrigues",
   color: "bg-indigo-600",
-  jobs: 6
+  jobs: 6,
+  isDriver: false
 }];
 const serviceStatuses = [{
   name: "Next cleaning",
@@ -174,6 +182,7 @@ export function CalendarGrid({
           {cleaners.map(cleaner => <div key={cleaner.id} className="p-3 border-b border-border/50 hover:bg-accent/20 cursor-pointer transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
+                  {cleaner.isDriver && <Car className="h-4 w-4 text-muted-foreground" />}
                   <span className="text-sm font-medium">{cleaner.name}</span>
                 </div>
                 <span className="text-xs text-muted-foreground">
