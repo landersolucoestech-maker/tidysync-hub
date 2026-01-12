@@ -535,20 +535,18 @@ export function TemplateEditorModal({
                     </>
                   )}
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Show Payment Information</Label>
-                      <p className="text-xs text-muted-foreground">
-                        {templateType === "receipt" 
-                          ? "Display transaction details (ID, gateway, card info)" 
-                          : "Display payment details section"}
-                      </p>
+                  {templateType !== "receipt" && (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Show Payment Information</Label>
+                        <p className="text-xs text-muted-foreground">Display payment details section</p>
+                      </div>
+                      <Switch 
+                        checked={config.showPaymentInfo} 
+                        onCheckedChange={(v) => updateConfig("showPaymentInfo", v)} 
+                      />
                     </div>
-                    <Switch 
-                      checked={config.showPaymentInfo} 
-                      onCheckedChange={(v) => updateConfig("showPaymentInfo", v)} 
-                    />
-                  </div>
+                  )}
 
                   {templateType === "receipt" && (
                     <>
@@ -659,93 +657,6 @@ export function TemplateEditorModal({
                 </div>
 
 
-                {/* Transaction Details */}
-                <div className="mb-4">
-                  <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
-                    Transaction Details
-                  </h3>
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr 
-                        className="text-white"
-                        style={{ backgroundColor: config.primaryColor }}
-                      >
-                        <th className="text-left p-2 rounded-l">Item</th>
-                        <th className="text-left p-2">Description</th>
-                        <th className="text-center p-2">Qty</th>
-                        <th className="text-right p-2">Unit Price</th>
-                        <th className="text-right p-2 rounded-r">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sampleReceiptData.items.map((item, i) => (
-                        <tr key={i} className="border-b border-gray-100">
-                          <td className="p-2">{item.id}</td>
-                          <td className="p-2">{item.description}</td>
-                          <td className="p-2 text-center">{item.qty}</td>
-                          <td className="p-2 text-right">${item.price.toFixed(2)}</td>
-                          <td className="p-2 text-right">${(item.qty * item.price).toFixed(2)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Totals */}
-                <div className="flex justify-end mb-4">
-                  <div className="w-56 text-xs">
-                    <div className="flex justify-between py-1">
-                      <span>Subtotal:</span>
-                      <span>${sampleReceiptData.subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-1">
-                      <span>Tax (VAT / Sales Tax):</span>
-                      <span>${sampleReceiptData.tax.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between py-1 border-b">
-                      <span>Discount:</span>
-                      <span>-${sampleReceiptData.discount.toFixed(2)}</span>
-                    </div>
-                    <div 
-                      className="flex justify-between py-2 font-bold text-sm"
-                      style={{ color: config.primaryColor }}
-                    >
-                      <span>Total Paid:</span>
-                      <span>${sampleReceiptData.total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Information */}
-                {config.showPaymentInfo && (
-                  <div className="mb-4">
-                    <h3 className="font-semibold text-sm mb-2" style={{ color: config.secondaryColor }}>
-                      Payment Information
-                    </h3>
-                    <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Transaction ID:</span>
-                        <span className="font-mono">{sampleReceiptData.transactionId}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Gateway:</span>
-                        <span>{sampleReceiptData.gateway}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Card / Pix / Wallet:</span>
-                        <span>{sampleReceiptData.cardInfo}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Payment Date:</span>
-                        <span>{sampleReceiptData.paymentDate}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-500">Currency:</span>
-                        <span>{sampleReceiptData.currency}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {/* Notes */}
                 {config.showNotes && config.notesText && (
