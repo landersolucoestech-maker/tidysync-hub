@@ -199,69 +199,58 @@ export function TemplatesTab() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="terms-content">Content</Label>
-              <Textarea
-                id="terms-content"
-                placeholder="Enter your terms and conditions text here..."
-                value={termsData.content}
-                onChange={(e) => setTermsData(prev => ({ ...prev, content: e.target.value }))}
-                className="min-h-[200px] resize-y"
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Label>Upload Document (Optional)</Label>
-              <p className="text-sm text-muted-foreground">
-                Optionally upload a PDF or Word document with your full terms
-              </p>
-              
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileUpload}
-                accept=".pdf,.doc,.docx"
-                className="hidden"
-              />
-              
-              {termsData.file ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 border border-border rounded-lg bg-muted/50">
-                    <div className="flex items-center gap-3">
-                      <FileText className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-sm font-medium">{termsData.file.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(termsData.file.size)}
-                        </p>
-                      </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="terms-content">Content</Label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                />
+                {termsData.file ? (
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <FileText className="w-4 h-4 text-primary" />
+                      <span className="max-w-[200px] truncate">{termsData.file.name}</span>
+                      <span className="text-xs">({formatFileSize(termsData.file.size)})</span>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
-                        <Upload className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={handleRemoveFile}>
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
                   </div>
-                  
-                  {/* PDF Preview in content box */}
-                  {termsData.file.url && termsData.file.name.toLowerCase().endsWith('.pdf') && (
-                    <div className="space-y-2">
-                      <Label className="text-sm text-muted-foreground">Document Preview</Label>
-                      <iframe
-                        src={termsData.file.url}
-                        className="w-full h-[300px] border border-border rounded-lg bg-white"
-                        title="PDF Preview"
-                      />
-                    </div>
-                  )}
+                ) : (
+                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload PDF
+                  </Button>
+                )}
+              </div>
+              
+              {/* Content: Textarea OR PDF Preview */}
+              {termsData.file && termsData.file.url && termsData.file.name.toLowerCase().endsWith('.pdf') ? (
+                <iframe
+                  src={termsData.file.url}
+                  className="w-full min-h-[300px] border border-border rounded-lg bg-white"
+                  title="PDF Preview"
+                />
+              ) : termsData.file && !termsData.file.name.toLowerCase().endsWith('.pdf') ? (
+                <div className="flex flex-col items-center justify-center min-h-[200px] border border-border rounded-lg bg-muted/50">
+                  <FileText className="w-10 h-10 text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">Word document attached</p>
+                  <p className="text-xs text-muted-foreground">{termsData.file.name}</p>
                 </div>
               ) : (
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Document
-                </Button>
+                <Textarea
+                  id="terms-content"
+                  placeholder="Enter your terms and conditions text here, or upload a PDF document..."
+                  value={termsData.content}
+                  onChange={(e) => setTermsData(prev => ({ ...prev, content: e.target.value }))}
+                  className="min-h-[200px] resize-y"
+                />
               )}
             </div>
 
