@@ -63,32 +63,13 @@ interface RoomSelection {
   addOns: boolean;
 }
 
-interface PreferenceDays {
-  monday: boolean;
-  tuesday: boolean;
-  wednesday: boolean;
-  thursday: boolean;
-  friday: boolean;
-}
-
-interface PreferenceTime {
-  am: boolean;
-  pm: boolean;
-}
-
-interface Frequency {
-  weekly: boolean;
-  biWeekly: boolean;
-  monthly: boolean;
-}
-
 interface AddressEntry {
   id: string;
   addressName: string;
   address: string;
-  preferenceDays: PreferenceDays;
-  preferenceTime: PreferenceTime;
-  frequency: Frequency;
+  preferenceDays: string;
+  preferenceTime: string;
+  frequency: string;
   serviceType: string;
   amount: string;
   notes: string;
@@ -265,27 +246,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     addOns: false,
   };
 
-  const defaultPreferenceDays: PreferenceDays = {
-    monday: false,
-    tuesday: false,
-    wednesday: false,
-    thursday: false,
-    friday: false,
-  };
-
-  const defaultPreferenceTime: PreferenceTime = {
-    am: false,
-    pm: false,
-  };
-
-  const defaultFrequency: Frequency = {
-    weekly: false,
-    biWeekly: false,
-    monthly: false,
-  };
-
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", preferenceDays: { ...defaultPreferenceDays }, preferenceTime: { ...defaultPreferenceTime }, frequency: { ...defaultFrequency }, serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+    { id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
@@ -308,9 +270,9 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         id: "1",
         addressName: "",
         address: estimate.address,
-        preferenceDays: { ...defaultPreferenceDays },
-        preferenceTime: { ...defaultPreferenceTime },
-        frequency: { ...defaultFrequency },
+        preferenceDays: "",
+        preferenceTime: "",
+        frequency: "",
         serviceType: estimate.service,
         amount: estimate.amount,
         notes: "",
@@ -325,32 +287,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: { ...defaultPreferenceDays }, preferenceTime: { ...defaultPreferenceTime }, frequency: { ...defaultFrequency }, serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
-  };
-
-  const updatePreferenceDay = (addressId: string, day: keyof PreferenceDays, checked: boolean) => {
-    setAddresses(addresses.map(addr =>
-      addr.id === addressId
-        ? { ...addr, preferenceDays: { ...addr.preferenceDays, [day]: checked } }
-        : addr
-    ));
-  };
-
-  const updatePreferenceTime = (addressId: string, time: keyof PreferenceTime, checked: boolean) => {
-    setAddresses(addresses.map(addr =>
-      addr.id === addressId
-        ? { ...addr, preferenceTime: { ...addr.preferenceTime, [time]: checked } }
-        : addr
-    ));
-  };
-
-  const updateFrequency = (addressId: string, freq: keyof Frequency, checked: boolean) => {
-    setAddresses(addresses.map(addr =>
-      addr.id === addressId
-        ? { ...addr, frequency: { ...addr.frequency, [freq]: checked } }
-        : addr
-    ));
   };
 
   const toggleRoomExpand = (addressId: string, roomKey: string) => {
@@ -622,59 +560,56 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-6">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Preference Days</Label>
-                      <div className="flex flex-wrap gap-3">
-                        {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as const).map((day) => (
-                          <div key={day} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`edit-${addr.id}-${day}`}
-                              checked={addr.preferenceDays[day]}
-                              onCheckedChange={(checked) => updatePreferenceDay(addr.id, day, checked as boolean)}
-                            />
-                            <Label htmlFor={`edit-${addr.id}-${day}`} className="text-sm font-normal">
-                              {day === 'monday' ? 'Mon' : day === 'tuesday' ? 'Tue' : day === 'wednesday' ? 'Wed' : day === 'thursday' ? 'Thu' : 'Fri'}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                      <Label>Preference Days</Label>
+                      <Select
+                        value={addr.preferenceDays}
+                        onValueChange={(value) => updateAddress(addr.id, "preferenceDays", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border z-50">
+                          <SelectItem value="Monday">Monday</SelectItem>
+                          <SelectItem value="Tuesday">Tuesday</SelectItem>
+                          <SelectItem value="Wednesday">Wednesday</SelectItem>
+                          <SelectItem value="Thursday">Thursday</SelectItem>
+                          <SelectItem value="Friday">Friday</SelectItem>
+                          <SelectItem value="Weekdays">Weekdays</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Preference Time</Label>
-                      <div className="flex gap-3">
-                        {(['am', 'pm'] as const).map((time) => (
-                          <div key={time} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`edit-${addr.id}-${time}`}
-                              checked={addr.preferenceTime[time]}
-                              onCheckedChange={(checked) => updatePreferenceTime(addr.id, time, checked as boolean)}
-                            />
-                            <Label htmlFor={`edit-${addr.id}-${time}`} className="text-sm font-normal uppercase">
-                              {time}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                      <Label>Preference Time</Label>
+                      <Select
+                        value={addr.preferenceTime}
+                        onValueChange={(value) => updateAddress(addr.id, "preferenceTime", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border z-50">
+                          <SelectItem value="AM">AM</SelectItem>
+                          <SelectItem value="PM">PM</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium">Frequency</Label>
-                      <div className="flex flex-wrap gap-3">
-                        {(['weekly', 'biWeekly', 'monthly'] as const).map((freq) => (
-                          <div key={freq} className="flex items-center gap-2">
-                            <Checkbox
-                              id={`edit-${addr.id}-${freq}`}
-                              checked={addr.frequency[freq]}
-                              onCheckedChange={(checked) => updateFrequency(addr.id, freq, checked as boolean)}
-                            />
-                            <Label htmlFor={`edit-${addr.id}-${freq}`} className="text-sm font-normal">
-                              {freq === 'weekly' ? 'Weekly' : freq === 'biWeekly' ? 'Bi-Weekly' : 'Monthly'}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
+                      <Label>Frequency</Label>
+                      <Select
+                        value={addr.frequency}
+                        onValueChange={(value) => updateAddress(addr.id, "frequency", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border z-50">
+                          <SelectItem value="Weekly">Weekly</SelectItem>
+                          <SelectItem value="Bi-Weekly">Bi-Weekly</SelectItem>
+                          <SelectItem value="Monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
