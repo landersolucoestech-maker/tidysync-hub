@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, MoreHorizontal, UserPlus, Users, UserCheck, UserX, Repeat, Eye, Pencil, Trash2, LayoutGrid, List, Phone, Mail, MapPin } from "lucide-react";
+import { Plus, Search, MoreHorizontal, UserPlus, Users, UserCheck, UserX, Repeat, Eye, Pencil, Trash2, LayoutGrid, List, Phone, Mail, MapPin, Upload, Download } from "lucide-react";
 import { CustomerModal } from "@/components/customers/CustomerModal";
 import { CustomerDetailsModal } from "@/components/customers/CustomerDetailsModal";
 import { customers } from "@/data/systemData";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 export function Customers() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,6 +39,71 @@ export function Customers() {
   const handleDelete = (customer: typeof customers[0]) => {
     toast.success(`Customer "${customer.name}" deleted successfully`);
   };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExportExcel = () => {
+    const exportData = customers.map(customer => ({
+      "Name": customer.name,
+      "Email": customer.email,
+      "Phone": customer.phone,
+      "Address": customer.address,
+      "Status": customer.status,
+      "Payment Method": customer.paymentMethod,
+      "Last Service": customer.lastService,
+      "Total Jobs": customer.totalJobs,
+      "Rating": customer.rating
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Customers");
+    
+    // Auto-size columns
+    const columnWidths = [
+      { wch: 25 }, // Name
+      { wch: 30 }, // Email
+      { wch: 15 }, // Phone
+      { wch: 40 }, // Address
+      { wch: 10 }, // Status
+      { wch: 15 }, // Payment Method
+      { wch: 12 }, // Last Service
+      { wch: 10 }, // Total Jobs
+      { wch: 8 },  // Rating
+    ];
+    worksheet["!cols"] = columnWidths;
+
+    XLSX.writeFile(workbook, `customers_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success("Customer list exported successfully!");
+  };
+
+  const handleImportExcel = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        console.log("Imported customers:", jsonData);
+        toast.success(`${jsonData.length} customers imported successfully!`);
+      } catch (error) {
+        toast.error("Error importing file. Please check the format.");
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return <div className="flex h-screen bg-background">
       <Sidebar />
       
@@ -53,10 +119,27 @@ export function Customers() {
                 Manage your customer relationships and profiles
               </p>
             </div>
-            <Button variant="hero" size="lg" className="flex items-center space-x-2" onClick={() => setIsCustomerModalOpen(true)}>
-              <Plus className="w-4 h-4" />
-              <span>Add Customer</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImportExcel}
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+              />
+              <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                <Upload className="w-4 h-4 mr-2" />
+                Import
+              </Button>
+              <Button variant="outline" onClick={handleExportExcel}>
+                <Download className="w-4 h-4 mr-2" />
+                Export Excel
+              </Button>
+              <Button variant="hero" size="lg" className="flex items-center space-x-2" onClick={() => setIsCustomerModalOpen(true)}>
+                <Plus className="w-4 h-4" />
+                <span>Add Customer</span>
+              </Button>
+            </div>
           </div>
 
           {/* Customer Modal - Create */}
