@@ -63,25 +63,65 @@ interface TemplateEditorModalProps {
   templateName: string;
 }
 
-const defaultConfig: TemplateConfig = {
-  showLogo: true,
-  logoPosition: "left",
-  companyName: "CleanPro Services",
-  companyAddress: "123 Business Center, City, State 12345",
-  companyPhone: "(555) 987-6543",
-  companyEmail: "info@cleanpro.com",
-  primaryColor: "#dc2626",
-  secondaryColor: "#1f2937",
-  fontFamily: "Inter",
-  headerBgColor: "#f9fafb",
-  title: "Invoice",
-  introText: "Thank you for choosing our services. Please find the details below.",
-  footerText: "Thank you for your business!",
-  termsAndConditions: "Payment is due within 30 days of invoice date. Late payments may incur additional fees.",
-  showTerms: true,
-  showSignatureLine: false,
-  showPaymentInfo: true,
-  showDueDate: true,
+const getDefaultConfigForType = (templateType: "estimate" | "contract" | "invoice" | "receipt"): TemplateConfig => {
+  const baseConfig: TemplateConfig = {
+    showLogo: true,
+    logoPosition: "left",
+    companyName: "CleanPro Services",
+    companyAddress: "123 Business Center, City, State 12345",
+    companyPhone: "(555) 987-6543",
+    companyEmail: "info@cleanpro.com",
+    primaryColor: "#dc2626",
+    secondaryColor: "#1f2937",
+    fontFamily: "Inter",
+    headerBgColor: "#f9fafb",
+    title: "Invoice",
+    introText: "Thank you for choosing our services. Please find the details below.",
+    footerText: "Thank you for your business!",
+    termsAndConditions: "Payment is due within 30 days of invoice date. Late payments may incur additional fees.",
+    showTerms: true,
+    showSignatureLine: false,
+    showPaymentInfo: true,
+    showDueDate: true,
+  };
+
+  switch (templateType) {
+    case "estimate":
+      return {
+        ...baseConfig,
+        title: "Estimate",
+        introText: "Thank you for your interest in our services. Please find your estimate below.",
+        footerText: "This estimate is valid for 30 days. Contact us to schedule your service!",
+        termsAndConditions: "This is an estimate only. Final pricing may vary based on actual conditions. Estimate valid for 30 days.",
+        showPaymentInfo: false,
+        showDueDate: false,
+      };
+    case "contract":
+      return {
+        ...baseConfig,
+        title: "Service Agreement",
+        introText: "This agreement outlines the terms of service between the parties.",
+        footerText: "By signing below, you agree to the terms outlined in this agreement.",
+        showSignatureLine: true,
+        showPaymentInfo: false,
+        showDueDate: false,
+      };
+    case "receipt":
+      return {
+        ...baseConfig,
+        title: "Payment Receipt",
+        primaryColor: "#16a34a",
+        introText: "Thank you for your payment! This receipt confirms your transaction.",
+        footerText: "Payment received - Thank you for your business!",
+        termsAndConditions: "This receipt serves as proof of payment. Please keep for your records.",
+        showTerms: false,
+        showPaymentInfo: false,
+        showDueDate: false,
+      };
+    case "invoice":
+    default:
+      return baseConfig;
+  }
 };
 
 // Sample data for preview
@@ -110,13 +150,7 @@ export function TemplateEditorModal({
   templateType,
   templateName 
 }: TemplateEditorModalProps) {
-  const [config, setConfig] = useState<TemplateConfig>({
-    ...defaultConfig,
-    title: templateType === "estimate" ? "Estimate" : 
-           templateType === "contract" ? "Service Agreement" :
-           templateType === "invoice" ? "Invoice" : "Receipt",
-    showSignatureLine: templateType === "contract",
-  });
+  const [config, setConfig] = useState<TemplateConfig>(() => getDefaultConfigForType(templateType));
   
   const [activeTab, setActiveTab] = useState("header");
 
