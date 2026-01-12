@@ -243,14 +243,24 @@ export function EditInvoiceModal({ open, onOpenChange, invoice }: EditInvoiceMod
             </div>
 
             <div className="space-y-2">
-              <Label>Due Date</Label>
-              <DatePickerString
-                value={formData.dueDate}
-                onChange={(value) =>
-                  setFormData({ ...formData, dueDate: value })
+              <Label>Payment Terms</Label>
+              <Select
+                value={formData.paymentTerms}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, paymentTerms: value })
                 }
-                placeholder="Select due date"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-border">
+                  {paymentTermsOptions.map((term) => (
+                    <SelectItem key={term.value} value={term.value}>
+                      {term.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -275,36 +285,13 @@ export function EditInvoiceModal({ open, onOpenChange, invoice }: EditInvoiceMod
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Job ID</Label>
-              <Input
-                value={formData.jobId}
-                onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
-                placeholder="JOB-001"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Payment Terms</Label>
-              <Select
-                value={formData.paymentTerms}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, paymentTerms: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-border">
-                  {paymentTermsOptions.map((term) => (
-                    <SelectItem key={term.value} value={term.value}>
-                      {term.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label>Job ID</Label>
+            <Input
+              value={formData.jobId}
+              onChange={(e) => setFormData({ ...formData, jobId: e.target.value })}
+              placeholder="JOB-001"
+            />
           </div>
 
           <Separator />
