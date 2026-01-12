@@ -46,11 +46,26 @@ import { AppointmentModal } from "@/components/schedule/AppointmentModal";
 import { InvoiceModal } from "@/components/schedule/InvoiceModal";
 import { toast } from "sonner";
 
+interface AddressData {
+  id: string;
+  addressName: string;
+  address: string;
+  preferenceDays: string;
+  preferenceTime: string;
+  frequency: string;
+  serviceType: string;
+  firstCleaningAmount: string;
+  regularAmount: string;
+  notes: string;
+  additionalNotes: string;
+}
+
 interface Estimate {
   id: string;
   customer: string;
   email?: string;
   phone?: string;
+  phoneNumber2?: string;
   service: string;
   amount: string;
   date: string;
@@ -61,6 +76,7 @@ interface Estimate {
   origin?: string;
   hasJob?: boolean;
   interactions?: Interaction[];
+  addresses?: AddressData[];
 }
 
 const initialEstimatesData: Estimate[] = [

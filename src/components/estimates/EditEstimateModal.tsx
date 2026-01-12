@@ -30,11 +30,26 @@ export interface Interaction {
   notes: string;
 }
 
+interface AddressData {
+  id: string;
+  addressName: string;
+  address: string;
+  preferenceDays: string;
+  preferenceTime: string;
+  frequency: string;
+  serviceType: string;
+  firstCleaningAmount: string;
+  regularAmount: string;
+  notes: string;
+  additionalNotes: string;
+}
+
 interface Estimate {
   id: string;
   customer: string;
   email?: string;
   phone?: string;
+  phoneNumber2?: string;
   service: string;
   amount: string;
   date: string;
@@ -45,6 +60,7 @@ interface Estimate {
   origin?: string;
   hasJob?: boolean;
   interactions?: Interaction[];
+  addresses?: AddressData[];
 }
 
 interface EditEstimateModalProps {
@@ -261,26 +277,44 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         customerName: estimate.customer,
         email: estimate.email || "",
         phoneNumber1: estimate.phone || "",
-        phoneNumber2: "",
+        phoneNumber2: estimate.phoneNumber2 || "",
         origin: estimate.origin || "",
         dateCreated: estimate.date || "",
         expiryDate: estimate.expiryDate,
       });
       
-      setAddresses([{
-        id: "1",
-        addressName: "",
-        address: estimate.address,
-        preferenceDays: "",
-        preferenceTime: "",
-        frequency: "",
-        serviceType: estimate.service,
-        firstCleaningAmount: estimate.amount,
-        regularAmount: "",
-        notes: "",
-        additionalNotes: "",
-        rooms: { ...defaultRooms },
-      }]);
+      // Load addresses from estimate if available
+      if (estimate.addresses && estimate.addresses.length > 0) {
+        setAddresses(estimate.addresses.map(addr => ({
+          id: addr.id || Date.now().toString(),
+          addressName: addr.addressName || "",
+          address: addr.address || "",
+          preferenceDays: addr.preferenceDays || "",
+          preferenceTime: addr.preferenceTime || "",
+          frequency: addr.frequency || "",
+          serviceType: addr.serviceType || estimate.service,
+          firstCleaningAmount: addr.firstCleaningAmount || "",
+          regularAmount: addr.regularAmount || "",
+          notes: addr.notes || "",
+          additionalNotes: addr.additionalNotes || "",
+          rooms: { ...defaultRooms },
+        })));
+      } else {
+        setAddresses([{
+          id: "1",
+          addressName: "",
+          address: estimate.address,
+          preferenceDays: "",
+          preferenceTime: "",
+          frequency: "",
+          serviceType: estimate.service,
+          firstCleaningAmount: estimate.amount,
+          regularAmount: "",
+          notes: "",
+          additionalNotes: "",
+          rooms: { ...defaultRooms },
+        }]);
+      }
 
       setInteractions(estimate.interactions || []);
     }
@@ -386,6 +420,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         customer: formData.customerName,
         email: formData.email,
         phone: formData.phoneNumber1,
+        phoneNumber2: formData.phoneNumber2,
         address: addresses[0]?.address || estimate.address,
         service: addresses[0]?.serviceType || estimate.service,
         amount: formatCurrency(totalAmount.toString()),
@@ -393,6 +428,19 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         expiryDate: formData.expiryDate,
         origin: formData.origin,
         interactions: interactions,
+        addresses: addresses.map(addr => ({
+          id: addr.id,
+          addressName: addr.addressName,
+          address: addr.address,
+          preferenceDays: addr.preferenceDays,
+          preferenceTime: addr.preferenceTime,
+          frequency: addr.frequency,
+          serviceType: addr.serviceType,
+          firstCleaningAmount: addr.firstCleaningAmount,
+          regularAmount: addr.regularAmount,
+          notes: addr.notes,
+          additionalNotes: addr.additionalNotes,
+        })),
       };
 
       onSave(updatedEstimate);
