@@ -34,12 +34,18 @@ export interface Interaction {
   notes: string;
 }
 
-interface EstimateAddress {
+interface AddressData {
+  id: string;
+  addressName: string;
   address: string;
-  date: string;
-  time: string;
+  preferenceDays: string;
+  preferenceTime: string;
+  frequency: string;
   serviceType: string;
+  firstCleaningAmount: string;
+  regularAmount: string;
   notes: string;
+  additionalNotes: string;
 }
 
 interface Estimate {
@@ -47,6 +53,7 @@ interface Estimate {
   customer: string;
   email?: string;
   phone?: string;
+  phoneNumber2?: string;
   service: string;
   amount: string;
   date: string;
@@ -54,9 +61,10 @@ interface Estimate {
   status: string;
   address: string;
   validUntil: string;
-  addresses?: EstimateAddress[];
   origin?: string;
+  hasJob?: boolean;
   interactions?: Interaction[];
+  addresses?: AddressData[];
 }
 
 interface EstimateDetailsModalProps {
