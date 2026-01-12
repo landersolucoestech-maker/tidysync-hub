@@ -14,7 +14,7 @@ interface Template {
 export function TemplatesTab() {
   const [templates] = useState<Template[]>([
     { id: "1", name: "Lead / Estimate Template", description: "Used for sending estimates and converted leads", type: "estimate" },
-    { id: "2", name: "Contract Template", description: "Used for contract sending and digital signatures", type: "contract" },
+    { id: "2", name: "Terms & Conditions", description: "Used for terms, conditions and digital signatures", type: "contract" },
     { id: "3", name: "Invoice Template", description: "Used for billing and charging", type: "invoice" },
     { id: "4", name: "Receipt Template", description: "Used for payment confirmation", type: "receipt" },
   ]);
