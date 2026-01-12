@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User, Phone, Mail, MapPin, Calendar, Briefcase, CreditCard, Clock, FileText, MessageSquare, FileCheck, Send, ChevronDown, Receipt } from "lucide-react";
+import { User, Phone, Mail, MapPin, Calendar, Briefcase, CreditCard, Clock, FileText, MessageSquare, FileCheck, Send, ChevronDown, Receipt, CheckCircle, Download, Eye, PenLine } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Address {
@@ -503,15 +503,73 @@ export function CustomerDetailsModal({
           </TabsContent>
 
           {/* Contract Tab */}
-          <TabsContent value="contract" className="mt-4">
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                <FileCheck className="w-8 h-8 text-muted-foreground" />
+          <TabsContent value="contract" className="mt-4 space-y-4">
+            {/* Signed Terms & Conditions */}
+            <div className="border border-border rounded-lg overflow-hidden">
+              <div className="p-4 bg-muted/30 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-500/10 rounded-lg">
+                      <FileCheck className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-foreground">Terms & Conditions</h4>
+                      <p className="text-xs text-muted-foreground">Service Agreement</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Signed
+                  </Badge>
+                </div>
               </div>
-              <h4 className="font-medium text-foreground mb-1">No contract</h4>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                This customer doesn't have an active contract yet.
-              </p>
+              
+              <div className="p-4 space-y-4">
+                {/* Signature Info */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 rounded-lg bg-muted/30">
+                    <p className="text-xs text-muted-foreground mb-1">Signed By</p>
+                    <p className="text-sm font-medium">{customer.name}</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/30">
+                    <p className="text-xs text-muted-foreground mb-1">Signed On</p>
+                    <p className="text-sm font-medium">{customer.customerSince || "Jan 5, 2025"}</p>
+                  </div>
+                </div>
+
+                {/* Terms Content Preview */}
+                <div className="p-4 rounded-lg bg-muted/20 border border-border">
+                  <h5 className="text-sm font-medium mb-2">Service Terms & Conditions</h5>
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">
+                    By signing this agreement, the customer agrees to the terms and conditions of service provided by the cleaning company. 
+                    This includes scheduling policies, payment terms, cancellation policies, and service guarantees. 
+                    The customer acknowledges receipt of the full terms document and agrees to comply with all stated conditions.
+                  </p>
+                </div>
+
+                {/* Signature Display */}
+                <div className="p-4 rounded-lg bg-muted/30 border border-border">
+                  <p className="text-xs text-muted-foreground mb-2">Customer Signature</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 p-3 bg-background rounded border border-border">
+                      <p className="font-signature text-xl italic text-foreground">{customer.name}</p>
+                    </div>
+                    <PenLine className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Full Document
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download PDF
+                  </Button>
+                </div>
+              </div>
             </div>
           </TabsContent>
 
