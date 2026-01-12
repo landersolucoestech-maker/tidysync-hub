@@ -44,12 +44,21 @@ interface RoomSelection {
   addOns: boolean;
 }
 
+interface PreferenceDays {
+  monday: boolean;
+  tuesday: boolean;
+  wednesday: boolean;
+  thursday: boolean;
+  friday: boolean;
+}
+
 interface AddressEntry {
   id: string;
   addressName: string;
   address: string;
-  date: string;
-  time: string;
+  preferenceDays: PreferenceDays;
+  preferenceTime: string;
+  frequency: string;
   serviceType: string;
   amount: string;
   notes: string;
@@ -211,6 +220,14 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
     addOns: false,
   };
 
+  const defaultPreferenceDays: PreferenceDays = {
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+  };
+
   const [formData, setFormData] = useState({
     customerName: "",
     email: "",
@@ -222,7 +239,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
   });
 
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+    { id: "1", addressName: "", address: "", preferenceDays: { ...defaultPreferenceDays }, preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
@@ -231,7 +248,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: { ...defaultPreferenceDays }, preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
   };
 
@@ -322,9 +339,17 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
       dateCreated: new Date().toISOString().split("T")[0],
       expiryDate: "",
     });
-    setAddresses([{ id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
+    setAddresses([{ id: "1", addressName: "", address: "", preferenceDays: { ...defaultPreferenceDays }, preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
     setInteractions([]);
     setExpandedRooms({});
+  };
+
+  const updatePreferenceDay = (addressId: string, day: keyof PreferenceDays, checked: boolean) => {
+    setAddresses(addresses.map(addr =>
+      addr.id === addressId
+        ? { ...addr, preferenceDays: { ...addr.preferenceDays, [day]: checked } }
+        : addr
+    ));
   };
 
   return (
@@ -486,23 +511,59 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-medium">Preference Days</Label>
+                    <div className="flex flex-wrap gap-3">
+                      {(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] as const).map((day) => (
+                        <div key={day} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`${addr.id}-${day}`}
+                            checked={addr.preferenceDays[day]}
+                            onCheckedChange={(checked) => updatePreferenceDay(addr.id, day, checked as boolean)}
+                          />
+                          <Label htmlFor={`${addr.id}-${day}`} className="text-sm font-normal capitalize">
+                            {day === 'monday' ? 'Mon' : day === 'tuesday' ? 'Tue' : day === 'wednesday' ? 'Wed' : day === 'thursday' ? 'Thu' : 'Fri'}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Data</Label>
-                      <Input
-                        type="date"
-                        value={addr.date}
-                        onChange={(e) => updateAddress(addr.id, "date", e.target.value)}
-                      />
+                      <Label>Preference Time</Label>
+                      <Select
+                        value={addr.preferenceTime}
+                        onValueChange={(value) => updateAddress(addr.id, "preferenceTime", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border z-50">
+                          <SelectItem value="AM">AM</SelectItem>
+                          <SelectItem value="PM">PM</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Horário</Label>
-                      <Input
-                        type="time"
-                        value={addr.time}
-                        onChange={(e) => updateAddress(addr.id, "time", e.target.value)}
-                      />
+                      <Label>Frequency</Label>
+                      <Select
+                        value={addr.frequency}
+                        onValueChange={(value) => updateAddress(addr.id, "frequency", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-border z-50">
+                          <SelectItem value="Weekly">Weekly</SelectItem>
+                          <SelectItem value="Bi-Weekly">Bi-Weekly</SelectItem>
+                          <SelectItem value="Monthly">Monthly</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Tipo de Serviço</Label>
                       <Select
