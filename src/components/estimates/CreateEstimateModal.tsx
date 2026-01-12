@@ -540,7 +540,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-[1fr_120px_120px] gap-4">
                     <div className="space-y-2">
                       <Label>Tipo de Serviço</Label>
                       <Select
