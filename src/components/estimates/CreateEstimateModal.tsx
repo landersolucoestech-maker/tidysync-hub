@@ -52,7 +52,8 @@ interface AddressEntry {
   preferenceTime: string;
   frequency: string;
   serviceType: string;
-  amount: string;
+  firstCleaningAmount: string;
+  regularAmount: string;
   notes: string;
   additionalNotes: string;
   rooms: RoomSelection;
@@ -223,7 +224,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
   });
 
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+    { id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", firstCleaningAmount: "", regularAmount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
@@ -232,7 +233,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", firstCleaningAmount: "", regularAmount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
   };
 
@@ -250,9 +251,9 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
     );
   };
 
-  const handleAmountBlur = (id: string, value: string) => {
+  const handleAmountBlur = (id: string, field: "firstCleaningAmount" | "regularAmount", value: string) => {
     const formatted = formatCurrency(value);
-    updateAddress(id, "amount", formatted);
+    updateAddress(id, field, formatted);
   };
 
   const toggleRoomExpand = (addressId: string, roomKey: string) => {
@@ -323,7 +324,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
       dateCreated: new Date().toISOString().split("T")[0],
       expiryDate: "",
     });
-    setAddresses([{ id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
+    setAddresses([{ id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", firstCleaningAmount: "", regularAmount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
     setInteractions([]);
     setExpandedRooms({});
   };
@@ -539,7 +540,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Tipo de Serviço</Label>
                       <Select
@@ -559,12 +560,22 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Valor</Label>
+                      <Label>First Cleaning</Label>
                       <Input
                         type="text"
-                        value={addr.amount}
-                        onChange={(e) => updateAddress(addr.id, "amount", e.target.value)}
-                        onBlur={(e) => handleAmountBlur(addr.id, e.target.value)}
+                        value={addr.firstCleaningAmount}
+                        onChange={(e) => updateAddress(addr.id, "firstCleaningAmount", e.target.value)}
+                        onBlur={(e) => handleAmountBlur(addr.id, "firstCleaningAmount", e.target.value)}
+                        placeholder="$0.00"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Regular</Label>
+                      <Input
+                        type="text"
+                        value={addr.regularAmount}
+                        onChange={(e) => updateAddress(addr.id, "regularAmount", e.target.value)}
+                        onBlur={(e) => handleAmountBlur(addr.id, "regularAmount", e.target.value)}
                         placeholder="$0.00"
                       />
                     </div>

@@ -71,7 +71,8 @@ interface AddressEntry {
   preferenceTime: string;
   frequency: string;
   serviceType: string;
-  amount: string;
+  firstCleaningAmount: string;
+  regularAmount: string;
   notes: string;
   additionalNotes: string;
   rooms: RoomSelection;
@@ -247,7 +248,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
   };
 
   const [addresses, setAddresses] = useState<AddressEntry[]>([
-    { id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+    { id: "1", addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", firstCleaningAmount: "", regularAmount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
   ]);
 
   const [interactions, setInteractions] = useState<Interaction[]>([]);
@@ -274,7 +275,8 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         preferenceTime: "",
         frequency: "",
         serviceType: estimate.service,
-        amount: estimate.amount,
+        firstCleaningAmount: estimate.amount,
+        regularAmount: "",
         notes: "",
         additionalNotes: "",
         rooms: { ...defaultRooms },
@@ -287,7 +289,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
   const addAddress = () => {
     setAddresses([
       ...addresses,
-      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
+      { id: Date.now().toString(), addressName: "", address: "", preferenceDays: "", preferenceTime: "", frequency: "", serviceType: "", firstCleaningAmount: "", regularAmount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } },
     ]);
   };
 
@@ -323,9 +325,9 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     );
   };
 
-  const handleAmountBlur = (id: string, value: string) => {
+  const handleAmountBlur = (id: string, field: "firstCleaningAmount" | "regularAmount", value: string) => {
     const formatted = formatCurrency(value);
-    updateAddress(id, "amount", formatted);
+    updateAddress(id, field, formatted);
   };
 
   const addInteraction = () => {
@@ -367,16 +369,16 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
 
     // Validate amount format
     for (const addr of addresses) {
-      if (addr.amount && parseCurrencyToNumber(addr.amount) <= 0) {
+      if (addr.firstCleaningAmount && parseCurrencyToNumber(addr.firstCleaningAmount) <= 0) {
         toast.error("Por favor, insira um valor válido para todos os endereços");
         return;
       }
     }
 
     if (estimate) {
-      // Calculate total amount from all addresses
+      // Calculate total amount from all addresses (using first cleaning amount)
       const totalAmount = addresses.reduce((sum, addr) => {
-        return sum + parseCurrencyToNumber(addr.amount);
+        return sum + parseCurrencyToNumber(addr.firstCleaningAmount);
       }, 0);
 
       const updatedEstimate: Estimate = {
@@ -612,7 +614,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Tipo de Serviço</Label>
                       <Select
@@ -632,12 +634,22 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>Valor</Label>
+                      <Label>First Cleaning</Label>
                       <Input
                         type="text"
-                        value={addr.amount}
-                        onChange={(e) => updateAddress(addr.id, "amount", e.target.value)}
-                        onBlur={(e) => handleAmountBlur(addr.id, e.target.value)}
+                        value={addr.firstCleaningAmount}
+                        onChange={(e) => updateAddress(addr.id, "firstCleaningAmount", e.target.value)}
+                        onBlur={(e) => handleAmountBlur(addr.id, "firstCleaningAmount", e.target.value)}
+                        placeholder="$0.00"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Regular</Label>
+                      <Input
+                        type="text"
+                        value={addr.regularAmount}
+                        onChange={(e) => updateAddress(addr.id, "regularAmount", e.target.value)}
+                        onBlur={(e) => handleAmountBlur(addr.id, "regularAmount", e.target.value)}
                         placeholder="$0.00"
                       />
                     </div>
