@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { FileText, Edit } from "lucide-react";
+import { FileText, Edit, Eye } from "lucide-react";
+import { TemplateEditorModal } from "./TemplateEditorModal";
 
 interface Template {
   id: string;
@@ -19,8 +19,17 @@ export function TemplatesTab() {
     { id: "4", name: "Receipt Template", description: "Used for payment confirmation", type: "receipt" },
   ]);
 
-  const handleEditTemplate = (id: string) => {
-    toast.info("Template editor would open here");
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  const handleEditTemplate = (template: Template) => {
+    setSelectedTemplate(template);
+    setEditorOpen(true);
+  };
+
+  const handlePreviewTemplate = (template: Template) => {
+    setSelectedTemplate(template);
+    setEditorOpen(true);
   };
 
   return (
@@ -49,11 +58,12 @@ export function TemplatesTab() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template.id)}>
+                  <Button variant="outline" size="sm" onClick={() => handleEditTemplate(template)}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Template
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => toast.info("Preview would open here")}>
+                  <Button variant="ghost" size="sm" onClick={() => handlePreviewTemplate(template)}>
+                    <Eye className="w-4 h-4 mr-2" />
                     Preview
                   </Button>
                 </div>
@@ -89,6 +99,16 @@ export function TemplatesTab() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Template Editor Modal */}
+      {selectedTemplate && (
+        <TemplateEditorModal
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          templateType={selectedTemplate.type}
+          templateName={selectedTemplate.name}
+        />
+      )}
     </div>
   );
 }
