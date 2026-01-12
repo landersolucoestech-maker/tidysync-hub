@@ -217,6 +217,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
     phoneNumber1: "",
     phoneNumber2: "",
     origin: "",
+    dateCreated: new Date().toISOString().split("T")[0],
     expiryDate: "",
   });
 
@@ -318,6 +319,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
       phoneNumber1: "",
       phoneNumber2: "",
       origin: "",
+      dateCreated: new Date().toISOString().split("T")[0],
       expiryDate: "",
     });
     setAddresses([{ id: "1", addressName: "", address: "", date: "", time: "", serviceType: "", amount: "", notes: "", additionalNotes: "", rooms: { ...defaultRooms } }]);
@@ -384,7 +386,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                   placeholder="(11) 88888-8888"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label htmlFor="origin">Origem</Label>
                 <Select
                   value={formData.origin}
@@ -403,6 +405,19 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="dateCreated">Data de Criação</Label>
+                <Input
+                  id="dateCreated"
+                  type="date"
+                  value={formData.dateCreated}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dateCreated: e.target.value })
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="expiryDate">Válido Até</Label>

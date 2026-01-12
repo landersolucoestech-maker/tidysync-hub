@@ -232,6 +232,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
     phoneNumber1: "",
     phoneNumber2: "",
     origin: "",
+    dateCreated: "",
     expiryDate: "",
   });
 
@@ -260,6 +261,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
         phoneNumber1: estimate.phone || "",
         phoneNumber2: "",
         origin: estimate.origin || "",
+        dateCreated: estimate.date || "",
         expiryDate: estimate.expiryDate,
       });
       
@@ -456,7 +458,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   placeholder="(11) 88888-8888"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label htmlFor="edit-origin">Origem</Label>
                 <Select
                   value={formData.origin}
@@ -475,6 +477,19 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-dateCreated">Data de Criação</Label>
+                <Input
+                  id="edit-dateCreated"
+                  type="date"
+                  value={formData.dateCreated}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dateCreated: e.target.value })
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-expiryDate">Válido Até</Label>
