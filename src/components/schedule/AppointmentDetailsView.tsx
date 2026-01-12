@@ -696,20 +696,18 @@ export function AppointmentDetailsView({
           </section>
         </main>
 
-        <footer className="flex justify-between px-5 py-3 bg-surface-muted border-t border-border">
-          <div>
-            {onEdit && (
-              <Button
-                variant="hero"
-                size="sm"
-                className="h-8 rounded-full px-4 text-xs shadow-none gap-1.5"
-                onClick={onEdit}
-              >
-                <Pencil className="h-4 w-4" />
-                Editar
-              </Button>
-            )}
-          </div>
+        <footer className="flex justify-end gap-2 px-5 py-3 bg-surface-muted border-t border-border">
+          {onEdit && (
+            <Button
+              variant="hero"
+              size="sm"
+              className="h-8 rounded-full px-4 text-xs shadow-none gap-1.5"
+              onClick={onEdit}
+            >
+              <Pencil className="h-4 w-4" />
+              Editar
+            </Button>
+          )}
           <Button
             variant="outline"
             size="sm"
