@@ -300,7 +300,7 @@ export function CreateInvoiceModal({ open, onOpenChange }: CreateInvoiceModalPro
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Issue Date *</Label>
               <DatePickerString
@@ -309,17 +309,6 @@ export function CreateInvoiceModal({ open, onOpenChange }: CreateInvoiceModalPro
                   setFormData({ ...formData, issueDate: value })
                 }
                 placeholder="Select issue date"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Due Date</Label>
-              <DatePickerString
-                value={formData.dueDate}
-                onChange={(value) =>
-                  setFormData({ ...formData, dueDate: value })
-                }
-                placeholder="Select due date"
               />
             </div>
 
