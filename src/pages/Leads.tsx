@@ -46,6 +46,15 @@ import { AppointmentModal } from "@/components/schedule/AppointmentModal";
 import { InvoiceModal } from "@/components/schedule/InvoiceModal";
 import { toast } from "sonner";
 
+interface RoomSelection {
+  kitchen: boolean;
+  bathroom: boolean;
+  bedroom: boolean;
+  diningLiving: boolean;
+  laundryRoom: boolean;
+  addOns: boolean;
+}
+
 interface AddressData {
   id: string;
   addressName: string;
@@ -58,6 +67,7 @@ interface AddressData {
   regularAmount: string;
   notes: string;
   additionalNotes: string;
+  rooms?: RoomSelection;
 }
 
 interface Estimate {
@@ -85,6 +95,7 @@ const initialEstimatesData: Estimate[] = [
     customer: "Sarah Johnson",
     email: "sarah@email.com",
     phone: "(555) 123-4567",
+    phoneNumber2: "(555) 123-9999",
     service: "Deep Clean",
     amount: "$180.00",
     date: "2024-01-12",
@@ -92,7 +103,48 @@ const initialEstimatesData: Estimate[] = [
     status: "approved",
     address: "123 Oak Street",
     validUntil: "30 days",
-    origin: "Website"
+    origin: "Website",
+    addresses: [
+      {
+        id: "addr-1",
+        addressName: "Casa Principal",
+        address: "123 Oak Street, Miami, FL 33101",
+        preferenceDays: "Monday",
+        preferenceTime: "AM",
+        frequency: "Weekly",
+        serviceType: "Deep Cleaning",
+        firstCleaningAmount: "$250.00",
+        regularAmount: "$180.00",
+        notes: "Entrada pela porta dos fundos",
+        additionalNotes: "Tem 2 cachorros, deixar portões fechados",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: true,
+          diningLiving: true,
+          laundryRoom: false,
+          addOns: false,
+        }
+      }
+    ],
+    interactions: [
+      {
+        id: "int-1",
+        date: "2024-01-10",
+        time: "14:30",
+        subject: "Primeiro contato",
+        attendedBy: "Maria Silva",
+        notes: "Cliente interessada em limpeza semanal. Agendado visita para orçamento."
+      },
+      {
+        id: "int-2",
+        date: "2024-01-12",
+        time: "10:00",
+        subject: "Visita para orçamento",
+        attendedBy: "João Santos",
+        notes: "Realizei visita. Casa de 3 quartos, 2 banheiros. Cliente aprovou o orçamento."
+      }
+    ]
   },
   {
     id: "EST-002",
@@ -106,7 +158,40 @@ const initialEstimatesData: Estimate[] = [
     status: "pending",
     address: "456 Business Park",
     validUntil: "28 days",
-    origin: "Referral"
+    origin: "Referral",
+    addresses: [
+      {
+        id: "addr-2",
+        addressName: "Escritório Principal",
+        address: "456 Business Park, Suite 200, Miami, FL 33102",
+        preferenceDays: "Friday",
+        preferenceTime: "PM",
+        frequency: "Weekly",
+        serviceType: "Office Cleaning",
+        firstCleaningAmount: "$550.00",
+        regularAmount: "$450.00",
+        notes: "Limpar após horário comercial",
+        additionalNotes: "Código de acesso: 1234#",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: false,
+          diningLiving: true,
+          laundryRoom: false,
+          addOns: true,
+        }
+      }
+    ],
+    interactions: [
+      {
+        id: "int-3",
+        date: "2024-01-13",
+        time: "09:00",
+        subject: "Contato inicial via Referral",
+        attendedBy: "Ana Costa",
+        notes: "Empresa indicada pelo cliente João. Precisam de limpeza semanal do escritório."
+      }
+    ]
   },
   {
     id: "EST-003",
@@ -120,7 +205,30 @@ const initialEstimatesData: Estimate[] = [
     status: "expired",
     address: "789 Maple Avenue",
     validUntil: "Expired",
-    origin: "Phone Call"
+    origin: "Phone Call",
+    addresses: [
+      {
+        id: "addr-3",
+        addressName: "Apartamento",
+        address: "789 Maple Avenue, Apt 5B, Miami, FL 33103",
+        preferenceDays: "Wednesday",
+        preferenceTime: "AM",
+        frequency: "Monthly",
+        serviceType: "Move-in/Move-out Cleaning",
+        firstCleaningAmount: "$280.00",
+        regularAmount: "$280.00",
+        notes: "Limpeza completa para entrega do imóvel",
+        additionalNotes: "",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: true,
+          diningLiving: true,
+          laundryRoom: true,
+          addOns: true,
+        }
+      }
+    ]
   },
   {
     id: "EST-004",
@@ -134,13 +242,37 @@ const initialEstimatesData: Estimate[] = [
     status: "pending",
     address: "321 Main Street",
     validUntil: "29 days",
-    origin: "Google Ads"
+    origin: "Google Ads",
+    addresses: [
+      {
+        id: "addr-4",
+        addressName: "Restaurante",
+        address: "321 Main Street, Miami, FL 33104",
+        preferenceDays: "Tuesday",
+        preferenceTime: "AM",
+        frequency: "Bi-Weekly",
+        serviceType: "Commercial Cleaning",
+        firstCleaningAmount: "$400.00",
+        regularAmount: "$320.00",
+        notes: "Limpar antes da abertura às 11h",
+        additionalNotes: "Foco na área da cozinha e banheiros",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: false,
+          diningLiving: true,
+          laundryRoom: false,
+          addOns: false,
+        }
+      }
+    ]
   },
   {
     id: "EST-005",
     customer: "Lisa Anderson",
     email: "lisa.a@email.com",
     phone: "(555) 654-3210",
+    phoneNumber2: "(555) 654-0000",
     service: "Standard Cleaning",
     amount: "$120.00",
     date: "2024-01-15",
@@ -148,7 +280,61 @@ const initialEstimatesData: Estimate[] = [
     status: "draft",
     address: "555 Pine Road",
     validUntil: "30 days",
-    origin: "Email"
+    origin: "Email",
+    addresses: [
+      {
+        id: "addr-5",
+        addressName: "Residência",
+        address: "555 Pine Road, Miami, FL 33105",
+        preferenceDays: "Thursday",
+        preferenceTime: "PM",
+        frequency: "Bi-Weekly",
+        serviceType: "Standard Cleaning",
+        firstCleaningAmount: "$150.00",
+        regularAmount: "$120.00",
+        notes: "Preferência por produtos eco-friendly",
+        additionalNotes: "Tem gato - não abrir porta da frente",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: true,
+          diningLiving: true,
+          laundryRoom: true,
+          addOns: false,
+        }
+      },
+      {
+        id: "addr-6",
+        addressName: "Casa de Praia",
+        address: "100 Ocean Drive, Miami Beach, FL 33139",
+        preferenceDays: "Friday",
+        preferenceTime: "AM",
+        frequency: "Monthly",
+        serviceType: "Deep Cleaning",
+        firstCleaningAmount: "$300.00",
+        regularAmount: "$250.00",
+        notes: "Apenas quando a cliente avisar",
+        additionalNotes: "Chave com porteiro",
+        rooms: {
+          kitchen: true,
+          bathroom: true,
+          bedroom: true,
+          diningLiving: true,
+          laundryRoom: false,
+          addOns: true,
+        }
+      }
+    ],
+    interactions: [
+      {
+        id: "int-4",
+        date: "2024-01-14",
+        time: "16:00",
+        subject: "Email recebido",
+        attendedBy: "Carla Souza",
+        notes: "Cliente entrou em contato por email solicitando orçamento para 2 imóveis."
+      }
+    ]
   }
 ];
 
