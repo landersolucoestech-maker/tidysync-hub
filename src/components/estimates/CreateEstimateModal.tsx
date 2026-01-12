@@ -386,7 +386,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                   placeholder="(11) 88888-8888"
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="origin">Origem</Label>
                 <Select
                   value={formData.origin}
@@ -395,7 +395,7 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                   }
                 >
                   <SelectTrigger id="origin">
-                    <SelectValue placeholder="Selecione a origem" />
+                    <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
                     {originOptions.map((option) => (
@@ -406,8 +406,6 @@ export function CreateEstimateModal({ open, onOpenChange }: CreateEstimateModalP
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dateCreated">Data de Criação</Label>
                 <Input
