@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FileText, Edit, Eye, Upload, Trash2, Download, Save, X } from "lucide-react";
 import { TemplateEditorModal } from "./TemplateEditorModal";
+import { LeadEstimateTemplateEditor } from "./LeadEstimateTemplateEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
@@ -42,6 +43,7 @@ export function TemplatesTab() {
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [leadEstimateEditorOpen, setLeadEstimateEditorOpen] = useState(false);
   const [termsData, setTermsData] = useState<TermsConditionsData>({
     title: "",
     content: "",
@@ -51,6 +53,10 @@ export function TemplatesTab() {
   const handleEditTemplate = (template: Template) => {
     if (template.isTermsConditions) {
       setTermsModalOpen(true);
+      return;
+    }
+    if (template.type === "estimate") {
+      setLeadEstimateEditorOpen(true);
       return;
     }
     setSelectedTemplate(template);
@@ -64,6 +70,10 @@ export function TemplatesTab() {
         return;
       }
       setPreviewModalOpen(true);
+      return;
+    }
+    if (template.type === "estimate") {
+      setLeadEstimateEditorOpen(true);
       return;
     }
     setSelectedTemplate(template);
@@ -171,8 +181,14 @@ export function TemplatesTab() {
       </Card>
 
 
+      {/* Lead/Estimate Template Editor */}
+      <LeadEstimateTemplateEditor 
+        open={leadEstimateEditorOpen} 
+        onOpenChange={setLeadEstimateEditorOpen} 
+      />
+
       {/* Template Editor Modal */}
-      {selectedTemplate && !selectedTemplate.isTermsConditions && (
+      {selectedTemplate && !selectedTemplate.isTermsConditions && selectedTemplate.type !== "estimate" && (
         <TemplateEditorModal
           open={editorOpen}
           onOpenChange={setEditorOpen}
