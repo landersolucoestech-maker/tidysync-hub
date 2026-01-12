@@ -170,32 +170,6 @@ export function TemplatesTab() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Template Requirements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <h4 className="font-medium">Header Requirements (All Templates)</h4>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                <li>Company Logo</li>
-                <li>Company Information</li>
-                <li>Customer Information</li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">Template Uses</h4>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                <li><strong>Estimate:</strong> Sending quotes, converted leads</li>
-                <li><strong>Terms & Conditions:</strong> Title, content, or upload document</li>
-                <li><strong>Invoice:</strong> Billing, charging</li>
-                <li><strong>Receipt:</strong> Payment confirmation</li>
-              </ul>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Template Editor Modal */}
       {selectedTemplate && !selectedTemplate.isTermsConditions && (
