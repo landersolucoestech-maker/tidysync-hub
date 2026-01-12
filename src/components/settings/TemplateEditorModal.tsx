@@ -323,16 +323,6 @@ export function TemplateEditorModal({
                     </div>
                   </div>
 
-                  {templateType === "receipt" && (
-                    <div className="space-y-2">
-                      <Label>CNPJ / Tax ID</Label>
-                      <Input 
-                        value={config.companyTaxId}
-                        onChange={(e) => updateConfig("companyTaxId", e.target.value)}
-                        placeholder="e.g., 12.345.678/0001-90"
-                      />
-                    </div>
-                  )}
                 </div>
               </TabsContent>
 
