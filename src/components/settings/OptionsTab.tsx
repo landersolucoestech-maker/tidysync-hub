@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
   Zap,
-  MessageSquare,
   Link2,
   FileText,
   Edit,
@@ -27,10 +26,7 @@ import {
   Brain,
   Megaphone,
   Globe,
-  CheckCircle,
-  XCircle,
   MessageCircle,
-  Video,
 } from "lucide-react";
 
 interface AutomationConfig {
@@ -48,11 +44,6 @@ interface AutomationConfig {
   enabled: boolean;
 }
 
-interface MessageTemplate {
-  id: string;
-  label: string;
-  message: string;
-}
 
 interface Integration {
   id: string;
@@ -208,18 +199,6 @@ export function OptionsTab() {
     },
   ]);
 
-  // Messages State
-  const [messages, setMessages] = useState<MessageTemplate[]>([
-    { id: "1", label: "Job Date Reminder", message: "Hi {ClientName}!\nJust a reminder for your cleaning on {JobDate}.\n\n– {CompanyName}\n(This is an automated message)" },
-    { id: "2", label: "Invoice", message: "Hi {ClientName}!\nHere is your cleaning invoice {InvoiceNumber}.\n{InvoiceLink}\nThank you!\n– {CompanyName}" },
-    { id: "3", label: "Receipt", message: "Hi {ClientName}!\nHere is your cleaning receipt.\n{ReceiptLink}\nThank you!\n– {CompanyName}" },
-    { id: "4", label: "Job Payment Reminder", message: "Hi {ClientName}!\nFriendly reminder: your cleaning on {JobDate} is still pending for payment.\nThank you!\n– {CompanyName}" },
-    { id: "5", label: "Invoice Payment Reminder", message: "Hi {ClientName}!\nFriendly reminder: your invoice {InvoiceNumber} is still pending.\n{InvoiceLink}\nThank you!\n– {CompanyName}" },
-    { id: "6", label: "Review Request", message: "Hi {ClientName}!\nPlease review our cleaning on {JobDate}.\n{ReviewLink}\n– {CompanyName}" },
-    { id: "7", label: "Lead / Estimate", message: "Hi {ClientName}!\nHere is your estimate.\n{EstimateLink}\n– {CompanyName}" },
-    { id: "8", label: "Cleaning Agreement", message: "Hi {ClientName}!\nHere is your cleaning agreement.\n{ContractLink}\n– {CompanyName}" },
-    { id: "9", label: "Cleaning Agreement Signed", message: "Hi {ClientName}!\nHere is your signed cleaning agreement.\n{ContractLink}\n– {CompanyName}" },
-  ]);
 
   // Integrations State
   const [integrations] = useState<Integration[]>([
@@ -262,7 +241,6 @@ export function OptionsTab() {
   ]);
 
   const [editingAutomation, setEditingAutomation] = useState<string | null>(null);
-  const [editingMessage, setEditingMessage] = useState<string | null>(null);
 
   const handleToggleAutomation = (id: string) => {
     setAutomations(automations.map(a => 
@@ -277,11 +255,6 @@ export function OptionsTab() {
     ));
   };
 
-  const handleUpdateMessage = (id: string, message: string) => {
-    setMessages(messages.map(m => 
-      m.id === id ? { ...m, message } : m
-    ));
-  };
 
   const handleConnectIntegration = (id: string) => {
     toast.info("Integration connection flow would start here");
@@ -326,14 +299,10 @@ export function OptionsTab() {
 
   return (
     <Tabs defaultValue="automations" className="space-y-6">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="automations" className="flex items-center gap-2">
           <Zap className="w-4 h-4" />
           Automations
-        </TabsTrigger>
-        <TabsTrigger value="messages" className="flex items-center gap-2">
-          <MessageSquare className="w-4 h-4" />
-          Messages
         </TabsTrigger>
         <TabsTrigger value="integrations" className="flex items-center gap-2">
           <Link2 className="w-4 h-4" />
@@ -510,62 +479,6 @@ export function OptionsTab() {
         </Card>
       </TabsContent>
 
-      {/* MESSAGES TAB */}
-      <TabsContent value="messages" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="w-5 h-5" />
-              Messages Library
-            </CardTitle>
-            <CardDescription>
-              Reusable message templates for the system.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {messages.map((msg) => (
-              <div key={msg.id} className="border border-border rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">{msg.label}</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setEditingMessage(editingMessage === msg.id ? null : msg.id)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-                
-                {editingMessage === msg.id ? (
-                  <div className="space-y-2">
-                    <Textarea 
-                      value={msg.message} 
-                      onChange={(e) => handleUpdateMessage(msg.id, e.target.value)}
-                      rows={5}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Available variables: {"{ClientName}"}, {"{CompanyName}"}, {"{JobDate}"}, {"{InvoiceNumber}"}, {"{InvoiceLink}"}, {"{ReceiptLink}"}, {"{ReviewLink}"}, {"{EstimateLink}"}, {"{ContractLink}"}
-                    </p>
-                    <Button 
-                      size="sm" 
-                      onClick={() => {
-                        setEditingMessage(null);
-                        toast.success("Message saved");
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <pre className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/50 p-3 rounded-md">
-                    {msg.message}
-                  </pre>
-                )}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </TabsContent>
 
       {/* INTEGRATIONS TAB */}
       <TabsContent value="integrations" className="space-y-4">
