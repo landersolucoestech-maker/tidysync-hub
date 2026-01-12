@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,21 +189,36 @@ const sampleReceiptData = {
   currency: "USD",
 };
 
+// Store saved configs per template type
+const savedConfigs: Record<string, TemplateConfig> = {};
+
 export function TemplateEditorModal({ 
   open, 
   onOpenChange, 
   templateType,
   templateName 
 }: TemplateEditorModalProps) {
-  const [config, setConfig] = useState<TemplateConfig>(() => getDefaultConfigForType(templateType));
+  const [config, setConfig] = useState<TemplateConfig>(() => 
+    savedConfigs[templateType] || getDefaultConfigForType(templateType)
+  );
   
   const [activeTab, setActiveTab] = useState("header");
+
+  // Reset config when templateType changes or modal opens
+  useEffect(() => {
+    if (open) {
+      setConfig(savedConfigs[templateType] || getDefaultConfigForType(templateType));
+      setActiveTab("header");
+    }
+  }, [open, templateType]);
 
   const updateConfig = (key: keyof TemplateConfig, value: any) => {
     setConfig(prev => ({ ...prev, [key]: value }));
   };
 
   const handleSave = () => {
+    // Save config for this specific template type
+    savedConfigs[templateType] = config;
     toast.success("Template saved successfully!");
     onOpenChange(false);
   };
