@@ -458,7 +458,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   placeholder="(11) 88888-8888"
                 />
               </div>
-              <div className="space-y-2 col-span-2">
+              <div className="space-y-2">
                 <Label htmlFor="edit-origin">Origem</Label>
                 <Select
                   value={formData.origin}
@@ -467,7 +467,7 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   }
                 >
                   <SelectTrigger id="edit-origin">
-                    <SelectValue placeholder="Selecione a origem" />
+                    <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-50">
                     {originOptions.map((option) => (
@@ -478,8 +478,6 @@ export function EditEstimateModal({ open, onOpenChange, estimate, onSave }: Edit
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-dateCreated">Data de Criação</Label>
                 <Input
